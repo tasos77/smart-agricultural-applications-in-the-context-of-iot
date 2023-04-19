@@ -1,90 +1,79 @@
 <template>
-  <VApp>
-    <DismissableSnackbar
-      :snackbar="snackbar"
-      :snackbar-text="snackbarText"
-      @close="closeSnack"
-    />
-    <LoadingBar v-show="loading" />
-    <VContainer fluid class="fill-height">
-      <VRow align="center" justify="center">
-        <VCol cols="12" sm="8" md="5">
-          <!----------------------Logo --------------------->
-          <VRow align="center" justify="center">
-            <img class="w-75 mb-4" alt="logo" :src="logo" />
+  <DismissableSnackbar
+    :snackbar="snackbar"
+    :snackbar-text="snackbarText"
+    @close="closeSnack"
+  />
+  <LoadingBar v-show="loading" />
+  <VContainer fluid class="fill-height">
+    <VRow align="center" justify="center">
+      <VCol cols="12" sm="8" md="5">
+        <VRow>
+          <!------------------------------ Login form ------------------------------->
+          <VCard class="rounded-xl w-100" elevation="3">
+            <VCardTitle class="text-h4 pa-4">Login</VCardTitle>
+            <VCardText>
+              <VForm ref="form" v-model="valid" @submit.prevent="userLogin">
+                <!---------------- Username text field ----------------->
+                <VTextField
+                  v-model="userInfo.username"
+                  variant="outlined"
+                  label="Email"
+                  :rules="usernameRules"
+                  prepend-inner-icon="mdi-email"
+                  type="email"
+                  :disabled="loading"
+                  :autofocus="true"
+                  validate-on="blur"
+                  @keydown.space.prevent
+                  color="primary"
+                />
+                <!----------------------- Password text field ---------------------->
+                <VTextField
+                  v-model="userInfo.password"
+                  class="pt-3"
+                  label="Password"
+                  :rules="passwordRules"
+                  prepend-inner-icon="mdi-lock"
+                  variant="outlined"
+                  :type="show ? 'text' : 'password'"
+                  :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
+                  :disabled="loading"
+                  @keydown.space.prevent
+                  @click:append-inner="showPass"
+                  color="primary"
+                />
+                <!----------------------- Submit Button ---------------------->
+                <VBtn
+                  :block="true"
+                  class="mt-3 mb-2"
+                  :disabled="!valid"
+                  type="submit"
+                  elevation="0"
+                  color="primary"
+                  >SIGN IN</VBtn
+                >
+              </VForm>
+            </VCardText>
+          </VCard>
+          <VRow justify="center" align="center" class="mt-10">
+            <SignUpLink />
           </VRow>
-          <VRow>
-            <!------------------------------ Login form ------------------------------->
-            <VCard elevation="0" class="rounded-xl w-100" color="colorSurface">
-              <VCardTitle class="text-h4 text-colorOnBackground pa-4"
-                >Login</VCardTitle
-              >
-              <VCardText>
-                <VForm ref="form" v-model="valid" @submit.prevent="userLogin">
-                  <!---------------- Username text field ----------------->
-                  <VTextField
-                    v-model="userInfo.username"
-                    variant="outlined"
-                    label="Email"
-                    :rules="usernameRules"
-                    prepend-inner-icon="mdi-email"
-                    type="email"
-                    color="colorPrimary"
-                    :disabled="loading"
-                    :autofocus="true"
-                    validate-on="blur"
-                    @keydown.space.prevent
-                  />
-                  <!----------------------- Password text field ---------------------->
-                  <VTextField
-                    v-model="userInfo.password"
-                    class="pt-3"
-                    label="Password"
-                    :rules="passwordRules"
-                    prepend-inner-icon="mdi-lock"
-                    variant="outlined"
-                    :type="show ? 'text' : 'password'"
-                    :append-inner-icon="show ? 'mdi-eye' : 'mdi-eye-off'"
-                    color="colorPrimary"
-                    :disabled="loading"
-                    @keydown.space.prevent
-                    @click:append-inner="showPass"
-                  />
-                  <!----------------------- Forgot pass link ---------------------->
-                  <ForgotPasswordLink />
-                  <VBtn
-                    :block="true"
-                    color="colorPrimary"
-                    class="mt-3 mb-2 text-colorOnPrimary"
-                    :disabled="!valid"
-                    type="submit"
-                    elevation="0"
-                    >SIGN IN</VBtn
-                  >
-                </VForm>
-              </VCardText>
-            </VCard>
-            <VRow justify="center" align="center" class="mt-10">
-              <SignUpLink />
-            </VRow>
-          </VRow>
-        </VCol>
-      </VRow>
-    </VContainer>
-  </VApp>
+        </VRow>
+      </VCol>
+    </VRow>
+  </VContainer>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, reactive } from "vue";
-import { useTheme } from "vuetify";
-import { login } from "../api/wxmApi";
+import { ref, reactive } from "vue";
+import { login } from "../api/tbApi";
 import { tokensAuthStore } from "../stores/auth";
 import DismissableSnackbar from "../components/DismissableSnackbar.vue";
 import SignUpLink from "../components/SignUpLink.vue";
-import ForgotPasswordLink from "../components/ForgotPassordLink.vue";
+
 import LoadingBar from "../components/LoadingBar.vue";
-import lightLogo from "../../assets/light.svg";
-import darkLogo from "../../assets/dark.svg";
+
 definePageMeta({
   middleware: "redirect",
 });
@@ -109,12 +98,7 @@ const usernameRules = ref([
       v
     ) || "Invalid email address",
 ]);
-// <------------------------------------ Computed vars ----------------------------------->
-const logo = computed(() => {
-  return useTheme().global.name.value === "mainDarkTheme"
-    ? darkLogo
-    : lightLogo;
-});
+
 // <------------------------------------ Methods ----------------------------------->
 const closeSnack = () => {
   snackbar.value = false;
