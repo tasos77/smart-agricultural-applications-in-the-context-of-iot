@@ -98,6 +98,8 @@ import { ref } from "vue";
 import LoadingBar from "../components/LoadingBar.vue";
 import DismissableSnackbar from "../components/DismissableSnackbar.vue";
 import LoginLink from "../components/LoginLink.vue";
+import { RegistrationFormData } from "../types/tbApiTypes";
+import tbApi from "../api/tbApi";
 definePageMeta({
   middleware: "redirect",
 });
@@ -136,8 +138,12 @@ const clearValidation = () => {
   inputErrorState.value = false;
 };
 
-const registrateUser = (registrationInfo) => {
-  console.log(registrationInfo.value);
+const registrateUser = (registrationInfo: RegistrationFormData) => {
+  tbApi.registration(registrationInfo).then((response) => {
+    console.log(response).catch((e) => {
+      console.log(e);
+    });
+  });
 };
 </script>
 

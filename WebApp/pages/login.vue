@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import { ref, reactive } from "vue";
-import { login } from "../api/tbApi";
+import tbApi from "../api/tbApi";
 import { tokensAuthStore } from "../stores/auth";
 import DismissableSnackbar from "../components/DismissableSnackbar.vue";
 import SignUpLink from "../components/SignUpLink.vue";
@@ -112,7 +112,8 @@ const userLogin = () => {
   loading.value = true;
   valid.value = !valid.value;
 
-  login(userInfo.username, userInfo.password)
+  tbApi
+    .login(userInfo.username, userInfo.password)
     .then((response) => {
       loading.value = false;
       auth.setLocalTokens(response);
