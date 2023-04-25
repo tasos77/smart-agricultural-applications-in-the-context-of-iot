@@ -41,7 +41,6 @@ if (tbTokens) {
     };
 
     let msg;
-    let userExist;
 
     try {
       if (
@@ -52,7 +51,7 @@ if (tbTokens) {
       ) {
         try {
           activationResult = await thingsboardApi
-            .activateUser(activationInfo)
+            .activateUser(tbTokens.token, activationInfo)
             .then(() => then);
           if (activationResult) {
             res.status(200);
@@ -70,5 +69,57 @@ if (tbTokens) {
       msg = `Missing or invalid body!`;
     }
     res.json({ msg });
+  });
+
+  app.post(`/createUser`, async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    const registrationInfo = {
+      email: req.body.email,
+      firstName: req.body.firstName,
+      lastName: req.body.lastName,
+    };
+
+    let msg;
+
+    try {
+      if (
+        registrationInfo.hasOwnProperty("email") &&
+        registrationInfo.hasOwnProperty("firstName") &&
+        registrationInfo.hasOwnProperty("lastName") &&
+        registrationInfo.email &&
+        registrationInfo.firstName &&
+        registrationInfo.lastName
+        //&& registrationInfo.email.match(emailRegex)
+      ) {
+        try {
+          const customerId = await thingsboardApi.createCustomer(
+            tbTokens.token,
+            registrationInfo.email
+          );
+          if (customerId) {
+            try {
+              await thingsboardApi.createUser(
+                tbTokens.token,
+                registrationInfo,
+                customerId
+              );
+              res.status(200);
+              msg = `TB user created!`;
+            } catch (e) {
+              res.status(400);
+              msg = `User creation failed!`;
+            }
+          }
+        } catch (e) {
+          res.status(400);
+          msg = `Customer creation failed!`;
+        }
+      } else {
+        throw Error();
+      }
+    } catch (e) {
+      res.status(400);
+      msg = `Missing or invalid body!`;
+    }
   });
 }

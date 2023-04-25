@@ -139,11 +139,15 @@ const clearValidation = () => {
 };
 
 const registrateUser = (registrationInfo: RegistrationFormData) => {
-  tbApi.registration(registrationInfo).then((response) => {
-    console.log(response).catch((e) => {
+  console.log(registrationInfo);
+  tbApi
+    .registration(registrationInfo)
+    .then((response) => {
+      console.log(response);
+    })
+    .catch((e) => {
       console.log(e);
     });
-  });
 };
 </script>
 

@@ -24,7 +24,7 @@ const login = () => {
   );
 };
 
-const activateUser = (activationInfo) => {
+const activateUser = (token, activationInfo) => {
   return instance.post(
     "/noauth/activate",
     {
@@ -35,8 +35,64 @@ const activateUser = (activationInfo) => {
       params: {
         sendActivationMail: false,
       },
+      headers: {
+        "X-Authorization": `Bearer ${token}`,
+      },
     }
   );
+};
+
+// try to create tb customer and set clerk's userId as server attribute
+const createCustomer = (token, email) => {
+  return instance
+    .post(
+      "/customer",
+      {
+        title: email,
+        email,
+      },
+      {
+        headers: {
+          "X-Authorization": `Bearer ${token}`,
+        },
+      }
+    )
+    .then((response) => {
+      return response.data.id.id;
+    })
+    .catch((e) => {
+      console.log(e.response.data);
+      return null;
+    });
+};
+
+const createUser = (token, registrationInfo, customerId) => {
+  return instance
+    .post(
+      "/user",
+      {
+        customerId: {
+          id: customerId,
+          entityType: "CUSTOMER",
+        },
+        email: registrationInfo.email,
+        authority: "CUSTOMER_USER",
+        firstName: registrationInfo.firstName,
+        lastName: registrationInfo.lastName,
+      },
+      {
+        params: {
+          sendActivationMail: true,
+        },
+        headers: {
+          "X-Authorization": `Bearer ${token}`,
+        },
+      }
+    )
+    .catch((e) => {
+      console.log(e.response.data);
+      return null;
+    });
 };
 
 export default {
@@ -45,5 +101,11 @@ export default {
   },
   activateUser() {
     return activateUser(activationToken, password);
+  },
+  createCustomer(token, email) {
+    return createCustomer(token, email);
+  },
+  createUser(token, registrationInfo, customerId) {
+    return createUser(token, registrationInfo, customerId);
   },
 };

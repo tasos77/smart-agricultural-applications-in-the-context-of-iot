@@ -6,7 +6,7 @@ const authStore = tokensAuthStore();
 
 // create axios instance
 const client = axios.create({
-  baseURL: "http://localhost:9090",
+  baseURL: "http://localhost:3005",
 });
 // // try to refresh tokens , if succ return new tokens else return null
 // const refreshToken = () => {
@@ -82,14 +82,11 @@ const login = (username: string, password: string): any => {
 };
 
 const registration = (registrationInfo: RegistrationFormData) => {
-  return client.post(`/api/user`, {
+  return client.post(`/createUser`, {
     data: {
       email: registrationInfo.email,
       firstName: registrationInfo.firstName,
       lastName: registrationInfo.lastName,
-    },
-    params: {
-      sendActivationEmail: registrationInfo.email,
     },
   });
 };
