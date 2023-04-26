@@ -144,6 +144,7 @@ const registrateUser = (registrationInfo: RegistrationFormData) => {
     .registration(registrationInfo)
     .then((response) => {
       console.log(response);
+      navigateTo("/login");
     })
     .catch((e) => {
       console.log(e);

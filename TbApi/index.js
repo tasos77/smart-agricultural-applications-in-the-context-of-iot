@@ -103,9 +103,11 @@ if (tbTokens) {
                 registrationInfo,
                 customerId
               );
+
               res.status(200);
               msg = `TB user created!`;
             } catch (e) {
+              console.log(e);
               res.status(400);
               msg = `User creation failed!`;
             }
@@ -121,5 +123,6 @@ if (tbTokens) {
       res.status(400);
       msg = `Missing or invalid body!`;
     }
+    res.json({ msg });
   });
 }

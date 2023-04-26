@@ -1,6 +1,6 @@
 import axios from "axios";
 import { tokensAuthStore } from "../stores/auth";
-import { RegistrationFormData } from "~~/types/tbApiTypes";
+import { RegistrationFormData, ActivationInfo } from "~~/types/tbApiTypes";
 // init store instance
 const authStore = tokensAuthStore();
 
@@ -83,11 +83,17 @@ const login = (username: string, password: string): any => {
 
 const registration = (registrationInfo: RegistrationFormData) => {
   return client.post(`/createUser`, {
-    data: {
-      email: registrationInfo.email,
-      firstName: registrationInfo.firstName,
-      lastName: registrationInfo.lastName,
-    },
+    email: registrationInfo.email,
+    firstName: registrationInfo.firstName,
+    lastName: registrationInfo.lastName,
+  });
+};
+
+const activateUser = (activationInfo: ActivationInfo) => {
+  console.log(activationInfo);
+
+  return client.post(`/activateUser`, {
+    activationInfo,
   });
 };
 
@@ -96,4 +102,4 @@ const registration = (registrationInfo: RegistrationFormData) => {
 //   return client.get(`api/v1/me/devices`);
 // };
 
-export default { login, registration };
+export default { login, registration, activateUser };

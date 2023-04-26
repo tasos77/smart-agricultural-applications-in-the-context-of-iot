@@ -1,6 +1,11 @@
 <template>
   <v-app>
     <v-main>
+      <DismissableSnackbar
+        :snackbar="snackbar"
+        :snackbar-text="snackbarText"
+        @close="closeSnack"
+      />
       <LoadingBar :loading="loading" />
       <v-container class="fill-height" fluid>
         <v-row align="center" justify="center">
@@ -16,12 +21,14 @@
                       <v-form
                         ref="form"
                         v-model="valid"
-                        @submit.prevent="activateUser"
+                        @submit.prevent="
+                          activateUser({ activateToken, password })
+                        "
                       >
                         <!----------------------- Password text field ---------------------->
                         <v-text-field
                           id="password"
-                          v-model="userInfo.password"
+                          v-model="password"
                           label="Password"
                           name="password"
                           outlined
@@ -41,7 +48,7 @@
                         <!----------------------- Password text field ---------------------->
                         <v-text-field
                           id="confirmpassword"
-                          v-model="userInfo.confirmPassword"
+                          v-model="confirmPassword"
                           label="Confirm Password"
                           name="confirmpassword"
                           :rules="[passwordConfirmationRules]"
@@ -84,86 +91,83 @@
     </v-main>
   </v-app>
 </template>
-<script>
-import LoadingBar from "../../../../components/LoadingBar.vue";
-export default {
-  name: "LoginForm",
-  components: {
-    LoadingBar,
-  },
-  data: () => ({
-    // starting values and rules
-    loading: false,
-    showPassword: false,
-    showPasswordActivation: false,
-    valid: false,
-    lockInput: false,
-    userInfo: {
-      confirmPassword: "",
-      password: "",
-    },
-    inputErrorState: false,
-    inputErrorMessage: "",
-  }),
-  computed: {
-    passwordConfirmationRules() {
-      if (this.userInfo.password === this.userInfo.confirmPassword) {
-        return true;
-      } else {
-        return " Passwords don't match";
-      }
-    },
-  },
+<script setup lang="ts">
+import tbApi from "../../../../api/tbApi";
+import { ActivationInfo } from "~/types/tbApiTypes";
+const route = useRoute();
+const activateToken = ref(
+  route.query.activateToken ? `${route.query.activateToken}` : ""
+);
 
-  methods: {
-    getQueryToken() {
-      return this.$route.query.activateToken;
-    },
-    clearValidation() {
-      this.inputErrorMessage = "";
-      this.inputErrorState = false;
-      this.$refs.form.resetValidation();
-    },
-    // <------------------ Login process ------------------>
-    activateUser() {
-      // start loading bar
-      this.loading = true;
-      // lock submit buttons
-      this.valid = !this.valid;
-      // lock text fields
-      this.lockInput = true;
-      // try activation
-      this.$axios
-        .post("api/v1/auth/activate", {
-          activationToken: this.getQueryToken(),
-          password: this.userInfo.confirmPassword,
-        })
-        .then(() => {
-          // stop loading bar
-          this.loading = false;
-          this.$router.push("/login");
-        })
-        .catch((e) => {
-          // stop loading bar
-          this.loading = false;
-          // unlock text fields
-          this.lockInput = false;
-          // check if error
-          if (e.response.status === 400) {
-            this.inputErrorState = true;
-            this.inputErrorMessage = e.response.data.message;
-          } else if (e.response.status === 500) {
-            // notify user
-            this.$notifier.showMessage({
-              content: e.response.data.message,
-              color: "",
-            });
-          }
-          // empty text fields
-          this.userInfo.password = "";
-          this.userInfo.confirmPassword = "";
-        });
-    },
-  },
+// snackbar starting state
+const snackbar = ref(false);
+const snackbarText = ref(``);
+
+// starting values and rules
+const loading = ref(false);
+
+const showPassword = ref(false);
+const showPasswordActivation = ref(false);
+const valid = ref(false);
+const lockInput = ref(false);
+
+const password = ref("");
+const confirmPassword = ref("");
+
+const inputErrorState = ref(false);
+const inputErrorMessage = ref("");
+
+const passwordConfirmationRules = computed(() => {
+  if (password.value === confirmPassword.value) {
+    return true;
+  } else {
+    return " Passwords don't match";
+  }
+});
+
+// <------------------------------------ Methods ----------------------------------->
+const closeSnack = () => {
+  snackbar.value = false;
+};
+
+const clearValidation = () => {
+  inputErrorMessage.value = "";
+  inputErrorState.value = false;
+};
+
+const activateUser = (activationInfo: ActivationInfo) => {
+  // start loading bar
+  loading.value = true;
+  // lock submit buttons
+  valid.value = !valid.value;
+  // lock text fields
+  lockInput.value = true;
+  // try activation
+
+  tbApi
+    .activateUser(activationInfo)
+    .then(() => {
+      // stop loading bar
+      loading.value = false;
+      navigateTo("/login");
+    })
+    .catch((e) => {
+      // stop loading bar
+      loading.value = false;
+      // unlock text fields
+      lockInput.value = false;
+      // check if error
+      if (e.response.status === 400) {
+        inputErrorState.value = true;
+        inputErrorMessage.value = e.response.data.msg;
+      } else if (e.response.status === 500) {
+        snackbarText.value = e.response.data.msg;
+        snackbar.value = true;
+      }
+
+      // empty text fields
+      password.value = "";
+      confirmPassword.value = "";
+    });
 };
 </script>

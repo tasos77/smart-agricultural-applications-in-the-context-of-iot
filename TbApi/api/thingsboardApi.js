@@ -1,5 +1,6 @@
 import axios from "axios";
 import * as dotenv from "dotenv";
+import { response } from "express";
 
 dotenv.config();
 
@@ -89,10 +90,7 @@ const createUser = (token, registrationInfo, customerId) => {
         },
       }
     )
-    .catch((e) => {
-      console.log(e.response.data);
-      return null;
-    });
+    .then((response) => response.data);
 };
 
 export default {
