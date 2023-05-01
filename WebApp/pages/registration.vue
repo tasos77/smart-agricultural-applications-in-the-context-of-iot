@@ -139,15 +139,18 @@ const clearValidation = () => {
 };
 
 const registrateUser = (registrationInfo: RegistrationFormData) => {
+  loading.value = true;
   console.log(registrationInfo);
   tbApi
     .registration(registrationInfo)
     .then((response) => {
       console.log(response);
+      loading.value = false;
       navigateTo("/login");
     })
     .catch((e) => {
       console.log(e);
+      loading.value = false;
     });
 };
 </script>

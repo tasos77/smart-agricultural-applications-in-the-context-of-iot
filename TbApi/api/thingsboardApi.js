@@ -26,10 +26,11 @@ const login = () => {
 };
 
 const activateUser = (token, activationInfo) => {
+  console.log(activationInfo);
   return instance.post(
     "/noauth/activate",
     {
-      activationToken: activationInfo.activationToken,
+      activateToken: activationInfo.activateToken,
       password: activationInfo.password,
     },
     {

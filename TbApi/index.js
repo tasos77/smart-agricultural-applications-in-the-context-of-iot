@@ -36,17 +36,17 @@ if (tbTokens) {
   app.post(`/activateUser`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const activationInfo = {
-      activationToken: req.body.userId,
-      password: req.body.password,
+      activateToken: req.body.activationInfo.activateToken,
+      password: req.body.activationInfo.password,
     };
-
+    console.log(activationInfo);
     let msg;
 
     try {
       if (
-        activationInfo.hasOwnProperty("activationToken") &&
+        activationInfo.hasOwnProperty("activateToken") &&
         activationInfo.hasOwnProperty("password") &&
-        activationInfo.activationToken &&
+        activationInfo.activateToken &&
         activationInfo.password
       ) {
         try {
@@ -58,6 +58,7 @@ if (tbTokens) {
             msg = `User activated!`;
           }
         } catch (e) {
+          console.log(e);
           res.status(400);
           msg = `Activation failed!`;
         }
