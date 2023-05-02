@@ -3,17 +3,16 @@ import * as dotenv from "dotenv";
 import cors from "cors";
 import express from "express";
 import thingsboardApi from "./api/thingsboardApi.js";
-import regex from "./utils/regex.js";
 
 dotenv.config();
-
-const emailRegex = regex.validEmailRegex;
 
 const port = process.env.PORT;
 const domain = process.env.DOMAIN;
 // try to get TB access token
-const tbTokens = await thingsboardApi.login();
-
+const tbTokens = await thingsboardApi.login(
+  process.env.TENANT_USERNAME,
+  process.env.TENANT_PASSWORD
+);
 if (tbTokens) {
   // create express application
   const app = express();
@@ -33,13 +32,51 @@ if (tbTokens) {
     })
   );
 
+  app.post(`login`, async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    const loginInfo = {
+      username: req.body.activationInfo.username,
+      password: req.body.activationInfo.password,
+    };
+    let msg;
+    try {
+      if (
+        loginInfo.hasOwnProperty("username") &&
+        loginInfo.hasOwnProperty("password") &&
+        loginInfo.username &&
+        loginInfo.password
+      ) {
+        try {
+          const loginResult = await thingsboardApi.login(
+            tbTokens.token,
+            loginInfo
+          );
+          console.log(loginResult);
+          if (loginResult) {
+            res.status(200);
+            msg = `User activated!`;
+          }
+        } catch (e) {
+          console.log(e.response.data);
+          res.status(400);
+          msg = `Activation failed!`;
+        }
+      } else {
+        throw Error();
+      }
+    } catch (e) {
+      res.status(400);
+      msg = `Missing or invalid body!`;
+    }
+    res.json({ msg });
+  });
+
   app.post(`/activateUser`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const activationInfo = {
       activateToken: req.body.activationInfo.activateToken,
       password: req.body.activationInfo.password,
     };
-    console.log(activationInfo);
     let msg;
 
     try {
@@ -50,15 +87,17 @@ if (tbTokens) {
         activationInfo.password
       ) {
         try {
-          activationResult = await thingsboardApi
-            .activateUser(tbTokens.token, activationInfo)
-            .then(() => then);
+          const activationResult = await thingsboardApi.activateUser(
+            tbTokens.token,
+            activationInfo
+          );
+          console.log(activationResult);
           if (activationResult) {
             res.status(200);
             msg = `User activated!`;
           }
         } catch (e) {
-          console.log(e);
+          console.log(e.response.data);
           res.status(400);
           msg = `Activation failed!`;
         }
@@ -90,7 +129,6 @@ if (tbTokens) {
         registrationInfo.email &&
         registrationInfo.firstName &&
         registrationInfo.lastName
-        //&& registrationInfo.email.match(emailRegex)
       ) {
         try {
           const customerId = await thingsboardApi.createCustomer(

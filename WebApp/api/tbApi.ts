@@ -75,7 +75,7 @@ const client = axios.create({
 
 // try to login based on users creds
 const login = (username: string, password: string): any => {
-  return client.post(`/api/auth/login`, {
+  return client.post(`/login`, {
     username: username,
     password: password,
   });

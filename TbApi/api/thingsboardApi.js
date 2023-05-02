@@ -9,12 +9,12 @@ const instance = axios.create({
   baseURL: process.env.TB_BASE_URL,
 });
 // try tb login
-const login = () => {
+const login = (username, password) => {
   return (
     instance
       .post("/auth/login", {
-        username: process.env.TENANT_USERNAME,
-        password: process.env.TENANT_PASSWORD,
+        username,
+        password,
       })
       // return tokens on succ or null on failure
       .then((response) => response.data)
@@ -27,21 +27,20 @@ const login = () => {
 
 const activateUser = (token, activationInfo) => {
   console.log(activationInfo);
-  return instance.post(
-    "/noauth/activate",
-    {
-      activateToken: activationInfo.activateToken,
-      password: activationInfo.password,
-    },
-    {
-      params: {
-        sendActivationMail: false,
+  return instance
+    .post(
+      "/noauth/activate?sendActivationMail=false",
+      {
+        activateToken: activationInfo.activateToken,
+        password: activationInfo.password,
       },
-      headers: {
-        "X-Authorization": `Bearer ${token}`,
-      },
-    }
-  );
+      {
+        headers: {
+          "X-Authorization": `Bearer ${token}`,
+        },
+      }
+    )
+    .then((response) => response);
 };
 
 // try to create tb customer and set clerk's userId as server attribute
@@ -95,11 +94,11 @@ const createUser = (token, registrationInfo, customerId) => {
 };
 
 export default {
-  login() {
-    return login();
+  login(username, password) {
+    return login(username, password);
   },
-  activateUser() {
-    return activateUser(activationToken, password);
+  activateUser(token, activationInfo) {
+    return activateUser(token, activationInfo);
   },
   createCustomer(token, email) {
     return createCustomer(token, email);
