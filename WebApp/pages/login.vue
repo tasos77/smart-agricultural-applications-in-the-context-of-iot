@@ -116,7 +116,8 @@ const userLogin = () => {
     .login(userInfo.username, userInfo.password)
     .then((response) => {
       loading.value = false;
-      auth.setLocalTokens(response);
+      console.log(response);
+      auth.setLocalTokens(response.data.msg);
     })
     .then(() => {
       userInfo.username = "";
