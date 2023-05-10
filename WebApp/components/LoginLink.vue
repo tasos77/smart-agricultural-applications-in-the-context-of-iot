@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-const goToLogin = () => {
-  navigateTo("/");
-};
+  const goToLogin = () => {
+    navigateTo('/')
+  }
 </script>

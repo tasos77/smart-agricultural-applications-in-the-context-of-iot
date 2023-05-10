@@ -1,10 +1,6 @@
 <template>
   <VApp>
-    <DismissableSnackbar
-      :snackbar="snackbar"
-      :snackbar-text="snackbarText"
-      @close="closeSnack"
-    />
+    <DismissableSnackbar :snackbar="snackbar" :snackbar-text="snackbarText" @close="closeSnack" />
     <LoadingBar v-show="loading" />
     <VContainer fluid class="fill-height">
       <VRow align="center" justify="center">
@@ -68,68 +64,66 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from "vue";
-import tbApi from "../api/tbApi";
-import { tokensAuthStore } from "../stores/auth";
-import DismissableSnackbar from "../components/DismissableSnackbar.vue";
-import SignUpLink from "../components/SignUpLink.vue";
+  import { ref, reactive } from 'vue'
+  import tbApi from '../api/tbApi'
+  import { tokensAuthStore } from '../stores/auth'
+  import DismissableSnackbar from '../components/DismissableSnackbar.vue'
+  import SignUpLink from '../components/SignUpLink.vue'
 
-import LoadingBar from "../components/LoadingBar.vue";
+  import LoadingBar from '../components/LoadingBar.vue'
 
-definePageMeta({
-  middleware: "redirect",
-});
-// init store
-const auth = tokensAuthStore();
-// snackbar starting state
-const snackbar = ref(false);
-const snackbarText = ref(``);
-// form starting state
-const loading = ref(false);
-const show = ref(false);
-const valid = ref(false);
-const userInfo = reactive({
-  username: "",
-  password: "",
-});
-const passwordRules = ref([(v) => !!v || "Password is required"]);
-const usernameRules = ref([
-  (v) => !!v || "E-mail is required",
-  (v) =>
-    /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-      v
-    ) || "Invalid email address",
-]);
+  definePageMeta({
+    middleware: 'redirect'
+  })
+  // init store
+  const auth = tokensAuthStore()
+  // snackbar starting state
+  const snackbar = ref(false)
+  const snackbarText = ref(``)
+  // form starting state
+  const loading = ref(false)
+  const show = ref(false)
+  const valid = ref(false)
+  const userInfo = reactive({
+    username: '',
+    password: ''
+  })
+  const passwordRules = ref([(v) => !!v || 'Password is required'])
+  const usernameRules = ref([
+    (v) => !!v || 'E-mail is required',
+    (v) =>
+      /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        v
+      ) || 'Invalid email address'
+  ])
 
-// <------------------------------------ Methods ----------------------------------->
-const closeSnack = () => {
-  snackbar.value = false;
-};
-const showPass = () => {
-  show.value = !show.value;
-};
-const userLogin = () => {
-  loading.value = true;
-  valid.value = !valid.value;
+  // <------------------------------------ Methods ----------------------------------->
+  const closeSnack = () => {
+    snackbar.value = false
+  }
+  const showPass = () => {
+    show.value = !show.value
+  }
+  const userLogin = () => {
+    loading.value = true
+    valid.value = !valid.value
 
-  tbApi
-    .login(userInfo.username, userInfo.password)
-    .then((response) => {
-      loading.value = false;
-      console.log(response);
-      auth.setLocalTokens(response.data.msg);
-    })
-    .then(() => {
-      userInfo.username = "";
-      userInfo.password = "";
-      navigateTo("/devices");
-    })
-    .catch((e) => {
-      loading.value = false;
-      userInfo.password = "";
-      console.log(e);
-      snackbarText.value = e?.response?.data?.message || `Error!`;
-      snackbar.value = true;
-    });
-};
+    tbApi
+      .login(userInfo.username, userInfo.password)
+      .then((response) => {
+        loading.value = false
+        auth.setLocalTokens(response.data.msg)
+      })
+      .then(() => {
+        userInfo.username = ''
+        userInfo.password = ''
+        navigateTo('/devices')
+      })
+      .catch((e) => {
+        loading.value = false
+        userInfo.password = ''
+        snackbarText.value = e?.response?.data?.msg || `Error!`
+        snackbar.value = true
+      })
+  }
 </script>

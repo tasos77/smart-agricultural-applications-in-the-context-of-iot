@@ -1,13 +1,13 @@
-import axios from "axios";
-import { tokensAuthStore } from "../stores/auth";
-import { RegistrationFormData, ActivationInfo } from "~~/types/tbApiTypes";
+import axios from 'axios'
+import { tokensAuthStore } from '../stores/auth'
+import { RegistrationFormData, ActivationInfo } from '~~/types/tbApiTypes'
 // init store instance
-const authStore = tokensAuthStore();
+const authStore = tokensAuthStore()
 
 // create axios instance
 const client = axios.create({
-  baseURL: "http://localhost:3005",
-});
+  baseURL: 'http://localhost:3005'
+})
 // // try to refresh tokens , if succ return new tokens else return null
 // const refreshToken = () => {
 //   // get refresh token from store
@@ -77,29 +77,29 @@ const client = axios.create({
 const login = (username: string, password: string): any => {
   return client.post(`/login`, {
     username: username,
-    password: password,
-  });
-};
+    password: password
+  })
+}
 
 const registration = (registrationInfo: RegistrationFormData) => {
   return client.post(`/createUser`, {
     email: registrationInfo.email,
     firstName: registrationInfo.firstName,
-    lastName: registrationInfo.lastName,
-  });
-};
+    lastName: registrationInfo.lastName
+  })
+}
 
 const activateUser = (activationInfo: ActivationInfo) => {
-  console.log(activationInfo);
+  console.log(activationInfo)
 
   return client.post(`/activateUser`, {
-    activationInfo,
-  });
-};
+    activationInfo
+  })
+}
 
 // // try to get users devices
 // const getDevices = () => {
 //   return client.get(`api/v1/me/devices`);
 // };
 
-export default { login, registration, activateUser };
+export default { login, registration, activateUser }

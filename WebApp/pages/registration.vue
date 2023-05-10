@@ -1,10 +1,6 @@
 <template>
   <VApp>
-    <DismissableSnackbar
-      :snackbar="snackbar"
-      :snackbar-text="snackbarText"
-      @close="closeSnack"
-    />
+    <DismissableSnackbar :snackbar="snackbar" :snackbar-text="snackbarText" @close="closeSnack" />
     <LoadingBar v-show="loading" />
     <VContainer fluid class="fill-height">
       <VRow align="center" justify="center">
@@ -12,13 +8,11 @@
           <VRow class="d-flex">
             <VCard elevation="2" class="rounded-xl w-100">
               <VCardTitle class="pa-4 pb-0">
-                <VIcon size="small" class="pb-3" @click="goToLogin"
-                  >mdi-arrow-left</VIcon
+                <VIcon size="small" class="pb-3" @click="goToLogin">mdi-arrow-left</VIcon
                 ><span class="text-h4">Create Account</span></VCardTitle
               >
               <div class="px-4 text-body-2">
-                Sign up with your email and your account will be created
-                shortly.
+                Sign up with your email and your account will be created shortly.
               </div>
               <VCardText>
                 <VForm
@@ -94,65 +88,63 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import LoadingBar from "../components/LoadingBar.vue";
-import DismissableSnackbar from "../components/DismissableSnackbar.vue";
-import LoginLink from "../components/LoginLink.vue";
-import { RegistrationFormData } from "../types/tbApiTypes";
-import tbApi from "../api/tbApi";
-definePageMeta({
-  middleware: "redirect",
-});
-// snackbar starting state
-const snackbar = ref(false);
-const snackbarText = ref(``);
-// starting values and text field rules
-const loading = ref(false);
-const valid = ref(false);
-const registrationInfo = ref({
-  email: "",
-  firstName: "",
-  lastName: "",
-});
-const nameRules = ref([(v) => !!v || "Name is required"]);
-const lastNameRules = ref([(v) => !!v || "Last name is required"]);
-const emailRules = ref([
-  (v) => !!v || "E-mail is required",
-  (v) =>
-    /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-      v
-    ) || "Invalid email address",
-]);
-const inputErrorState = ref(false);
-const inputErrorMessage = ref("");
+  import { ref } from 'vue'
+  import LoadingBar from '../components/LoadingBar.vue'
+  import DismissableSnackbar from '../components/DismissableSnackbar.vue'
+  import LoginLink from '../components/LoginLink.vue'
+  import { RegistrationFormData } from '../types/tbApiTypes'
+  import tbApi from '../api/tbApi'
+  definePageMeta({
+    middleware: 'redirect'
+  })
+  // snackbar starting state
+  const snackbar = ref(false)
+  const snackbarText = ref(``)
+  // starting values and text field rules
+  const loading = ref(false)
+  const valid = ref(false)
+  const registrationInfo = ref({
+    email: '',
+    firstName: '',
+    lastName: ''
+  })
+  const nameRules = ref([(v) => !!v || 'Name is required'])
+  const lastNameRules = ref([(v) => !!v || 'Last name is required'])
+  const emailRules = ref([
+    (v) => !!v || 'E-mail is required',
+    (v) =>
+      /^(([^<>()[\]\\.,;:\s@']+(\.[^<>()\\[\]\\.,;:\s@']+)*)|('.+'))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+        v
+      ) || 'Invalid email address'
+  ])
+  const inputErrorState = ref(false)
+  const inputErrorMessage = ref('')
 
-// <------------------------------------ Methods ----------------------------------->
-const closeSnack = () => {
-  snackbar.value = false;
-};
-const goToLogin = () => {
-  navigateTo("/");
-};
-const clearValidation = () => {
-  inputErrorMessage.value = "";
-  inputErrorState.value = false;
-};
+  // <------------------------------------ Methods ----------------------------------->
+  const closeSnack = () => {
+    snackbar.value = false
+  }
+  const goToLogin = () => {
+    navigateTo('/')
+  }
+  const clearValidation = () => {
+    inputErrorMessage.value = ''
+    inputErrorState.value = false
+  }
 
-const registrateUser = (registrationInfo: RegistrationFormData) => {
-  loading.value = true;
-  console.log(registrationInfo);
-  tbApi
-    .registration(registrationInfo)
-    .then((response) => {
-      console.log(response);
-      loading.value = false;
-      navigateTo("/login");
-    })
-    .catch((e) => {
-      console.log(e);
-      loading.value = false;
-    });
-};
+  const registrateUser = (registrationInfo: RegistrationFormData) => {
+    loading.value = true
+    console.log(registrationInfo)
+    tbApi
+      .registration(registrationInfo)
+      .then(() => {
+        loading.value = false
+        navigateTo('/login')
+      })
+      .catch((e) => {
+        loading.value = false
+      })
+  }
 </script>
 
 <style scoped></style>

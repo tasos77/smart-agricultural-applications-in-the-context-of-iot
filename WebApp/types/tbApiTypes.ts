@@ -1,10 +1,10 @@
 export interface RegistrationFormData {
-  email: string;
-  firstName: string;
-  lastName: string;
+  email: string
+  firstName: string
+  lastName: string
 }
 
 export interface ActivationInfo {
-  activateToken: string;
-  password: string;
+  activateToken: string
+  password: string
 }

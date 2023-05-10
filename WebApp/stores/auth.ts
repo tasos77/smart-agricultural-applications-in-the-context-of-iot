@@ -1,36 +1,36 @@
-import { defineStore } from "pinia";
+import { defineStore } from 'pinia'
 
 interface Tokens {
-  token: string | null;
-  refreshToken: string | null;
+  token: string | null
+  refreshToken: string | null
 }
 
 const createAccessToken = (token: string): string => {
-  return `Bearer ${token}`;
-};
+  return `Bearer ${token}`
+}
 
-export const tokensAuthStore = defineStore("tokens", {
+export const tokensAuthStore = defineStore('tokens', {
   state: (): Tokens => ({
     token: null,
-    refreshToken: null,
+    refreshToken: null
   }),
   getters: {
-    getTokens: (state: Tokens) => state,
+    getTokens: (state: Tokens) => state
   },
   actions: {
     setLocalTokens(tokens: Tokens) {
-      localStorage.setItem(`_auth_.token`, createAccessToken(tokens.token));
-      localStorage.setItem(`_auth_.refreshToken`, tokens.refreshToken);
+      localStorage.setItem(`_auth_.token`, createAccessToken(tokens.token))
+      localStorage.setItem(`_auth_.refreshToken`, tokens.refreshToken)
     },
     getLocalToken() {
-      return localStorage.getItem("_auth_.token");
+      return localStorage.getItem('_auth_.token')
     },
     getLocalRefreshToken() {
-      return localStorage.getItem("_auth_.refreshToken");
+      return localStorage.getItem('_auth_.refreshToken')
     },
     removeTokens() {
-      localStorage.removeItem("_auth_.token");
-      localStorage.removeItem("_auth_.refreshToken");
-    },
-  },
-});
+      localStorage.removeItem('_auth_.token')
+      localStorage.removeItem('_auth_.refreshToken')
+    }
+  }
+})

@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-const goToRegistration = () => {
-  navigateTo("/registration");
-};
+  const goToRegistration = () => {
+    navigateTo('/registration')
+  }
 </script>
