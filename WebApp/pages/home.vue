@@ -9,7 +9,7 @@
 
 <script setup lang="ts">
   import CurrentMeasurements from '~/components/CurrentMeasurements.vue'
-  import AdditionalInfo from '~~/components/AdditionalInfo.vue'
+  import AdditionalInfo from '~/components/AdditionalInfo.vue'
   definePageMeta({
     layout: 'main'
   })
