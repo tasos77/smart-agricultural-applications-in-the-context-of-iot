@@ -1,9 +1,9 @@
 <template>
-  <VCard>
-    <h4>{{ props.measurementName }}</h4>
-    <div class="w-auto">
+  <VCard rounded="xl">
+    <VCardTitle>{{ props.measurementName }}</VCardTitle>
+    <VCardText class="w-auto pa-0">
       <apexchart type="radialBar" height="350" :options="chartOptions" :series="series"></apexchart>
-    </div>
+    </VCardText>
   </VCard>
 </template>
 

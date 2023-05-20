@@ -1,11 +1,11 @@
 <template>
-  <v-row justify="center" class="mx-1">
+  <v-row justify="center" align="center" class="mx-1 pa-0 my-0">
     <VCol sm="12" md="4">
       <CurrentCondition />
     </VCol>
     <VCol sm="12" md="8">
-      <VCard>
-        <h3>Current Measurements</h3>
+      <VCard rounded="xl">
+        <VCardTitle>Current Measurements</VCardTitle>
         <Vrow class="d-flex flex-wrap">
           <VCol sm="12" md="4">
             <CurrentMeasurement :measurementName="'Humidity'" />
