@@ -1,8 +1,6 @@
 <template>
   <div>
-    <div>
-      <CurrentMeasurements />
-    </div>
+    <CurrentMeasurements />
     <AdditionalInfo />
   </div>
 </template>

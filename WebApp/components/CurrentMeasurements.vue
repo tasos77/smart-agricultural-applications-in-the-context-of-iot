@@ -1,8 +1,9 @@
 <template>
-  <v-row justify="center" align="center" class="mx-1 pa-0 my-0">
-    <VCol sm="12" md="4">
+  <v-row justify="center" align="stretch" class="mx-3 pa-0 my-0">
+    <VCol sm="12" md="4" class="d-flex justify-start align-center">
       <CurrentCondition />
     </VCol>
+
     <VCol sm="12" md="8">
       <VCard rounded="xl">
         <VCardTitle>Current Measurements</VCardTitle>

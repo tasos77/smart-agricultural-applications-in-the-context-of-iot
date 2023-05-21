@@ -1,5 +1,5 @@
 <template>
-  <VCard rounded="xl">
+  <VCard rounded="xl" class="h-100 w-100">
     <VRow justify="start" align="center" class="pa-0 ma-0 h-100">
       <VCol>
         <div>
