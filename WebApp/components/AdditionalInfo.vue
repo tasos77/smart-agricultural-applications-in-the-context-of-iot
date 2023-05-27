@@ -1,12 +1,10 @@
 <template>
-  <v-row align="stretch" justify="center" class="mx-3 pa-0 my-0">
-    <VCol sm="12" md="4" class="d-flex justify-start align-center">
+  <v-row align="stretch" justify="center" class="mx-3 pa-0 my-2">
+    <VCol sm="12" md="4">
       <DeviceInfo />
     </VCol>
     <VCol sm="12" md="8">
-      <VCard rounded="xl">
-        <Forecast />
-      </VCard>
+      <Forecast />
     </VCol>
   </v-row>
 </template>

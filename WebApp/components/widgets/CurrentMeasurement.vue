@@ -1,5 +1,5 @@
 <template>
-  <VCard rounded="xl">
+  <VCard rounded="xl" color="color_surface_mixed_300">
     <VCardTitle>{{ props.measurementName }}</VCardTitle>
     <VCardText class="w-auto pa-0">
       <apexchart type="radialBar" height="350" :options="chartOptions" :series="series"></apexchart>

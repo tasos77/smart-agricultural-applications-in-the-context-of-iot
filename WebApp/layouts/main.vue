@@ -1,15 +1,18 @@
 <template>
-  <Vapp>
-    <VLayout>
-      <NavigationDrawer />
-
-      <v-main>
-        <slot />
-      </v-main>
-    </VLayout>
-  </Vapp>
+  <VApp>
+    <NavigationDrawer />
+    <VMain>
+      <slot />
+    </VMain>
+  </VApp>
 </template>
 
 <script setup>
   import NavigationDrawer from '~/components/NavigationDrawer.vue'
 </script>
+
+<style>
+  .v-main {
+    background-color: #191e26 !important;
+  }
+</style>

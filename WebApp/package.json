@@ -18,6 +18,7 @@
     "pinia": "^2.0.34",
     "sass": "^1.60.0",
     "vue3-apexcharts": "^1.4.1",
+    "vue3-lottie": "^2.7.0",
     "vuetify": "^3.1.4"
   }
 }
