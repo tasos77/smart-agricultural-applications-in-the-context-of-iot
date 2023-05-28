@@ -1,8 +1,8 @@
 <template>
-  <VSnackbar v-model="props.snackbar" :timeout="-1">
+  <VSnackbar v-model="props.snackbar" :timeout="-1" color="color_surface_mixed_200">
     {{ props.snackbarText }}
     <template #actions>
-      <VBtn class="text-none" color="chart_popup_text_color" @click="closeSnackbar"> Dismiss </VBtn>
+      <VBtn class="text-none" color="color_primary_600" @click="closeSnackbar"> Dismiss </VBtn>
     </template>
   </VSnackbar>
 </template>
