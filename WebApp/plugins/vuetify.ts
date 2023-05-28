@@ -2,11 +2,20 @@ import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 
-export default defineNuxtPlugin((nuxtApp) => {
+import { MAIN_THEME, mainTheme } from '../helpers/themes'
+
+export default defineNuxtPlugin((app) => {
   const vuetify = createVuetify({
     components,
-    directives
+    directives,
+    // add theme
+    theme: {
+      defaultTheme: MAIN_THEME,
+      themes: {
+        mainTheme
+      }
+    }
   })
 
-  nuxtApp.vueApp.use(vuetify)
+  app.vueApp.use(vuetify)
 })

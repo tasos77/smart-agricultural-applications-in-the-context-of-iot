@@ -1,5 +1,5 @@
 <template>
-  <v-progress-linear v-if="loading" color="colorPrimary" indeterminate></v-progress-linear>
+  <v-progress-linear v-if="loading" color="color_primary_600" indeterminate></v-progress-linear>
 </template>
 
 <script setup lang="ts">

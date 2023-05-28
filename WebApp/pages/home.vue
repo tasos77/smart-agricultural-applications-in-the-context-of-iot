@@ -1,13 +1,13 @@
 <template>
   <div>
-    <CurrentMeasurements />
-    <AdditionalInfo />
+    <Weather />
+    <DeviceInfo />
   </div>
 </template>
 
 <script setup lang="ts">
-  import CurrentMeasurements from '~/components/CurrentMeasurements.vue'
-  import AdditionalInfo from '~/components/AdditionalInfo.vue'
+  import Weather from '~/components/Weather.vue'
+  import DeviceInfo from '~/components/DeviceInfo.vue'
   definePageMeta({
     layout: 'main'
   })

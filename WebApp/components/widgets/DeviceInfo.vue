@@ -1,7 +1,7 @@
 <template>
-  <VCard rounded="xl" class="h-100 w-100">
+  <VCard rounded="xl" class="h-100 w-100" color="color_surface_mixed_200">
     <VCardTitle>
-      <VRow class="pa-0 ma-0" justify="space-between">
+      <VRow class="pa-0 ma-0 d-flex flex-wrap" justify="space-between">
         <div>{{ deviceName }}</div>
         <div>{{ deviceStatus }}</div>
       </VRow>
@@ -10,6 +10,7 @@
     <VCardText>
       <VDivider />
       <VCard
+        color="color_surface_mixed_300"
         class="mt-4"
         v-for="(deviceCondition, index) in deviceConditions"
         :key="index"
@@ -36,7 +37,7 @@
         </VCardText>
       </VCard>
 
-      <VCard class="mt-4" rounded="lg">
+      <VCard class="mt-4" rounded="lg" color="color_surface_mixed_300">
         <VCardText class="pa-0 ma-0">
           <VRow class="pa-0 ma-0" align="start" justify="center">
             <VCol cols="2" class="d-flex justify-center">

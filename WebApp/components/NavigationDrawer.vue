@@ -1,5 +1,10 @@
 <template>
-  <v-navigation-drawer class="bg-deep-purple rounded-lg" theme="dark" permanent rail>
+  <v-navigation-drawer
+    class="bg-deep-purple rounded-lg"
+    permanent
+    rail
+    color="color_surface_mixed_300"
+  >
     <v-list color="transparent">
       <v-list-item prepend-icon="mdi-view-dashboard" title="Dashboard"></v-list-item>
       <v-list-item prepend-icon="mdi-chart-line" title="Account"></v-list-item>

@@ -1,11 +1,10 @@
 <template>
-  <v-row justify="center" align="stretch" class="mx-3 pa-0 my-0">
-    <VCol sm="12" md="4" class="d-flex justify-start align-center">
-      <CurrentCondition />
+  <v-row align="stretch" justify="center" class="mx-3 pa-0 my-2">
+    <VCol sm="12" md="4">
+      <DeviceInfo />
     </VCol>
-
     <VCol sm="12" md="8">
-      <VCard rounded="xl">
+      <VCard rounded="xl" color="color_surface_mixed_200">
         <VCardTitle>Current Measurements</VCardTitle>
         <Vrow class="d-flex flex-wrap">
           <VCol sm="12" md="4">
@@ -25,7 +24,7 @@
 
 <script setup lang="ts">
   import CurrentMeasurement from './widgets/CurrentMeasurement.vue'
-  import CurrentCondition from './widgets/CurrentCondition.vue'
+  import DeviceInfo from './widgets/DeviceInfo.vue'
 </script>
 
 <style scoped></style>
