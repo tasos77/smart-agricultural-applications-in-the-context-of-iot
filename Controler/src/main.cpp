@@ -1,10 +1,13 @@
 #include <Arduino.h>
-#include <ESP8266WiFi.h>
-#include <PubSubClient.h>
-#include <ArduinoJson.h>
+
+// humidity/temp sensor, LCD display libs
 #include "DHTesp.h"
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
+// wifi, mqtt, json libs
+#include <PubSubClient.h>
+#include <ArduinoJson.h>
+#include <WiFi.h>
 
 // Set up LCD
 LiquidCrystal_I2C lcd(0x27, 20, 4); // set the LCD address to 0x27 for a 16 chars and 2 line display
@@ -12,17 +15,17 @@ LiquidCrystal_I2C lcd(0x27, 20, 4); // set the LCD address to 0x27 for a 16 char
 // DHT set up
 DHTesp dht;
 
+// define pins
+#define redLedPin 14
+#define humiditySensor 27
+
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
 const char *mqttServer = "192.168.1.8";
-const char *mqttUsername = "C117HUVxOGObTZWBNKml";
+const char *mqttUsername = "vTOVeTArkQsY0RQDhG7b";
 const char *id = "";
 const char *mqttPass = "";
-
-// parameters for using non-blocking delay
-unsigned long previousMillis = 0;
-const long interval = 3000;
 
 // MQTT message buffer
 String msgStr = "";
@@ -31,10 +34,9 @@ String msgStr = "";
 WiFiClient espWifi;
 PubSubClient mqttClient(espWifi);
 
-int sensePin = A0; // This is the Arduino Pin that will read the sensor output
-int sensorInput;   // The variable we will use to store the sensor input
-double temp;       // The variable we will use to store temperature in degrees.
-double voltage;    // The variable we will use to store voltage output
+// parameters for using non-blocking delay
+unsigned long previousMillis = 0;
+const long interval = 3000;
 
 // Set up wifi function
 void setupWifi()
@@ -53,6 +55,7 @@ void setupWifi()
   Serial.print("Connected IP Address: ");
   Serial.println(WiFi.localIP());
 }
+
 // Reconnect function
 void reconnect()
 {
@@ -73,6 +76,7 @@ void reconnect()
     }
   }
 }
+
 // Callback function which will be called when message is received
 void callback(char *topic, byte *payload, unsigned int length)
 {
@@ -111,7 +115,12 @@ void callback(char *topic, byte *payload, unsigned int length)
 
 void setup()
 {
-  Wire.begin(2, 0);
+  Serial.begin(921600);
+  pinMode(redLedPin, OUTPUT);
+  pinMode(humiditySensor, INPUT);
+
+  // initalize DHT
+  dht.setup(humiditySensor, DHTesp::DHT11);
 
   //  initialize the lcd
   lcd.init();
@@ -126,29 +135,21 @@ void setup()
   lcd.setCursor(0, 3);
   lcd.print("here");
 
-  // pinMode(D1, OUTPUT);
-  // pinMode(DHTPIN, INPUT);
-
-  // Start the Serial Port at 921600 baud
-  Serial.begin(921600);
-  Serial.println();
-
   // start wifi set up
   setupWifi();
 
   // set the MQTT server to the server stated above ^
   mqttClient.setServer(mqttServer, 1883);
 
-  // start DHT
-  dht.setup(D2, DHTesp::DHT11);
-
   // defining function which will be called when message is received
   // mqttClient.setCallback(callback);
 }
+
 void loop()
 {
 
-  digitalWrite(D1, HIGH);
+  digitalWrite(redLedPin, HIGH);
+
   if (!mqttClient.connected())
   {
     reconnect();
@@ -218,24 +219,6 @@ void loop()
       lcd.print((char)223);
       lcd.print("C");
 
-      // // read sensor
-      // sensorInput = analogRead(sensePin);   // read the analog sensor and store it
-      // voltage = sensorInput * (3.3 / 1024); // find percentage of input reading
-      // // print out the voltage
-      // Serial.print(voltage);
-      // Serial.println(" volts");
-
-      // // now print out the temperature
-      // float temperatureC = (voltage - 0.5) * 100; // converting from 10 mv per degree wit 500 mV offset
-      //                                             // to degrees ((voltage - 500mV) times 100)
-      // Serial.print(temperatureC);
-      // Serial.println(" degrees C");
-
-      // // now convert to Fahrenheit
-      // float temperatureF = (temperatureC * 9.0 / 5.0) + 32.0;
-      // Serial.print(temperatureF);
-      // Serial.println(" degrees F");
-
       msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + "}";
 
       byte arrSize = msgStr.length() + 1;
@@ -247,11 +230,8 @@ void loop()
 
       mqttClient.publish("v1/devices/me/telemetry", msg);
       msgStr = "";
-
-      delay(50);
     }
   }
-  digitalWrite(D1, LOW);
-  // Dont overload the server!
+  digitalWrite(redLedPin, LOW);
   delay(3000);
 }
