@@ -18,6 +18,8 @@ DHTesp dht;
 // define pins
 #define redLedPin 14
 #define humiditySensor 27
+#define rainSensor 39
+#define uvSensor 36
 
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
@@ -118,6 +120,8 @@ void setup()
   Serial.begin(921600);
   pinMode(redLedPin, OUTPUT);
   pinMode(humiditySensor, INPUT);
+  pinMode(rainSensor, INPUT);
+  pinMode(uvSensor, INPUT);
 
   // initalize DHT
   dht.setup(humiditySensor, DHTesp::DHT11);
@@ -184,6 +188,16 @@ void loop()
       float heatIndexC = dht.computeHeatIndex(temperatureC, humidity, false);
       // compute heat index in Fahrenheit
       float heatIndexF = dht.computeHeatIndex(temperatureF, humidity, true);
+
+      // read rain
+      int rain = analogRead(rainSensor);
+      // read uv
+      int uvSensorValue = analogRead(uvSensor);
+      // compute uv sensor value into voltage
+      float voltage = uvSensorValue * (5.0 / 1023.0);
+      // compute uv index based on voltage
+      float uvIndex = voltage / .1;
+
       Serial.println("<---------------------------------------------------->");
       Serial.print(F("Humidity: "));
       Serial.print(humidity);
@@ -199,6 +213,10 @@ void loop()
       Serial.print(F("°C "));
       Serial.print(heatIndexF);
       Serial.println(F("°F "));
+      Serial.print("Rain: ");
+      Serial.println(rain);
+      Serial.print("UV Index: ");
+      Serial.println(uvIndex);
       Serial.println("<---------------------------------------------------->");
 
       lcd.clear();
@@ -219,7 +237,14 @@ void loop()
       lcd.print((char)223);
       lcd.print("C");
 
-      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + "}";
+      lcd.setCursor(0, 3);
+      lcd.print("Rain:");
+      lcd.print(rain);
+      lcd.print(" ");
+      lcd.print("UV:");
+      lcd.print(uvIndex);
+
+      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain) + ",\"uv\":" + String(uvIndex) + "}";
 
       byte arrSize = msgStr.length() + 1;
       char msg[arrSize];
