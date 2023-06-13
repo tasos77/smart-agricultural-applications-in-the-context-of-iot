@@ -20,6 +20,7 @@ DHTesp dht;
 #define humiditySensor 27
 #define rainSensor 39
 #define uvSensor 36
+#define soilSensor 34
 
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
@@ -122,6 +123,7 @@ void setup()
   pinMode(humiditySensor, INPUT);
   pinMode(rainSensor, INPUT);
   pinMode(uvSensor, INPUT);
+  pinMode(soilSensor, INPUT);
 
   // initalize DHT
   dht.setup(humiditySensor, DHTesp::DHT11);
@@ -190,13 +192,23 @@ void loop()
       float heatIndexF = dht.computeHeatIndex(temperatureF, humidity, true);
 
       // read rain
-      int rain = analogRead(rainSensor);
+      int rainSensorValue = analogRead(rainSensor);
+      float rainVoltage = rainSensorValue * (5.0 / 1023.0);
+      float rain = rainVoltage / .1;
+
       // read uv
       int uvSensorValue = analogRead(uvSensor);
       // compute uv sensor value into voltage
       float voltage = uvSensorValue * (5.0 / 1023.0);
       // compute uv index based on voltage
       float uvIndex = voltage / .1;
+
+      // read soil sensor
+      int soilSensorValue = analogRead(soilSensor);
+      // compute soil sensor value into voltage
+      float soilVoltage = soilSensorValue * (5.0 / 1023.0);
+      // compute soil index based on voltage
+      float soil = soilVoltage / .1;
 
       Serial.println("<---------------------------------------------------->");
       Serial.print(F("Humidity: "));
@@ -217,6 +229,8 @@ void loop()
       Serial.println(rain);
       Serial.print("UV Index: ");
       Serial.println(uvIndex);
+      Serial.print("Soil Moisture: ");
+      Serial.println(soil);
       Serial.println("<---------------------------------------------------->");
 
       lcd.clear();
