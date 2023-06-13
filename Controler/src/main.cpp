@@ -208,7 +208,7 @@ void loop()
       // compute soil sensor value into voltage
       float soilVoltage = soilSensorValue * (5.0 / 1023.0);
       // compute soil index based on voltage
-      float soil = soilVoltage / .1;
+      float soilMoisture = soilVoltage / .1;
 
       Serial.println("<---------------------------------------------------->");
       Serial.print(F("Humidity: "));
@@ -230,7 +230,7 @@ void loop()
       Serial.print("UV Index: ");
       Serial.println(uvIndex);
       Serial.print("Soil Moisture: ");
-      Serial.println(soil);
+      Serial.println(soilMoisture);
       Serial.println("<---------------------------------------------------->");
 
       lcd.clear();
@@ -258,7 +258,7 @@ void loop()
       lcd.print("UV:");
       lcd.print(uvIndex);
 
-      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain) + ",\"uv\":" + String(uvIndex) + "}";
+      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain) + ",\"uv\":" + String(uvIndex) + ",\"soilMoisture\":" + String(soilMoisture) + "}";
 
       byte arrSize = msgStr.length() + 1;
       char msg[arrSize];
