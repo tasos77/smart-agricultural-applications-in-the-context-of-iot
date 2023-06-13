@@ -20,7 +20,7 @@ DHTesp dht;
 #define humiditySensor 27
 #define rainSensor 39
 #define uvSensor 36
-#define soilSensor 34
+#define soilSensor 4
 
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
@@ -209,6 +209,9 @@ void loop()
       float soilVoltage = soilSensorValue * (5.0 / 1023.0);
       // compute soil index based on voltage
       float soilMoisture = soilVoltage / .1;
+      // output_value = map(output_value, inputLow, inputHigh, outputLow, outputHigh);
+      soilSensorValue = map(soilSensorValue, 0, 1023, 10, 550);
+      soilSensorValue = map(soilSensorValue, 550, 10, 0, 100);
 
       Serial.println("<---------------------------------------------------->");
       Serial.print(F("Humidity: "));
@@ -231,6 +234,7 @@ void loop()
       Serial.println(uvIndex);
       Serial.print("Soil Moisture: ");
       Serial.println(soilMoisture);
+      Serial.println(soilSensorValue);
       Serial.println("<---------------------------------------------------->");
 
       lcd.clear();
