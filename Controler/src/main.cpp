@@ -17,9 +17,11 @@ DHTesp dht;
 
 // define pins
 #define redLedPin 14
+#define greenLenPin 16
 #define humiditySensor 27
 #define rainSensor 39
 #define uvSensor 36
+#define soilSensor 34
 
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
@@ -49,11 +51,15 @@ void setupWifi()
 
   while (WiFi.status() != WL_CONNECTED)
   {
+    digitalWrite(redLedPin, HIGH);
     delay(500);
     Serial.print(".");
+    digitalWrite(redLedPin, LOW);
+    delay(500);
   }
   Serial.println();
-
+  digitalWrite(redLedPin, LOW);
+  digitalWrite(greenLenPin, HIGH);
   Serial.print("Connected IP Address: ");
   Serial.println(WiFi.localIP());
 }
@@ -119,9 +125,11 @@ void setup()
 {
   Serial.begin(921600);
   pinMode(redLedPin, OUTPUT);
-  pinMode(humiditySensor, INPUT);
-  pinMode(rainSensor, INPUT);
-  pinMode(uvSensor, INPUT);
+  pinMode(greenLenPin, OUTPUT);
+  // pinMode(humiditySensor, INPUT);
+  // pinMode(rainSensor, INPUT);
+  // pinMode(uvSensor, INPUT);
+  // pinMode(soilSensor, INPUT);
 
   // initalize DHT
   dht.setup(humiditySensor, DHTesp::DHT11);
@@ -131,13 +139,7 @@ void setup()
   lcd.backlight();
   lcd.clear();
   lcd.setCursor(0, 0);
-  lcd.print("print");
-  lcd.setCursor(0, 1);
-  lcd.print("some");
-  lcd.setCursor(0, 2);
-  lcd.print("text");
-  lcd.setCursor(0, 3);
-  lcd.print("here");
+  lcd.print("Booting up...");
 
   // start wifi set up
   setupWifi();
@@ -151,15 +153,11 @@ void setup()
 
 void loop()
 {
-
-  digitalWrite(redLedPin, HIGH);
-
   if (!mqttClient.connected())
   {
     reconnect();
   }
   mqttClient.loop();
-
   // read current time
   unsigned long currentMillis = millis();
 
@@ -175,7 +173,6 @@ void loop()
     }
     else
     {
-
       // reading temperature or humidity takes about 250 milliseconds
       // sensor readings may also be up to 2 seconds 'old'
       // read humidity
@@ -190,15 +187,19 @@ void loop()
       float heatIndexF = dht.computeHeatIndex(temperatureF, humidity, true);
 
       // read rain
-      int rain = analogRead(rainSensor);
+      float rain = analogRead(rainSensor) * (3.3 / 4095);
+
+      // read soil sensor
+      float soilMoisture = analogRead(soilSensor) * (3.3 / 4095);
+
       // read uv
-      int uvSensorValue = analogRead(uvSensor);
+      float uvSensorValue = analogRead(uvSensor);
       // compute uv sensor value into voltage
-      float voltage = uvSensorValue * (5.0 / 1023.0);
+      float voltage = uvSensorValue * (3.3 / 4095);
       // compute uv index based on voltage
       float uvIndex = voltage / .1;
 
-      Serial.println("<---------------------------------------------------->");
+      Serial.println("******************");
       Serial.print(F("Humidity: "));
       Serial.print(humidity);
       Serial.println("%");
@@ -207,16 +208,12 @@ void loop()
       Serial.print(F("°C "));
       Serial.print(temperatureF);
       Serial.println(F("°F "));
-      Serial.println("******************");
-      Serial.print(F("Heat index: "));
-      Serial.print(heatIndexC);
-      Serial.print(F("°C "));
-      Serial.print(heatIndexF);
-      Serial.println(F("°F "));
       Serial.print("Rain: ");
       Serial.println(rain);
       Serial.print("UV Index: ");
       Serial.println(uvIndex);
+      Serial.print("Soil Moisture: ");
+      Serial.println(soilMoisture);
       Serial.println("<---------------------------------------------------->");
 
       lcd.clear();
@@ -232,10 +229,8 @@ void loop()
       lcd.print("%");
 
       lcd.setCursor(0, 2);
-      lcd.print("Heat index:");
-      lcd.print(heatIndexC);
-      lcd.print((char)223);
-      lcd.print("C");
+      lcd.print("Soil Moisture:");
+      lcd.print(soilMoisture);
 
       lcd.setCursor(0, 3);
       lcd.print("Rain:");
@@ -244,7 +239,7 @@ void loop()
       lcd.print("UV:");
       lcd.print(uvIndex);
 
-      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain) + ",\"uv\":" + String(uvIndex) + "}";
+      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain) + ",\"uv\":" + String(uvIndex) + ",\"soilMoisture\":" + String(soilMoisture) + "}";
 
       byte arrSize = msgStr.length() + 1;
       char msg[arrSize];
@@ -257,6 +252,6 @@ void loop()
       msgStr = "";
     }
   }
-  digitalWrite(redLedPin, LOW);
+
   delay(3000);
 }
