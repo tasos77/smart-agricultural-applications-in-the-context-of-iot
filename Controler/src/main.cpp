@@ -188,16 +188,21 @@ void loop()
 
       // read rain
       float rain = analogRead(rainSensor) * (3.3 / 4095);
-
+      float calcedRainVoltage = 3.3 - rain;
       // read soil sensor
       float soilMoisture = analogRead(soilSensor) * (3.3 / 4095);
-
+      float calcedSoilMoistureVoltage = 3.3 - soilMoisture;
       // read uv
-      float uvSensorValue = analogRead(uvSensor);
-      // compute uv sensor value into voltage
-      float voltage = uvSensorValue * (3.3 / 4095);
-      // compute uv index based on voltage
-      float uvIndex = voltage / .1;
+      float uvIndex = (analogRead(uvSensor) * (3.3 / 4095)) / .1;
+
+      if (calcedRainVoltage < 1.1)
+      {
+        Serial.println("Valve on");
+      }
+      else
+      {
+        Serial.println("Valve off");
+      }
 
       Serial.println("******************");
       Serial.print(F("Humidity: "));
@@ -230,16 +235,16 @@ void loop()
 
       lcd.setCursor(0, 2);
       lcd.print("Soil Moisture:");
-      lcd.print(soilMoisture);
+      lcd.print(calcedSoilMoistureVoltage);
 
       lcd.setCursor(0, 3);
       lcd.print("Rain:");
-      lcd.print(rain);
+      lcd.print(calcedRainVoltage);
       lcd.print(" ");
       lcd.print("UV:");
       lcd.print(uvIndex);
 
-      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain) + ",\"uv\":" + String(uvIndex) + ",\"soilMoisture\":" + String(soilMoisture) + "}";
+      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(calcedRainVoltage) + ",\"uv\":" + String(uvIndex) + ",\"soilMoisture\":" + String(calcedSoilMoistureVoltage) + "}";
 
       byte arrSize = msgStr.length() + 1;
       char msg[arrSize];
