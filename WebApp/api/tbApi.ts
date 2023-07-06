@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { tokensAuthStore } from '../stores/auth'
-import { RegistrationFormData, ActivationInfo } from '~~/types/tbApiTypes'
+import { RegistrationFormData, ActivationInfo } from '~/types/tbApiTypes'
 // init store instance
 const authStore = tokensAuthStore()
 

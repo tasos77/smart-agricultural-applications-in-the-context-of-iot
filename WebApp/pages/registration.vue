@@ -129,7 +129,6 @@
 
   const registrateUser = (registrationInfo: RegistrationFormData) => {
     loading.value = true
-    console.log(registrationInfo)
     tbApi
       .registration(registrationInfo)
       .then(() => {
