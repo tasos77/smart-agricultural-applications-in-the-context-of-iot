@@ -24,7 +24,7 @@
 </template>
 
 <script setup lang="ts">
-  import index from '../../assets/animations/index'
+  import index from '../../../assets/animations/index'
 
   const forecasts = ref([
     { lottie: index['clear_day'], minTemp: '24C', maxTemp: '30C', date: '15 July', day: 'Tuesday' },

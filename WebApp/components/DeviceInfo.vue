@@ -23,8 +23,8 @@
 </template>
 
 <script setup lang="ts">
-  import CurrentMeasurement from './widgets/CurrentMeasurement.vue'
-  import DeviceState from './widgets/DeviceState.vue'
+  import CurrentMeasurement from './widgets/Device/CurrentMeasurement.vue'
+  import DeviceState from './widgets/Device/DeviceState.vue'
 </script>
 
 <style scoped></style>

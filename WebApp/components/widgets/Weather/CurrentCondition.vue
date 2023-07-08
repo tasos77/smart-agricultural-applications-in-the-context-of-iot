@@ -20,7 +20,7 @@
 </template>
 
 <script setup lang="ts">
-  import index from '../../assets/animations/index'
+  import index from '../../../assets/animations/index'
   const lottie = ref(index['clear_day'])
 </script>
 

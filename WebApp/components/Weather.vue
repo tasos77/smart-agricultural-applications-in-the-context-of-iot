@@ -11,8 +11,8 @@
 </template>
 
 <script setup lang="ts">
-  import Forecast from './widgets/Forecast.vue'
-  import CurrentCondition from './widgets/CurrentCondition.vue'
+  import Forecast from './widgets/Weather/Forecast.vue'
+  import CurrentCondition from './widgets/Weather/CurrentCondition.vue'
 </script>
 
 <style scoped></style>
