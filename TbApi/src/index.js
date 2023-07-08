@@ -4,6 +4,7 @@ import express, { response } from "express";
 import thingsboardApi from "./api/thingsboardApi.js";
 import { config } from "./config/public.js";
 import WebSocket from "ws";
+import { WebSocketServer } from "ws";
 
 const port = config.port;
 const domain = config.domain;
@@ -169,51 +170,71 @@ if (tbTokens) {
     }
   });
 
-  // init socket
+  ////////////////////// init socket //////////////////////
 
-  var token = tbTokens.token;
-  var entityId = "e5236870-5aca-11ed-8a9a-75998db067ac";
+  const wss = new WebSocketServer({ port: 8080 });
+  wss.on("connection", function connection(ws) {
+    var token = tbTokens.token;
+    var entityId = "e5236870-5aca-11ed-8a9a-75998db067ac";
 
-  var webSocket = new WebSocket(
-    "ws://localhost:9090/api/ws/plugins/telemetry?token=" + token
-  );
+    var webSocket = new WebSocket(
+      "ws://localhost:9090/api/ws/plugins/telemetry?token=" + token
+    );
 
-  if (entityId === "YOUR_DEVICE_ID") {
-    console.log("Invalid device id!");
-    webSocket.close();
-  }
+    if (entityId === "YOUR_DEVICE_ID") {
+      console.log("Invalid device id!");
+      webSocket.close();
+    }
 
-  if (token === "YOUR_JWT_TOKEN") {
-    console.log("Invalid JWT token!");
-    webSocket.close();
-  }
+    if (token === "YOUR_JWT_TOKEN") {
+      console.log("Invalid JWT token!");
+      webSocket.close();
+    }
 
-  webSocket.on("error", console.error);
+    webSocket.on("error", console.error);
 
-  webSocket.onopen = function () {
-    var object = {
-      tsSubCmds: [
-        {
-          entityType: "DEVICE",
-          entityId: entityId,
-          scope: "LATEST_TELEMETRY",
-          cmdId: 10,
-        },
-      ],
-      historyCmds: [],
-      attrSubCmds: [],
+    webSocket.onopen = function () {
+      var object = {
+        tsSubCmds: [
+          {
+            entityType: "DEVICE",
+            entityId: entityId,
+            scope: "LATEST_TELEMETRY",
+            cmdId: 10,
+          },
+        ],
+        historyCmds: [],
+        attrSubCmds: [],
+      };
+      var data = JSON.stringify(object);
+      webSocket.send(data);
+      console.log("Message is sent: " + data);
     };
-    var data = JSON.stringify(object);
-    webSocket.send(data);
-    console.log("Message is sent: " + data);
-  };
 
-  webSocket.onmessage = function (event) {
-    var received_msg = event.data;
-    console.log("Message is received: " + received_msg);
-  };
+    webSocket.onmessage = function (event) {
+      let parsedRawTBtelemetries = JSON.parse(event.data).data;
 
-  webSocket.onclose = function (event) {
-    console.log("Connection is closed!");
-  };
+      let formatedTbTelemetries = {
+        timestamp: parsedRawTBtelemetries.temperature[0][0],
+        temperature: parsedRawTBtelemetries.temperature[0][1],
+        humidity: parsedRawTBtelemetries.humidity[0][1],
+        rain: parsedRawTBtelemetries.rain[0][1],
+        soilMoisture: parsedRawTBtelemetries.soilMoisture[0][1],
+        uv: parsedRawTBtelemetries.uv[0][1],
+      };
+
+      console.log(formatedTbTelemetries);
+      ws.send(JSON.stringify(formatedTbTelemetries));
+    };
+
+    webSocket.onclose = function (event) {
+      console.log("Connection is closed!");
+    };
+
+    ws.on("error", console.error);
+
+    ws.on("message", function message(data) {
+      console.log("received: %s", data);
+    });
+  });
 }

@@ -82,7 +82,7 @@
 </template>
 
 <script setup lang="ts">
-  const deviceName = ref('ESP8266')
+  const deviceName = ref('WeMos D1 R32')
   const deviceStatus = ref(true)
 
   const deviceConditions = ref([

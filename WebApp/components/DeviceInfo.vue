@@ -1,7 +1,7 @@
 <template>
-  <v-row align="stretch" justify="center" class="mx-3 pa-0 my-2">
+  <v-row align="stretch" justify="center" class="mx-3 pa-0 mt-2 mb-0">
     <VCol sm="12" md="4">
-      <DeviceInfo />
+      <DeviceState />
     </VCol>
     <VCol sm="12" md="8">
       <VCard rounded="xl" color="color_surface_mixed_200">
@@ -24,7 +24,7 @@
 
 <script setup lang="ts">
   import CurrentMeasurement from './widgets/CurrentMeasurement.vue'
-  import DeviceInfo from './widgets/DeviceInfo.vue'
+  import DeviceState from './widgets/DeviceState.vue'
 </script>
 
 <style scoped></style>
