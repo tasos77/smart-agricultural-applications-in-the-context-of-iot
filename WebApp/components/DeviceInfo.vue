@@ -7,14 +7,17 @@
       <VCard rounded="xl" color="color_surface_mixed_200">
         <VCardTitle>Current Measurements</VCardTitle>
         <Vrow class="d-flex flex-wrap">
-          <VCol sm="12" md="4">
+          <VCol sm="12" md="6">
             <CurrentMeasurement :measurementName="'Humidity'" />
           </VCol>
-          <VCol sm="12" md="4">
+          <VCol sm="12" md="6">
             <CurrentMeasurement :measurementName="'Soil Moisture'" />
           </VCol>
-          <VCol sm="12" md="4">
+          <VCol sm="12" md="6">
             <CurrentMeasurement :measurementName="'UV Index'" />
+          </VCol>
+          <VCol sm="12" md="6">
+            <CurrentMeasurement :measurementName="'Rain'" />
           </VCol>
         </Vrow>
       </VCard>

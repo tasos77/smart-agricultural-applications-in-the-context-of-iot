@@ -1,8 +1,13 @@
 <template>
-  <VCard rounded="xl" color="color_surface_mixed_300">
+  <VCard rounded="xl" color="color_surface_mixed_300 ">
     <VCardTitle>{{ props.measurementName }}</VCardTitle>
     <VCardText class="w-auto pa-0">
-      <apexchart type="radialBar" height="350" :options="chartOptions" :series="series"></apexchart>
+      <apexchart
+        type="radialBar"
+        height="auto"
+        :options="chartOptions"
+        :series="series"
+      ></apexchart>
     </VCardText>
   </VCard>
 </template>
