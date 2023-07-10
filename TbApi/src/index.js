@@ -216,11 +216,11 @@ if (tbTokens) {
 
       let formatedTbTelemetries = {
         timestamp: parsedRawTBtelemetries.temperature[0][0],
-        temperature: parsedRawTBtelemetries.temperature[0][1],
-        humidity: parsedRawTBtelemetries.humidity[0][1],
-        rain: parsedRawTBtelemetries.rain[0][1],
-        soilMoisture: parsedRawTBtelemetries.soilMoisture[0][1],
-        uv: parsedRawTBtelemetries.uv[0][1],
+        temperature: parseFloat(parsedRawTBtelemetries.temperature[0][1]),
+        humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
+        rain: parseFloat(parsedRawTBtelemetries.rain[0][1]),
+        soilMoisture: parseFloat(parsedRawTBtelemetries.soilMoisture[0][1]),
+        uv: parseFloat(parsedRawTBtelemetries.uv[0][1]),
       };
 
       console.log(formatedTbTelemetries);

@@ -13,12 +13,18 @@
 </template>
 
 <script setup lang="ts">
-  interface Props {
-    measurementName: string
-  }
-  const props = defineProps<Props>()
+  let props = withDefaults(
+    defineProps<{
+      measurementName?: string
+      measurement?: number
+    }>(),
+    {
+      measurementName: '',
+      measurement: 0
+    }
+  )
 
-  const series = reactive([67])
+  const series = reactive([props.measurement])
   const chartOptions = reactive({
     chart: {
       height: 350,
