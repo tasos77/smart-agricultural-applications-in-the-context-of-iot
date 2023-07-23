@@ -1,35 +1,43 @@
 <template>
-  <VRow align="stretch" justify="center" class="mx-3 pa-0 mt-2 mb-0">
+  <VRow align="stretch" justify="center" class="pa-0 mt-2 mb-0">
     <VCol sm="12" md="4">
       <DeviceState />
     </VCol>
     <VCol sm="12" md="8">
       <VCard rounded="xl" color="color_surface_mixed_200">
         <VCardTitle>Current Measurements</VCardTitle>
-        <VRow class="d-flex flex-wrap">
-          <VCol sm="12" md="6">
-            <CurrentMeasurement
-              :measurementName="'Humidity'"
-              :measurement="props.currentMeasurements.humidity"
-            />
+        <VRow class="d-flex flex-wrap ma-0 pa-0">
+          <VCol sm="12" md="6" class="pa-0 ma-0">
+            <div class="pa-3">
+              <CurrentMeasurement
+                :measurementName="'Humidity'"
+                :measurement="props.currentMeasurements.humidity"
+              />
+            </div>
           </VCol>
-          <VCol sm="12" md="6">
-            <CurrentMeasurement
-              :measurementName="'Soil Moisture'"
-              :measurement="props.currentMeasurements.soilMoisture"
-            />
+          <VCol sm="12" md="6" class="pa-0 ma-0">
+            <div class="pa-3">
+              <CurrentMeasurement
+                :measurementName="'Soil Moisture'"
+                :measurement="props.currentMeasurements.soilMoisture"
+              />
+            </div>
           </VCol>
-          <VCol sm="12" md="6">
-            <CurrentMeasurement
-              :measurementName="'UV Index'"
-              :measurement="props.currentMeasurements.UV"
-            />
+          <VCol sm="12" md="6" class="pa-0 ma-0">
+            <div class="pa-3">
+              <CurrentMeasurement
+                :measurementName="'UV Index'"
+                :measurement="props.currentMeasurements.UV"
+              />
+            </div>
           </VCol>
-          <VCol sm="12" md="6">
-            <CurrentMeasurement
-              :measurementName="'Rain'"
-              :measurement="props.currentMeasurements.rain"
-            />
+          <VCol sm="12" md="6" class="pa-0 ma-0">
+            <div class="pa-3">
+              <CurrentMeasurement
+                :measurementName="'Rain'"
+                :measurement="props.currentMeasurements.rain"
+              />
+            </div>
           </VCol>
         </VRow>
       </VCard>

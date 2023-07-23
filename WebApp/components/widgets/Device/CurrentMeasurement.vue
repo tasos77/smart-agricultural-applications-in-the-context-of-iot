@@ -1,13 +1,22 @@
 <template>
-  <VCard rounded="xl" color="color_surface_mixed_300 ">
+  <VCard rounded="xl" color="color_surface_mixed_300">
     <VCardTitle>{{ props.measurementName }}</VCardTitle>
     <VCardText class="w-auto pa-0">
-      <apexchart
-        type="radialBar"
-        height="auto"
-        :options="chartOptions"
-        :series="series"
-      ></apexchart>
+      <VRow class="pa-0 ma-0">
+        <VCol>
+          <apexchart
+            type="radialBar"
+            height="auto"
+            :options="chartOptions"
+            :series="series"
+          ></apexchart>
+        </VCol>
+        <VCol class="d-flex justify-center align-center">
+          <div class="text-h3">
+            {{ props.measurement }}
+          </div>
+        </VCol>
+      </VRow>
     </VCardText>
   </VCard>
 </template>
@@ -36,37 +45,14 @@
         startAngle: -135,
         endAngle: 135,
         dataLabels: {
-          name: {
-            fontSize: '16px',
-            color: 'blue',
-            offsetY: 120
-          },
-          value: {
-            offsetY: 76,
-            fontSize: '22px',
-            color: undefined,
-            formatter: function (val) {
-              return val + '%'
-            }
-          }
+          show: false
         }
       }
     },
-    fill: {
-      type: 'gradient',
-      gradient: {
-        shade: 'dark',
-        shadeIntensity: 0.15,
-        inverseColors: false,
-        opacityFrom: 1,
-        opacityTo: 1,
-        stops: [0, 50, 65, 91]
-      }
-    },
+
     stroke: {
       dashArray: 4
-    },
-    labels: ['Median Ratio']
+    }
   })
 </script>
 
