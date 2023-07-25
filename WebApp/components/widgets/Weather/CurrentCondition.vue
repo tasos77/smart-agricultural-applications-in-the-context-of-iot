@@ -8,11 +8,11 @@
           </div>
         </ClientOnly>
         <div>
-          <div class="text-h1">28°C</div>
+          <div class="text-h1">{{ props.temp }}°C</div>
         </div>
         <VDivider />
         <div>
-          <div class="text-h6">24, July 2022 5:01 AM</div>
+          <div class="text-h6">{{ cacledTimestamp }}</div>
         </div>
       </VCol>
     </VRow>
@@ -20,8 +20,24 @@
 </template>
 
 <script setup lang="ts">
-  import index from '../../assets/animations/index'
+  import moment from 'moment'
+  import index from '../../../assets/animations/index'
   const lottie = ref(index['clear_day'])
+
+  const props = withDefaults(
+    defineProps<{
+      timestamp?: number
+      temp?: number
+    }>(),
+    {
+      timestamp: 0,
+      temp: 0
+    }
+  )
+
+  const cacledTimestamp = computed(() => {
+    return moment(props.timestamp).format('DD MMM, YYYY hh:mm A')
+  })
 </script>
 
 <style scoped></style>

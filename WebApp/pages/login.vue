@@ -67,7 +67,6 @@
   import { tokensAuthStore } from '../stores/auth'
   import DismissableSnackbar from '../components/DismissableSnackbar.vue'
   import SignUpLink from '../components/SignUpLink.vue'
-
   import LoadingBar from '../components/LoadingBar.vue'
 
   definePageMeta({
@@ -115,7 +114,7 @@
       .then(() => {
         userInfo.username = ''
         userInfo.password = ''
-        navigateTo('/devices')
+        navigateTo('/home')
       })
       .catch((e) => {
         loading.value = false

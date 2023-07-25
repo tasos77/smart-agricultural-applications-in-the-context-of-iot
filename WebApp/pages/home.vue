@@ -1,7 +1,7 @@
 <template>
   <div>
-    <Weather />
-    <DeviceInfo />
+    <Weather :timestamp="timestamp" :temp="temp" />
+    <DeviceInfo :currentMeasurements="currentMeasurements" />
   </div>
 </template>
 
@@ -11,7 +11,31 @@
   definePageMeta({
     layout: 'main'
   })
-  const devices = `myDevices`
+
+  let timestamp = ref(0)
+  let temp = ref(0)
+  let currentMeasurements = ref({})
+
+  const socket = new WebSocket('ws://localhost:8080')
+  socket.onopen = function (event) {
+    console.log('WebSocket connection opened:', event)
+  }
+
+  socket.onmessage = function (event) {
+    console.log(JSON.parse(event.data))
+    let apiTelemetries = JSON.parse(event.data)
+    timestamp = apiTelemetries.timestamp
+    temp = apiTelemetries.temperature
+    currentMeasurements = apiTelemetries
+  }
+
+  socket.onerror = function (error) {
+    console.log('WebSocket error:', error)
+  }
+
+  socket.onclose = function (event) {
+    console.log('WebSocket connection closed:', event.code)
+  }
 </script>
 
 <style scoped></style>

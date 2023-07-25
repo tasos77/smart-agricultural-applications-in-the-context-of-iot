@@ -29,6 +29,9 @@ export const mainTheme: ThemeDefinition = {
     color_surface_mixed_300: '#454950',
     color_surface_mixed_400: '#5d6067',
     color_surface_mixed_500: '#76797e',
-    color_surface_mixed_600: '#909297'
+    color_surface_mixed_600: '#909297',
+
+    offline_color: '#FF5733',
+    online_color: '#75FF33'
   }
 }

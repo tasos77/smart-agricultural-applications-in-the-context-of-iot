@@ -3,7 +3,11 @@
     <VCardTitle>
       <VRow class="pa-0 ma-0 d-flex flex-wrap" justify="space-between">
         <div>{{ deviceName }}</div>
-        <div>{{ deviceStatus }}</div>
+        <VSheet
+          rounded="circle"
+          :color="deviceStatus ? 'online_color' : 'offline_color'"
+          class="pa-1 ma-3"
+        />
       </VRow>
     </VCardTitle>
 
@@ -47,7 +51,7 @@
               <div>
                 <h4>Sensors</h4>
               </div>
-              <VDivider />
+              <VDivider class="my-1" />
               <VRow
                 class="ma-0 pa-0"
                 align="center"
@@ -58,31 +62,23 @@
                 <div>
                   <h5>{{ sensor.sensorName }}</h5>
                 </div>
-                <div>{{ sensor.status }}</div>
-              </VRow>
 
-              <!-- <VRow class="ma-0 pa-0">
-                <VProgressLinear
-                  color="blue-lighten-3"
-                  :model-value="deviceCondition.percValue"
-                ></VProgressLinear>
-                <div>{{ deviceCondition.percValue }}%</div>
-              </VRow> -->
+                <VSheet
+                  rounded="circle"
+                  :color="sensor.status ? 'online_color' : 'offline_color'"
+                  class="pa-1"
+                />
+              </VRow>
             </VCol>
           </VRow>
         </VCardText>
       </VCard>
-
-      <!-- <div>{{ deviceProtocolName }}</div>
-      <div>{{ deviceProtocolStatus }}</div>
-      <div>{{ deviceProtocolTopics }}</div>
-      <div>{{ deviceSensorCondition }}</div> -->
     </VCardText>
   </VCard>
 </template>
 
 <script setup lang="ts">
-  const deviceName = ref('ESP8266')
+  const deviceName = ref('WeMos D1 R32')
   const deviceStatus = ref(true)
 
   const deviceConditions = ref([
