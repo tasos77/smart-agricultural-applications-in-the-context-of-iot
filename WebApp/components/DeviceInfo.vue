@@ -1,5 +1,5 @@
 <template>
-  <VRow align="stretch" justify="center" class="pa-0 mt-2 mb-0">
+  <VRow align="stretch" justify="center" class="pa-0 ma-0">
     <VCol sm="12" md="4">
       <DeviceState />
     </VCol>

@@ -90,8 +90,6 @@ const registration = (registrationInfo: RegistrationFormData) => {
 }
 
 const activateUser = (activationInfo: ActivationInfo) => {
-  console.log(activationInfo)
-
   return client.post(`/activateUser`, {
     activationInfo
   })

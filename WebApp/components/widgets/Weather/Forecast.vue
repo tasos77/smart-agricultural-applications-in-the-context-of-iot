@@ -1,5 +1,5 @@
 <template>
-  <VCard rounded="xl" color="color_surface_mixed_200" class="h-100 w-100">
+  <VCard rounded="xl" color="color_surface_mixed_200">
     <v-row
       v-for="(forecast, index) in forecasts"
       :key="index"

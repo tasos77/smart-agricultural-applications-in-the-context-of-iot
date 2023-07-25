@@ -22,7 +22,6 @@
   }
 
   socket.onmessage = function (event) {
-    console.log(JSON.parse(event.data))
     let apiTelemetries = JSON.parse(event.data)
     timestamp = apiTelemetries.timestamp
     temp = apiTelemetries.temperature

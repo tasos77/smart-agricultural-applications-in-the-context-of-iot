@@ -13,7 +13,7 @@
         </VCol>
         <VCol class="d-flex justify-center align-center">
           <div class="text-h3">
-            {{ props.measurement }}
+            {{ props.measurement + 50 }}
           </div>
         </VCol>
       </VRow>
@@ -33,7 +33,7 @@
     }
   )
 
-  const series = reactive([props.measurement])
+  const series = reactive([50])
   const chartOptions = reactive({
     chart: {
       height: 350,

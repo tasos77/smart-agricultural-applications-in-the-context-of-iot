@@ -114,7 +114,7 @@
       .then(() => {
         userInfo.username = ''
         userInfo.password = ''
-        navigateTo('/home')
+        navigateTo('/dashboard')
       })
       .catch((e) => {
         loading.value = false
