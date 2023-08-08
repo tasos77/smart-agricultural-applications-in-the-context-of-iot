@@ -7,11 +7,11 @@
       align="center"
     >
       <VCol align="center" class="pa-0">
-        <ClientOnly>
-          <div style="height: 50px; width: 50px">
-            <lottie-animation :animation-data="forecast.lottie" :autoplay="true" :loop="true" />
-          </div>
-        </ClientOnly>
+        <div style="height: 50px; width: 50px">
+          <client-only>
+            <Vue3Lottie :animation-data="forecast.lottie" height="auto" width="auto" />
+          </client-only>
+        </div>
       </VCol>
       <VCol align="center"
         ><span class="text-h5">{{ forecast.maxTemp }}/</span

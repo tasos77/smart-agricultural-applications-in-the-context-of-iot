@@ -2,11 +2,12 @@
   <VCard rounded="xl" class="h-100 w-100" color="color_surface_mixed_200">
     <VRow justify="start" align="center" class="pa-0 ma-0 h-100">
       <VCol>
-        <ClientOnly>
-          <div style="height: 100px; width: 100px">
-            <lottie-animation :animation-data="lottie" :autoplay="true" :loop="true" />
-          </div>
-        </ClientOnly>
+        <div class="w-50 h-50">
+          <client-only>
+            <Vue3Lottie :animation-data="lottie" height="auto" width="auto" />
+          </client-only>
+        </div>
+
         <div>
           <div class="text-h1">{{ props.temp }}°C</div>
         </div>
@@ -22,7 +23,10 @@
 <script setup lang="ts">
   import moment from 'moment'
   import index from '../../../assets/animations/index'
+  import { useDisplay } from 'vuetify'
   const lottie = ref(index['clear_day'])
+
+  const display = useDisplay()
 
   const props = withDefaults(
     defineProps<{
