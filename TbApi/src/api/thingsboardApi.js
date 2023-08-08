@@ -13,6 +13,26 @@ const login = (username, password) => {
   });
 };
 
+const logout = (accessToken) => {
+  return instance.post(
+    `/auth/logout`,
+    {},
+    {
+      headers: {
+        "X-Authorization": `${accessToken}`,
+      },
+    }
+  );
+};
+
+const getUser = (accessToken) => {
+  return instance.get("/auth/user", {
+    headers: {
+      "X-Authorization": `${accessToken}`,
+    },
+  });
+};
+
 const activateUser = (token, activationInfo) => {
   console.log(activationInfo);
   return instance.post(
@@ -70,16 +90,10 @@ const createUser = (token, registrationInfo, customerId) => {
 };
 
 export default {
-  login(username, password) {
-    return login(username, password);
-  },
-  activateUser(token, activationInfo) {
-    return activateUser(token, activationInfo);
-  },
-  createCustomer(token, email) {
-    return createCustomer(token, email);
-  },
-  createUser(token, registrationInfo, customerId) {
-    return createUser(token, registrationInfo, customerId);
-  },
+  login,
+  activateUser,
+  createCustomer,
+  createUser,
+  logout,
+  getUser,
 };

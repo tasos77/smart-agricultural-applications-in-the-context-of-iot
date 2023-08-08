@@ -31,7 +31,7 @@
       <!-- Logout Button -->
       <template v-slot:append>
         <div class="pa-2">
-          <v-btn block color="color_surface_mixed_400"> Logout </v-btn>
+          <v-btn block color="color_surface_mixed_400" @click="logout"> Logout </v-btn>
         </div>
       </template>
     </v-navigation-drawer>
@@ -58,13 +58,28 @@
 <script setup lang="ts">
   import { useDisplay } from 'vuetify'
   import { computed } from 'vue'
+  import { tokensAuthStore } from '~~/stores/auth.js'
+  import tbApi from '~/api/tbApi.js'
   const display = ref(useDisplay())
   const route = useRoute()
+  const authStore = tokensAuthStore()
   const routeName = computed(() => {
     return route.name.charAt(0).toUpperCase() + route.name.slice(1)
   })
 
   const drawer = ref(display.value.smAndDown ? false : true)
+
+  const logout = () => {
+    tbApi
+      .logout()
+      .then(() => {
+        authStore.removeTokens()
+        navigateTo('/login')
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+  }
 </script>
 
 <style>

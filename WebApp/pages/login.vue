@@ -109,7 +109,7 @@
       .login(userInfo.username, userInfo.password)
       .then((response) => {
         loading.value = false
-        auth.setLocalTokens(response.data.msg)
+        auth.setLocalTokens(response.data.data)
       })
       .then(() => {
         userInfo.username = ''

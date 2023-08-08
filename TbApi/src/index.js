@@ -170,6 +170,75 @@ if (tbTokens) {
     }
   });
 
+  app.post(`/logout`, async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    const logoutInfo = {
+      accessToken: req.body.accessToken,
+    };
+    let middlresponse = {
+      msg: "",
+      status: null,
+      data: {},
+    };
+
+    if (logoutInfo.hasOwnProperty("accessToken") && logoutInfo.accessToken) {
+      thingsboardApi
+        .logout(logoutInfo.accessToken)
+        .then(() => {
+          res.status(200);
+          middlresponse.msg = `User logged out!`;
+          middlresponse.status = 200;
+          res.json(middlresponse);
+        })
+        .catch((e) => {
+          res.status(400);
+          middlresponse.msg = `User logout failed!`;
+          middlresponse.status = 400;
+          res.json(middlresponse);
+        });
+    } else {
+      res.status(400);
+      middlresponse.msg = `Missing or invalid body!`;
+      middlresponse.status = 400;
+      res.json(middlresponse);
+    }
+  });
+
+  app.post(`/getUser`, async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    const userInfo = {
+      accessToken: req.body.accessToken,
+    };
+    let middlresponse = {
+      msg: "",
+      status: null,
+      data: {},
+    };
+
+    if (userInfo.hasOwnProperty("accessToken") && userInfo.accessToken) {
+      thingsboardApi
+        .getUser(userInfo.accessToken)
+        .then((tbRes) => {
+          res.status(200);
+          middlresponse.msg = `Got user!`;
+          middlresponse.status = 200;
+          middlresponse.data = tbRes.data;
+          res.json(middlresponse);
+        })
+        .catch((e) => {
+          res.status(400);
+          middlresponse.msg = `Failed to get user!`;
+          middlresponse.status = 400;
+          res.json(middlresponse);
+        });
+    } else {
+      res.status(400);
+      middlresponse.msg = `Missing or invalid body!`;
+      middlresponse.status = 400;
+      res.json(middlresponse);
+    }
+  });
+
   ////////////////////// init socket //////////////////////
 
   const wss = new WebSocketServer({ port: 8080 });
