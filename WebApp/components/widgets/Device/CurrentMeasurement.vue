@@ -1,5 +1,5 @@
 <template>
-  <VCard rounded="xl" color="color_surface_mixed_300">
+  <VCard elevation="0" rounded="xl" color="color_surface_mixed_300">
     <VCardTitle>{{ props.measurementName }}</VCardTitle>
     <VCardText class="w-auto pa-0">
       <VRow class="pa-0 ma-0">
@@ -13,7 +13,7 @@
         </VCol>
         <VCol class="d-flex justify-center align-center">
           <div class="text-h3">
-            {{ props.measurement + 50 }}
+            {{ props.measurement }}
           </div>
         </VCol>
       </VRow>

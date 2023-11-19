@@ -5,7 +5,7 @@ import thingsboardApi from "./api/thingsboardApi.js";
 import { config } from "./config/public.js";
 import WebSocket from "ws";
 import { WebSocketServer } from "ws";
-
+import moment from 'moment'
 const port = config.port;
 const domain = config.domain;
 // try to get TB access token
@@ -15,6 +15,32 @@ const tbTokens = await thingsboardApi
   .catch((e) => {
     console.log("Failed to get TB tokens..!");
   });
+
+
+
+
+  const date3 = new Date
+
+const timestamp = Date.UTC(
+  date3.getFullYear(),
+  date3.getMonth(),
+  19,
+  23,
+  10,
+  date3.getSeconds(),
+  date3.getMilliseconds(),
+);
+const timestamp2 = Date.UTC(
+  date3.getFullYear(),
+  date3.getMonth(),
+  19,
+  23,
+  50,
+  date3.getSeconds(),
+  date3.getMilliseconds(),
+);
+console.log(timestamp)
+console.log(timestamp2)
 
 if (tbTokens) {
   // create express application
