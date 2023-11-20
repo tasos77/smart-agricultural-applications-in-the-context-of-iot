@@ -64,7 +64,7 @@
 <script setup lang="ts">
   import { ref, reactive } from 'vue'
   import tbApi from '../api/tbApi'
-  import { tokensAuthStore } from '../stores/auth'
+  import { useTokensAuthStore } from '../stores/auth'
   import DismissableSnackbar from '../components/DismissableSnackbar.vue'
   import SignUpLink from '../components/SignUpLink.vue'
   import LoadingBar from '../components/LoadingBar.vue'
@@ -73,7 +73,7 @@
     middleware: 'redirect'
   })
   // init store
-  const auth = tokensAuthStore()
+  const auth = useTokensAuthStore()
   // snackbar starting state
   const snackbar = ref(false)
   const snackbarText = ref(``)

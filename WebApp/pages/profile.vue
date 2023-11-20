@@ -42,6 +42,7 @@
 
 <script setup lang="ts">
   import tbApi from '~/api/tbApi.js'
+  import { useTokensAuthStore } from '~/stores/auth'
   definePageMeta({
     layout: 'main'
   })
@@ -49,10 +50,11 @@
   const email = ref('')
   const firstName = ref('')
   const lastName = ref('')
-
+  // init store instance
+  const authStore = useTokensAuthStore()
   onMounted(() => {
     tbApi
-      .getUser()
+      .getUser(authStore.getLocalToken())
       .then((response) => {
         email.value = response.data.data.email
         firstName.value = response.data.data.firstName

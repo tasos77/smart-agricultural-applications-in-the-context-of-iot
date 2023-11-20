@@ -58,11 +58,11 @@
 <script setup lang="ts">
   import { useDisplay } from 'vuetify'
   import { computed } from 'vue'
-  import { tokensAuthStore } from '~~/stores/auth.js'
+  import { useTokensAuthStore } from '~/stores/auth.js'
   import tbApi from '~/api/tbApi.js'
   const display = ref(useDisplay())
   const route = useRoute()
-  const authStore = tokensAuthStore()
+  const authStore = useTokensAuthStore()
   const routeName = computed(() => {
     return route.name.charAt(0).toUpperCase() + route.name.slice(1)
   })
@@ -71,7 +71,7 @@
 
   const logout = () => {
     tbApi
-      .logout()
+      .logout(authStore.getLocalToken())
       .then(() => {
         authStore.removeTokens()
         navigateTo('/login')

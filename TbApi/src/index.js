@@ -8,6 +8,8 @@ import { WebSocketServer } from "ws";
 import moment from 'moment'
 const port = config.port;
 const domain = config.domain;
+const entityId = 'e5236870-5aca-11ed-8a9a-75998db067ac'
+
 // try to get TB access token
 const tbTokens = await thingsboardApi
   .login(config.tenantUsername, config.tenantPassword)
@@ -19,28 +21,18 @@ const tbTokens = await thingsboardApi
 
 
 
-  const date3 = new Date
+// function updateTime() {
+//   let currentTime = new Date();
+//   let currentTimeMillis = currentTime.getTime();
+//   let currentUTCTime = currentTime.toUTCString();
 
-const timestamp = Date.UTC(
-  date3.getFullYear(),
-  date3.getMonth(),
-  19,
-  23,
-  10,
-  date3.getSeconds(),
-  date3.getMilliseconds(),
-);
-const timestamp2 = Date.UTC(
-  date3.getFullYear(),
-  date3.getMonth(),
-  19,
-  23,
-  50,
-  date3.getSeconds(),
-  date3.getMilliseconds(),
-);
-console.log(timestamp)
-console.log(timestamp2)
+//   console.log("Current time in milliseconds: " + currentTimeMillis);
+ 
+// }
+
+// setInterval(updateTime, 1000);
+
+
 
 if (tbTokens) {
   // create express application
@@ -60,7 +52,7 @@ if (tbTokens) {
       origin: "*",
     })
   );
-
+//////////////////////// LOGIN ////////////////////////
   app.post(`/login`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const loginInfo = {
@@ -100,7 +92,7 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-
+//////////////////////// ACTIVATE USER ////////////////////////
   app.post(`/activateUser`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const activationInfo = {
@@ -140,7 +132,7 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-
+//////////////////////// CREATE USER ////////////////////////
   app.post(`/createUser`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const registrationInfo = {
@@ -195,7 +187,7 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-
+//////////////////////// LOGOUT  ////////////////////////
   app.post(`/logout`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const logoutInfo = {
@@ -229,7 +221,7 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-
+//////////////////////// GET USER ////////////////////////
   app.post(`/getUser`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const userInfo = {
@@ -264,13 +256,51 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-
+//////////////////////// GET TELEMETRY RANGE ////////////////////////
+  app.post(`/getTelemetryRange`, async(req,res)=>{
+    res.header("Access-Control-Allow-Origin", "*");
+    const telemetryRangeInfo = {
+      startTs : req.body.startTs,
+      endTs : req.body.endTs
+    }
+    let middlresponse = {
+      msg: "",
+      status: null,
+      data: {},
+    };
+    if (telemetryRangeInfo.hasOwnProperty("startTs") &&
+        telemetryRangeInfo.hasOwnProperty("endTs") && 
+        telemetryRangeInfo.startTs && 
+        telemetryRangeInfo.endTs
+      ){
+        thingsboardApi
+        .getTelemetryRange(tbTokens.token,entityId,telemetryRangeInfo.startTs,telemetryRangeInfo.endTs)
+        .then((tbRes)=>{
+          res.status(200)
+          middlresponse.msg = `Got telemetry range!`
+          middlresponse.status = 200
+          middlresponse.data = tbRes.data
+          res.json(middlresponse)
+        }).catch(e=>{
+          console.log(e.response.data)
+          res.status(400)
+          middlresponse.msg = 'Failed to get telemetry range!'
+          middlresponse.status = 400
+          res.json(middlresponse)
+        })
+    }else {
+      res.status(400)
+      middlresponse.msg = `Missing or invalid body`
+      middlresponse.status = 400
+      res.json(middlresponse)
+    }
+  })
   ////////////////////// init socket //////////////////////
 
   const wss = new WebSocketServer({ port: 8080 });
   wss.on("connection", function connection(ws) {
     var token = tbTokens.token;
-    var entityId = "e5236870-5aca-11ed-8a9a-75998db067ac";
+    
 
     var webSocket = new WebSocket(
       "ws://localhost:9090/api/ws/plugins/telemetry?token=" + token

@@ -9,7 +9,7 @@ const createAccessToken = (token: string): string => {
   return `Bearer ${token}`
 }
 
-export const tokensAuthStore = defineStore('tokens', {
+export const useTokensAuthStore = defineStore('tokens', {
   state: (): Tokens => ({
     token: null,
     refreshToken: null
