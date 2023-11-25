@@ -33,6 +33,8 @@ const tbTokens = await thingsboardApi
 // setInterval(updateTime, 1000);
 
 
+console.log(tbTokens.token)
+
 
 if (tbTokens) {
   // create express application
