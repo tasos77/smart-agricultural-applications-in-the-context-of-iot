@@ -13,6 +13,7 @@ import thunderstorms_rain from './thunderstorms-rain.json'
 import wind from './wind.json'
 import snow from './snow.json'
 import sleet from './sleet.json'
+import empty_state_dashboards from './empty_state_dashboards.json'
 export default {
   not_available,
   clear_day,
@@ -28,5 +29,6 @@ export default {
   sleet,
   wind,
   fog,
-  cloudy
+  cloudy,
+  empty_state_dashboards
 }
