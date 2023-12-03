@@ -18,10 +18,11 @@ DHTesp dht;
 // define pins
 #define redLedPin 14
 #define greenLenPin 16
+#define waterPumpRelay 17
 #define humiditySensor 27
-#define rainSensor 39
-#define uvSensor 36
 #define soilSensor 34
+#define uvSensor 36
+#define rainSensor 39
 
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
@@ -126,6 +127,7 @@ void setup()
   Serial.begin(921600);
   pinMode(redLedPin, OUTPUT);
   pinMode(greenLenPin, OUTPUT);
+  pinMode(waterPumpRelay, OUTPUT);
   // pinMode(humiditySensor, INPUT);
   // pinMode(rainSensor, INPUT);
   // pinMode(uvSensor, INPUT);
@@ -173,6 +175,9 @@ void loop()
     }
     else
     {
+
+      digitalWrite(waterPumpRelay, HIGH);
+      delay(2000);
       // reading temperature or humidity takes about 250 milliseconds
       // sensor readings may also be up to 2 seconds 'old'
       // read humidity
@@ -255,8 +260,10 @@ void loop()
 
       mqttClient.publish("v1/devices/me/telemetry", msg);
       msgStr = "";
+
+      digitalWrite(waterPumpRelay, LOW);
     }
   }
 
-  delay(16000);
+  delay(5000);
 }
