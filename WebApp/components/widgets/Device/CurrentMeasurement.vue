@@ -1,5 +1,5 @@
 <template>
-  <VCard rounded="xl" color="color_surface_mixed_300">
+  <VCard elevation="0" rounded="xl" color="color_surface_mixed_300">
     <VCardTitle>{{ props.measurementName }}</VCardTitle>
     <VCardText class="w-auto pa-0">
       <VRow class="pa-0 ma-0">
@@ -33,7 +33,7 @@
     }
   )
 
-  const series = reactive([props.measurement])
+  const series = reactive([50])
   const chartOptions = reactive({
     chart: {
       height: 350,

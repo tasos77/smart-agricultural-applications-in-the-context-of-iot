@@ -1,10 +1,9 @@
 <template>
-  <v-row justify="center" align="stretch" class="mx-3 pa-0 my-0 mt-3 h-50">
+  <v-row align="stretch" justify="center" class="pa-0 ma-0">
     <VCol sm="12" md="4">
       <CurrentCondition :timestamp="props.timestamp" :temp="props.temp" />
     </VCol>
-
-    <VCol sm="12" md="8" class="d-flex flex-wrap">
+    <VCol sm="12" md="8">
       <Forecast />
     </VCol>
   </v-row>

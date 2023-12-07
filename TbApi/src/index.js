@@ -5,9 +5,11 @@ import thingsboardApi from "./api/thingsboardApi.js";
 import { config } from "./config/public.js";
 import WebSocket from "ws";
 import { WebSocketServer } from "ws";
-
+import moment from 'moment'
 const port = config.port;
 const domain = config.domain;
+const entityId = 'e5236870-5aca-11ed-8a9a-75998db067ac'
+
 // try to get TB access token
 const tbTokens = await thingsboardApi
   .login(config.tenantUsername, config.tenantPassword)
@@ -15,6 +17,24 @@ const tbTokens = await thingsboardApi
   .catch((e) => {
     console.log("Failed to get TB tokens..!");
   });
+
+
+
+
+// function updateTime() {
+//   let currentTime = new Date();
+//   let currentTimeMillis = currentTime.getTime();
+//   let currentUTCTime = currentTime.toUTCString();
+
+//   console.log("Current time in milliseconds: " + currentTimeMillis);
+ 
+// }
+
+// setInterval(updateTime, 1000);
+
+
+console.log(tbTokens.token)
+
 
 if (tbTokens) {
   // create express application
@@ -34,7 +54,7 @@ if (tbTokens) {
       origin: "*",
     })
   );
-
+//////////////////////// LOGIN ////////////////////////
   app.post(`/login`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const loginInfo = {
@@ -74,7 +94,7 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-
+//////////////////////// ACTIVATE USER ////////////////////////
   app.post(`/activateUser`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const activationInfo = {
@@ -114,7 +134,7 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-
+//////////////////////// CREATE USER ////////////////////////
   app.post(`/createUser`, async (req, res) => {
     res.header("Access-Control-Allow-Origin", "*");
     const registrationInfo = {
@@ -169,13 +189,120 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
+//////////////////////// LOGOUT  ////////////////////////
+  app.post(`/logout`, async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    const logoutInfo = {
+      accessToken: req.body.accessToken,
+    };
+    let middlresponse = {
+      msg: "",
+      status: null,
+      data: {},
+    };
 
+    if (logoutInfo.hasOwnProperty("accessToken") && logoutInfo.accessToken) {
+      thingsboardApi
+        .logout(logoutInfo.accessToken)
+        .then(() => {
+          res.status(200);
+          middlresponse.msg = `User logged out!`;
+          middlresponse.status = 200;
+          res.json(middlresponse);
+        })
+        .catch((e) => {
+          res.status(400);
+          middlresponse.msg = `User logout failed!`;
+          middlresponse.status = 400;
+          res.json(middlresponse);
+        });
+    } else {
+      res.status(400);
+      middlresponse.msg = `Missing or invalid body!`;
+      middlresponse.status = 400;
+      res.json(middlresponse);
+    }
+  });
+//////////////////////// GET USER ////////////////////////
+  app.post(`/getUser`, async (req, res) => {
+    res.header("Access-Control-Allow-Origin", "*");
+    const userInfo = {
+      accessToken: req.body.accessToken,
+    };
+    let middlresponse = {
+      msg: "",
+      status: null,
+      data: {},
+    };
+
+    if (userInfo.hasOwnProperty("accessToken") && userInfo.accessToken) {
+      thingsboardApi
+        .getUser(userInfo.accessToken)
+        .then((tbRes) => {
+          res.status(200);
+          middlresponse.msg = `Got user!`;
+          middlresponse.status = 200;
+          middlresponse.data = tbRes.data;
+          res.json(middlresponse);
+        })
+        .catch((e) => {
+          res.status(400);
+          middlresponse.msg = `Failed to get user!`;
+          middlresponse.status = 400;
+          res.json(middlresponse);
+        });
+    } else {
+      res.status(400);
+      middlresponse.msg = `Missing or invalid body!`;
+      middlresponse.status = 400;
+      res.json(middlresponse);
+    }
+  });
+//////////////////////// GET TELEMETRY RANGE ////////////////////////
+  app.post(`/getTelemetryRange`, async(req,res)=>{
+    res.header("Access-Control-Allow-Origin", "*");
+    const telemetryRangeInfo = {
+      startTs : req.body.startTs,
+      endTs : req.body.endTs
+    }
+    let middlresponse = {
+      msg: "",
+      status: null,
+      data: {},
+    };
+    if (telemetryRangeInfo.hasOwnProperty("startTs") &&
+        telemetryRangeInfo.hasOwnProperty("endTs") && 
+        telemetryRangeInfo.startTs && 
+        telemetryRangeInfo.endTs
+      ){
+        thingsboardApi
+        .getTelemetryRange(tbTokens.token,entityId,telemetryRangeInfo.startTs,telemetryRangeInfo.endTs)
+        .then((tbRes)=>{
+          res.status(200)
+          middlresponse.msg = `Got telemetry range!`
+          middlresponse.status = 200
+          middlresponse.data = tbRes.data
+          res.json(middlresponse)
+        }).catch(e=>{
+          console.log(e.response.data)
+          res.status(400)
+          middlresponse.msg = 'Failed to get telemetry range!'
+          middlresponse.status = 400
+          res.json(middlresponse)
+        })
+    }else {
+      res.status(400)
+      middlresponse.msg = `Missing or invalid body`
+      middlresponse.status = 400
+      res.json(middlresponse)
+    }
+  })
   ////////////////////// init socket //////////////////////
 
   const wss = new WebSocketServer({ port: 8080 });
   wss.on("connection", function connection(ws) {
     var token = tbTokens.token;
-    var entityId = "e5236870-5aca-11ed-8a9a-75998db067ac";
+    
 
     var webSocket = new WebSocket(
       "ws://localhost:9090/api/ws/plugins/telemetry?token=" + token

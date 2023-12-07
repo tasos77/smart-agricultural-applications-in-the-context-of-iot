@@ -1,9 +1,12 @@
-import { getTokenState } from '../composables/useAuth'
+import { useTokensAuthStore} from '~/stores/auth'
+
+const tokensAuthStore = useTokensAuthStore()
 
 export default defineNuxtRouteMiddleware((to, from) => {
-  const token = getTokenState()
+  const app = useNuxtApp()
+  const token = tokensAuthStore.getLocalToken() ? true : false
   if (token) {
-    return navigateTo('/home')
+    return navigateTo('/dashboard')
   }
   return true
 })

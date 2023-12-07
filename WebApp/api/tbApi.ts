@@ -1,8 +1,6 @@
 import axios from 'axios'
-import { tokensAuthStore } from '../stores/auth'
 import { RegistrationFormData, ActivationInfo } from '~/types/tbApiTypes'
-// init store instance
-const authStore = tokensAuthStore()
+
 
 // create axios instance
 const client = axios.create({
@@ -89,17 +87,33 @@ const registration = (registrationInfo: RegistrationFormData) => {
   })
 }
 
-const activateUser = (activationInfo: ActivationInfo) => {
-  console.log(activationInfo)
+const logout = (token:string) => {
+  return client.post('/logout', {
+    accessToken: token
+  })
+}
 
+const activateUser = (activationInfo: ActivationInfo) => {
   return client.post(`/activateUser`, {
     activationInfo
   })
 }
 
+const getUser = (token:string) => {
+  return client.post(`/getUser`, {
+    accessToken: token
+  })
+}
+
+const getTelemetryRange = (startTs: number, endTs: number) => {
+  return client.post(`/getTelemetryRange`, {
+    startTs,
+    endTs
+  })
+}
 // // try to get users devices
 // const getDevices = () => {
 //   return client.get(`api/v1/me/devices`);
 // };
 
-export default { login, registration, activateUser }
+export default { login, registration, activateUser, logout, getUser ,getTelemetryRange}

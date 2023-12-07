@@ -12,9 +12,9 @@
     layout: 'main'
   })
 
-  let timestamp = ref(0)
-  let temp = ref(0)
-  let currentMeasurements = ref({})
+  const timestamp = ref(0)
+  const temp = ref(0)
+  const currentMeasurements = ref({})
 
   const socket = new WebSocket('ws://localhost:8080')
   socket.onopen = function (event) {
@@ -22,11 +22,11 @@
   }
 
   socket.onmessage = function (event) {
-    console.log(JSON.parse(event.data))
     let apiTelemetries = JSON.parse(event.data)
-    timestamp = apiTelemetries.timestamp
-    temp = apiTelemetries.temperature
-    currentMeasurements = apiTelemetries
+    console.log(apiTelemetries)
+    timestamp.value = apiTelemetries.timestamp
+    temp.value = apiTelemetries.temperature
+    currentMeasurements.value = apiTelemetries
   }
 
   socket.onerror = function (error) {
