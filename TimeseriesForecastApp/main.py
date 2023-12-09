@@ -1,3 +1,4 @@
+from sklearn.metrics import mean_squared_error as mse
 from keras.models import load_model
 from keras.losses import MeanSquaredError
 from keras.metrics import RootMeanSquaredError
@@ -112,3 +113,51 @@ test_results = pd.DataFrame(
 plt.plot(test_results['Test Predictions'][:100])
 plt.plot(test_results['Actuals'][:100])
 plt.show()
+
+
+#################### MULTIVARIABLE PREDICTION ########################
+
+
+def plot_predictions1(model, X, y, start=0, end=100):
+    predictions = model.predict(X).flatten()
+    df = pd.DataFrame(data={'Predictions': predictions, 'Actuals': y})
+    plt.plot(df['Predictions'][start:end])
+    plt.plot(df['Actuals'][start:end])
+    return df, mse(y, predictions)
+
+
+plot_predictions1(model1, X_test, y_test)
+
+
+# create model2 Conv1D
+model2 = Sequential()
+model2.add(InputLayer((5, 1)))
+model2.add(Conv1D(64, kernel_size=2))
+model2.add(Flatten())
+model2.add(Dense(8, 'relu'))
+model2.add(Dense(1, 'linear'))
+model2.summary()
+
+
+cp2 = ModelCheckpoint('model2/', save_best_only=True)
+model2.compile(loss=MeanSquaredError(), optimizer=Adam(
+    learning_rate=0.0001), metrics=[RootMeanSquaredError()])
+
+model2.fit(X_train, y_train, validation_data=(
+    X_val, y_val), epochs=10, callbacks=[cp2])
+
+
+# create model3 GRU
+model3 = Sequential()
+model3.add(InputLayer((5, 1)))
+model3.add(GRU(64))
+model3.add(Dense(8, 'relu'))
+model3.add(Dense(1, 'linear'))
+model3.summary()
+
+cp3 = ModelCheckpoint('model3/', save_best_only=True)
+model3.compile(loss=MeanSquaredError(), optimizer=Adam(
+    learning_rate=0.0001), metrics=[RootMeanSquaredError()])
+
+model3.fit(X_train, y_train, validation_data=(
+    X_val, y_val), epochs=10, callbacks=[cp3])
