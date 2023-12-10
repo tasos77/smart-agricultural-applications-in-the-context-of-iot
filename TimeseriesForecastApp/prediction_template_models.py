@@ -83,7 +83,7 @@ model1.fit(X_train, y_train, validation_data=(
 
 model1 = load_model('model1/')
 
-############ train results ############
+############ results ############
 train_predictions = model1.predict(X_train).flatten()
 train_results = pd.DataFrame(
     data={'Train Predictions': train_predictions, 'Actuals': y_train})
