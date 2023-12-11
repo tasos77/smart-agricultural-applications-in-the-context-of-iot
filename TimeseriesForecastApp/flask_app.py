@@ -5,11 +5,12 @@ from keras.models import Sequential
 from keras.layers import *
 from flask import Flask, request, jsonify
 from mlflow import start_run, log_metric, log_artifact, end_run
-from sklearn import metrics
+from sklearn.metrics import accuracy_score
 import mlflow
 from keras.losses import MeanSquaredError
 from keras.metrics import RootMeanSquaredError
 from keras.optimizers import Adam
+from mlflow.models import infer_signature
 
 # Define the app
 app = Flask(__name__)
@@ -46,6 +47,13 @@ X_test, y_test = X[90:], y[90:]
 print(X_train.shape, y_train.shape, X_val.shape,
       y_val.shape, X_test.shape, y_test.shape)
 
+
+# Set our tracking server uri for logging
+mlflow.set_tracking_uri(uri="http://127.0.0.1:8080")
+
+# Create a new MLflow Experiment
+mlflow.set_experiment("Default")
+
 # Start an MLFlow run
 with mlflow.start_run() as run:
 
@@ -61,6 +69,7 @@ with mlflow.start_run() as run:
     model.add(Dense(8, 'relu'))
     model.add(Dense(1, 'linear'))
     model.summary()
+
     # # Input shape: (timestep, feature)
     # model.add(LSTM(units=50, return_sequences=True, input_shape=(60, 1)))
     # model.add(LSTM(units=50))
@@ -75,7 +84,7 @@ with mlflow.start_run() as run:
         X_val, y_val),  epochs=10, batch_size=32)
 
     # Scale and predict temperature values
-    scaler = MinMaxScaler(feature_range=(0, 1))
+    # scaler = MinMaxScaler(feature_range=(0, 1))
     # scaled_temperature_data = scaler.fit_transform(
     #     temp_df.reshape(-1, 1))
 
@@ -87,32 +96,43 @@ with mlflow.start_run() as run:
 
     # predictions = model.predict(test_sequences)
     predictions = model.predict(X_train).flatten()
+    test_predictions = model.predict(X_test).flatten()
     # predicted_temperatures = scaler.inverse_transform(predictions)
 
+    signature = infer_signature(X_train, model.predict(X_train))
+    # Log the model
+    model_info = mlflow.sklearn.log_model(
+        sk_model=model,
+        artifact_path='',
+        signature=signature,
+        input_example=X_train,
+        registered_model_name="default",
+    )
     # Log metrics to MLFlow
     # log_metric('RMSE', metrics.mean_squared_error(
     #     X_test, predictions), run)
 
     # Save the LSTM model to MLFlow
-    # mlflow.artifacts.save_artifact(model, 'model')
+    # mlflow.log_artifact(model, 'model')
 
     # Define the API endpoint for forecasting
+
     @app.route('/predict', methods=['POST'])
     def predict():
         # Receive temperature data as JSON
-        temperature_data = request.get_json()['temperature_data']
+        # temperature_data = request.get_json()['temperature_data']
 
         # Scale the received temperature data
-        scaled_data = scaler.transform(temperature_data)
+        # scaled_data = scaler.transform(temperature_data)
 
         # Make predictions based on the scaled data
-        predictions = model.predict(scaled_data[-60:].reshape(1, 60, 1))
-
+        # predictions = model.predict(scaled_data[-60:].reshape(1, 60, 1))
+        predictions = model.predict(X_train).flatten()
         # Unscale the predictions
-        unscaled_predictions = scaler.inverse_transform(predictions)
+        # unscaled_predictions = scaler.inverse_transform(predictions)
 
         # Return the predictions as a JSON response
-        return jsonify({'predicted_temperatures': unscaled_predictions.tolist()})
+        return jsonify({'predicted_temperatures': predictions.tolist()})
 
 if __name__ == '__main__':
     app.run(debug=True)
