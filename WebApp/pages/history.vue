@@ -175,15 +175,14 @@
 
 <template>
   <div>
-    <v-progress-linear color="primary" indeterminate v-show="loading"></v-progress-linear>
     <VTabs v-model="activeTab" grow :mandatory="true" show-arrows color="primary">
       <VTab
         :value="tabs.length - index"
         v-for="(tab, index) in tabs"
         :key="index"
         @click="fillGraphs(tabs.length - index, tabs.length - index - 1)"
-        >{{ tab }} {{ tabs.length - index }} {{ tabs.length - index - 1 }}</VTab
-      >
+        >{{ tab }}
+      </VTab>
     </VTabs>
 
     <v-row class="pa-4" v-if="!loading && !noWeatherData">
