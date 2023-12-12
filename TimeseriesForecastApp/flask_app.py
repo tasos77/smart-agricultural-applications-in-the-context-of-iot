@@ -33,15 +33,8 @@ def df_to_X_y(data, window_size=5):
     for i in range(len(df_as_np)-window_size):
         row = [[a] for a in df_as_np[i:i+5]]
         X.append(row)
-        label = df_as_np[i+5]
-        y.append(label)
-    return np.array(X), np.array(y)
 
-
-X, y = df_to_X_y(temp_df, 5)
-
-X_train, y_train = X[:70], y[:70]
-X_val, y_val = X[70:90], y[70:90]
+    # Save the LSTM model to MLFlow
 X_test, y_test = X[90:], y[90:]
 
 print(X_train.shape, y_train.shape, X_val.shape,
@@ -120,7 +113,9 @@ with mlflow.start_run() as run:
     @app.route('/predict', methods=['POST'])
     def predict():
         # Receive temperature data as JSON
+        historyMeasurements = pd.DataFrame(request.get_json())
         # temperature_data = request.get_json()['temperature_data']
+        print(historyMeasurements)
 
         # Scale the received temperature data
         # scaled_data = scaler.transform(temperature_data)
