@@ -27,7 +27,7 @@ DHTesp dht;
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
-const char *mqttServer = "192.168.1.8";
+const char *mqttServer = "192.168.1.9";
 const char *mqttUsername = "vTOVeTArkQsY0RQDhG7b";
 const char *id = "";
 const char *mqttPass = "";
@@ -176,8 +176,8 @@ void loop()
     else
     {
 
-      digitalWrite(waterPumpRelay, HIGH);
-      delay(2000);
+      // digitalWrite(waterPumpRelay, HIGH);
+      // delay(2000);
       // reading temperature or humidity takes about 250 milliseconds
       // sensor readings may also be up to 2 seconds 'old'
       // read humidity
@@ -261,7 +261,7 @@ void loop()
       mqttClient.publish("v1/devices/me/telemetry", msg);
       msgStr = "";
 
-      digitalWrite(waterPumpRelay, LOW);
+      // digitalWrite(waterPumpRelay, LOW);
     }
   }
 
