@@ -137,7 +137,7 @@
       .valueOf()
 
     await tbApi
-      .getTelemetryRange(startTs, endTs)
+      .getHistory(startTs, endTs)
       .then((response) => {
         if (Object.keys(response.data.data).length === 0) {
           noWeatherData.value = true

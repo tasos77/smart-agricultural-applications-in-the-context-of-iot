@@ -19,8 +19,6 @@ const tbTokens = await thingsboardApi
   });
 
 
-
-
 // function updateTime() {
 //   let currentTime = new Date();
 //   let currentTimeMillis = currentTime.getTime();
@@ -258,8 +256,8 @@ if (tbTokens) {
       res.json(middlresponse);
     }
   });
-//////////////////////// GET TELEMETRY RANGE ////////////////////////
-  app.post(`/getTelemetryRange`, async(req,res)=>{
+//////////////////////// GET HISTORY ////////////////////////
+  app.post(`/getHistory`, async(req,res)=>{
     res.header("Access-Control-Allow-Origin", "*");
     const telemetryRangeInfo = {
       startTs : req.body.startTs,
@@ -286,7 +284,7 @@ if (tbTokens) {
         }).catch(e=>{
           console.log(e.response.data)
           res.status(400)
-          middlresponse.msg = 'Failed to get telemetry range!'
+          middlresponse.msg = 'Failed to get history data!'
           middlresponse.status = 400
           res.json(middlresponse)
         })
@@ -297,6 +295,46 @@ if (tbTokens) {
       res.json(middlresponse)
     }
   })
+//////////////////////// GET FORECAST ////////////////////////
+app.post(`/getForecast`, async(req,res)=>{
+  res.header("Access-Control-Allow-Origin", "*");
+  const telemetryRangeInfo = {
+    startTs : req.body.startTs,
+    endTs : req.body.endTs
+  }
+  let middlresponse = {
+    msg: "",
+    status: null,
+    data: {},
+  };
+  if (telemetryRangeInfo.hasOwnProperty("startTs") &&
+      telemetryRangeInfo.hasOwnProperty("endTs") && 
+      telemetryRangeInfo.startTs && 
+      telemetryRangeInfo.endTs
+    ){
+      thingsboardApi
+      .getTelemetryRange(tbTokens.token,entityId,telemetryRangeInfo.startTs,telemetryRangeInfo.endTs)
+      .then((tbRes)=>{
+        res.status(200)
+        middlresponse.msg = `Got telemetry range!`
+        middlresponse.status = 200
+        middlresponse.data = tbRes.data
+        res.json(middlresponse)
+      }).catch(e=>{
+        console.log(e.response.data)
+        res.status(400)
+        middlresponse.msg = 'Failed to get forecast data!'
+        middlresponse.status = 400
+        res.json(middlresponse)
+      })
+  }else {
+    res.status(400)
+    middlresponse.msg = `Missing or invalid body`
+    middlresponse.status = 400
+    res.json(middlresponse)
+  }
+})
+
   ////////////////////// init socket //////////////////////
 
   const wss = new WebSocketServer({ port: 8080 });
