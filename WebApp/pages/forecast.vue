@@ -1,0 +1,179 @@
+<script lang="ts" setup>
+  import moment from 'moment'
+  import tbApi from '~/api/tbApi'
+  import { useTheme } from 'vuetify'
+  import index from '~/assets/animations/index'
+
+  definePageMeta({
+    layout: 'main'
+  })
+
+  const predictedData = ref()
+  const lottie = ref(index['empty_state_dashboards'])
+  const theme = useTheme()
+  const activeTab = ref(1)
+  const loading = ref(false)
+  const noWeatherData = ref(false)
+  const tabs = ref([
+    moment().subtract(5, 'days').format('MMM DD'),
+    moment().subtract(4, 'days').format('MMM DD'),
+    moment().subtract(3, 'days').format('MMM DD'),
+    moment().subtract(2, 'days').format('MMM DD'),
+    'Yesterday',
+    'Today'
+  ])
+  const listOfColors = ref([])
+  const createListOfColors = (list: any, color: string) => {
+    return list.map(() => {
+      return color
+    })
+  }
+
+  const options = ref({
+    chart: {
+      offsetY: -10,
+      toolbar: {
+        show: false
+      },
+      zoom: { enabled: false },
+      animations: { easing: 'easeinout' }
+    },
+    dataLabels: {
+      style: {
+        colors: [...listOfColors.value]
+      }
+    },
+    stroke: {
+      width: 3,
+      curve: 'smooth'
+    },
+    colors: [...listOfColors.value],
+    tooltip: {
+      enabled: true,
+      theme: theme.current.value.dark ? 'dark' : 'light'
+    },
+
+    xaxis: {
+      categories: [],
+      labels: {
+        style: {
+          colors: '#FFFFFF'
+        }
+      }
+    },
+    yaxis: {
+      labels: {
+        style: {
+          colors: '#FFFFFF'
+        }
+      }
+    },
+    grid: {
+      show: true,
+      xaxis: {
+        lines: {
+          show: true
+        }
+      },
+      yaxis: {
+        lines: {
+          show: true
+        }
+      },
+      strokeDashArray: 2
+    }
+  })
+
+  const measurements = ref({
+    temperature: {
+      series: [
+        {
+          name: 'Temperature',
+          data: []
+        }
+      ]
+    },
+    humidity: {
+      series: [
+        {
+          name: 'Humidity',
+          data: []
+        }
+      ]
+    },
+    soilMoisture: {
+      series: [
+        {
+          name: 'Soil Moisture',
+          data: []
+        }
+      ]
+    },
+    rain: {
+      series: [
+        {
+          name: 'Rain',
+          data: []
+        }
+      ]
+    },
+    uv: {
+      series: [
+        {
+          name: 'UV',
+          data: []
+        }
+      ]
+    }
+  })
+
+  const fillGraphs = async (subtractionStart: number, subtractionEnd: number) => {
+    loading.value = true
+    noWeatherData.value = false
+    const startTs = moment()
+      .subtract(subtractionStart * 24, 'minutes')
+      .valueOf()
+    const endTs = moment()
+      .subtract(subtractionEnd * 24, 'minutes')
+      .valueOf()
+
+    await tbApi
+      .getForecast(startTs, endTs)
+      .then((response) => {
+        predictedData.value = response.data.data
+        // if (Object.keys(response.data.data).length === 0) {
+        //   noWeatherData.value = true
+        // }
+        // options.value.xaxis.categories = response.data.data.temperature.map(
+        //   (item) => `${moment(item.ts).format('hh:mm A')}`
+        // )
+        // listOfColors.value = createListOfColors(options.value.xaxis.categories, '#FFFFFF')
+        // measurements.value.temperature.series[0].data = response.data.data.temperature.map(
+        //   (item) => item.value
+        // )
+        // measurements.value.humidity.series[0].data = response.data.data.humidity.map(
+        //   (item) => item.value
+        // )
+        // measurements.value.soilMoisture.series[0].data = response.data.data.soilMoisture.map(
+        //   (item) => item.value
+        // )
+        // measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
+        // measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+    loading.value = false
+  }
+  onMounted(async () => {
+    fillGraphs(1, 0)
+  })
+</script>
+
+<template>
+  <div>
+    <v-row class="pa-4">
+      <v-col>{{ predictedData }}</v-col>
+    </v-row>
+  </div>
+</template>

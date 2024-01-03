@@ -97,7 +97,7 @@ temp, humidity, soil_moisture, uv, rain = map(
     scaler.fit_transform, [temp, humidity, soil_moisture, uv, rain])
 
 # Set our tracking server uri for logging
-mlflow.set_tracking_uri(uri="http://127.0.0.1:8080")
+mlflow.set_tracking_uri(uri="http://127.0.0.1:8888")
 
 # Create a new MLflow Experiment
 mlflow.set_experiment("Default")

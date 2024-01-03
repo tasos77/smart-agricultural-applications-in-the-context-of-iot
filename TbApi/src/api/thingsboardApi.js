@@ -89,15 +89,22 @@ const createUser = (token, registrationInfo, customerId) => {
   );
 };
 
-
-const getTelemetryRange = (token,entityId,startTs,endTs,keys='temperature,humidity,rain,soilMoisture,uv') =>{
-  return instance.get(`/plugins/telemetry/DEVICE/${entityId}/values/timeseries?keys=${keys}&endTs=${endTs}&startTs=${startTs}&orderBy=ASC`,{
-    headers: {
-      "X-Authorization": `Bearer ${token}`,
-    },
-  })
-}
-
+const getTelemetryRange = (
+  token,
+  entityId,
+  startTs,
+  endTs,
+  keys = "temperature,humidity,rain,soilMoisture,uv"
+) => {
+  return instance.get(
+    `/plugins/telemetry/DEVICE/${entityId}/values/timeseries?keys=${keys}&endTs=${endTs}&startTs=${startTs}&orderBy=ASC`,
+    {
+      headers: {
+        "X-Authorization": `Bearer ${token}`,
+      },
+    }
+  );
+};
 
 export default {
   login,
@@ -106,5 +113,5 @@ export default {
   createUser,
   logout,
   getUser,
-  getTelemetryRange
+  getTelemetryRange,
 };
