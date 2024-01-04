@@ -38,7 +38,7 @@ def create_dataset(dataset, look_back=1):
 
 
 def train_and_predict(model, trainX, testX, trainY):
-    model.fit(trainX, trainY, epochs=100, batch_size=1, verbose=2)
+    model.fit(trainX, trainY, epochs=20, batch_size=1, verbose=2)
     trainPredict = model.predict(trainX)
     testPredict = model.predict(testX)
     return trainPredict, testPredict
@@ -105,105 +105,107 @@ mlflow.set_experiment("Default")
 # Start an MLFlow run
 with mlflow.start_run() as run:
 
-    temp_train, temp_test = split_data(temp, train_ratio=0.67)
-    humidity_train, humidity_test = split_data(humidity, train_ratio=0.67)
-    soil_moisture_train, soil_moisture_test = split_data(
-        soil_moisture, train_ratio=0.67)
-    uv_train, uv_test = split_data(uv, train_ratio=0.67)
-    rain_train, rain_test = split_data(rain, train_ratio=0.67)
+    # ////////////////////////////////////////////////////////////////////////////////////////
 
-    # Reshape into X=t and Y=t+1
-    look_back = 1
-    temp_trainX, temp_trainY = create_dataset(temp_train, look_back)
-    temp_testX, temp_testY = create_dataset(temp_test, look_back)
+    # temp_train, temp_test = split_data(temp, train_ratio=0.67)
+    # humidity_train, humidity_test = split_data(humidity, train_ratio=0.67)
+    # soil_moisture_train, soil_moisture_test = split_data(
+    #     soil_moisture, train_ratio=0.67)
+    # uv_train, uv_test = split_data(uv, train_ratio=0.67)
+    # rain_train, rain_test = split_data(rain, train_ratio=0.67)
 
-    humidity_trainX, humidity_trainY = create_dataset(
-        humidity_train, look_back)
-    humidity_testX, humidity_testY = create_dataset(humidity_test, look_back)
+    # # Reshape into X=t and Y=t+1
+    # look_back = 1
+    # temp_trainX, temp_trainY = create_dataset(temp_train, look_back)
+    # temp_testX, temp_testY = create_dataset(temp_test, look_back)
 
-    soil_moisture_trainX, soil_moisture_trainY = create_dataset(
-        soil_moisture_train, look_back)
-    soil_moisture_testX, soil_moisture_testY = create_dataset(
-        soil_moisture_test, look_back)
+    # humidity_trainX, humidity_trainY = create_dataset(
+    #     humidity_train, look_back)
+    # humidity_testX, humidity_testY = create_dataset(humidity_test, look_back)
 
-    uv_trainX, uv_trainY = create_dataset(uv_train, look_back)
-    uv_testX, uv_testY = create_dataset(uv_test, look_back)
+    # soil_moisture_trainX, soil_moisture_trainY = create_dataset(
+    #     soil_moisture_train, look_back)
+    # soil_moisture_testX, soil_moisture_testY = create_dataset(
+    #     soil_moisture_test, look_back)
 
-    rain_trainX, rain_trainY = create_dataset(rain_train, look_back)
-    rain_testX, rain_testY = create_dataset(rain_test, look_back)
+    # uv_trainX, uv_trainY = create_dataset(uv_train, look_back)
+    # uv_testX, uv_testY = create_dataset(uv_test, look_back)
 
-    # Reshape input to be [samples, time steps, features]
-    temp_trainX, temp_testX = map(reshape_data_for_lstm, [
-                                  temp_trainX, temp_testX])
-    humidity_trainX, humidity_testX = map(
-        reshape_data_for_lstm, [humidity_trainX, humidity_testX])
-    soil_moisture_trainX, soil_moisture_testX = map(
-        reshape_data_for_lstm, [soil_moisture_trainX, soil_moisture_testX])
-    uv_trainX, uv_testX = map(reshape_data_for_lstm, [uv_trainX, uv_testX])
-    rain_trainX, rain_testX = map(reshape_data_for_lstm, [
-                                  rain_trainX, rain_testX])
+    # rain_trainX, rain_trainY = create_dataset(rain_train, look_back)
+    # rain_testX, rain_testY = create_dataset(rain_test, look_back)
 
-    # Create and train LSTM models
-    temp_model = create_and_train_lstm_model(input_shape=(1, look_back))
-    humidity_model = create_and_train_lstm_model(input_shape=(1, look_back))
-    soil_moisture_model = create_and_train_lstm_model(
-        input_shape=(1, look_back))
-    uv_model = create_and_train_lstm_model(input_shape=(1, look_back))
-    rain_model = create_and_train_lstm_model(input_shape=(1, look_back))
+    # # Reshape input to be [samples, time steps, features]
+    # temp_trainX, temp_testX = map(reshape_data_for_lstm, [
+    #                               temp_trainX, temp_testX])
+    # humidity_trainX, humidity_testX = map(
+    #     reshape_data_for_lstm, [humidity_trainX, humidity_testX])
+    # soil_moisture_trainX, soil_moisture_testX = map(
+    #     reshape_data_for_lstm, [soil_moisture_trainX, soil_moisture_testX])
+    # uv_trainX, uv_testX = map(reshape_data_for_lstm, [uv_trainX, uv_testX])
+    # rain_trainX, rain_testX = map(reshape_data_for_lstm, [
+    #                               rain_trainX, rain_testX])
 
-    # Train and predict for each variable
-    temp_trainPredict, temp_testPredict = train_and_predict(
-        temp_model, temp_trainX, temp_testX, temp_trainY)
-    humidity_trainPredict, humidity_testPredict = train_and_predict(
-        humidity_model, humidity_trainX, humidity_testX, humidity_trainY)
-    soil_moisture_trainPredict, soil_moisture_testPredict = train_and_predict(
-        soil_moisture_model, soil_moisture_trainX, soil_moisture_testX, soil_moisture_trainY)
-    uv_trainPredict, uv_testPredict = train_and_predict(
-        uv_model, uv_trainX, uv_testX, uv_trainY)
-    rain_trainPredict, rain_testPredict = train_and_predict(
-        rain_model, rain_trainX, rain_testX, uv_trainY)
+    # # Create and train LSTM models
+    # temp_model = create_and_train_lstm_model(input_shape=(1, look_back))
+    # humidity_model = create_and_train_lstm_model(input_shape=(1, look_back))
+    # soil_moisture_model = create_and_train_lstm_model(
+    #     input_shape=(1, look_back))
+    # uv_model = create_and_train_lstm_model(input_shape=(1, look_back))
+    # rain_model = create_and_train_lstm_model(input_shape=(1, look_back))
 
-    # Invert predictions
-    temp_trainPredict, temp_trainY, temp_testPredict, temp_testY = invert_predictions(
-        temp_trainPredict, temp_trainY, temp_testPredict, temp_testY)
-    humidity_trainPredict, humidity_trainY, humidity_testPredict, humidity_testY = invert_predictions(
-        humidity_trainPredict, humidity_trainY, humidity_testPredict, humidity_testY)
-    soil_moisture_trainPredict, soil_moisture_trainY, soil_moisture_testPredict, soil_moisture_testY = invert_predictions(
-        soil_moisture_trainPredict, soil_moisture_trainY, soil_moisture_testPredict, soil_moisture_testY)
-    uv_trainPredict, uv_trainY, uv_testPredict, uv_testY = invert_predictions(
-        uv_trainPredict, uv_trainY, uv_testPredict, uv_testY)
-    rain_trainPredict, rain_trainY, rain_testPredict, rain_testY = invert_predictions(
-        rain_trainPredict, rain_trainY, rain_testPredict, rain_testY)
+    # # Train and predict for each variable
+    # temp_trainPredict, temp_testPredict = train_and_predict(
+    #     temp_model, temp_trainX, temp_testX, temp_trainY)
+    # humidity_trainPredict, humidity_testPredict = train_and_predict(
+    #     humidity_model, humidity_trainX, humidity_testX, humidity_trainY)
+    # soil_moisture_trainPredict, soil_moisture_testPredict = train_and_predict(
+    #     soil_moisture_model, soil_moisture_trainX, soil_moisture_testX, soil_moisture_trainY)
+    # uv_trainPredict, uv_testPredict = train_and_predict(
+    #     uv_model, uv_trainX, uv_testX, uv_trainY)
+    # rain_trainPredict, rain_testPredict = train_and_predict(
+    #     rain_model, rain_trainX, rain_testX, uv_trainY)
 
-    # Calculate root mean squared error
-    temp_trainScore = calculate_rmse(temp_trainY, temp_trainPredict)
-    print('Temp train Score: %.2f RMSE' % temp_trainScore)
-    temp_testScore = calculate_rmse(temp_testY, temp_testPredict)
-    print('Temp test Score: %.2f RMSE' % temp_testScore)
+    # # Invert predictions
+    # temp_trainPredict, temp_trainY, temp_testPredict, temp_testY = invert_predictions(
+    #     temp_trainPredict, temp_trainY, temp_testPredict, temp_testY)
+    # humidity_trainPredict, humidity_trainY, humidity_testPredict, humidity_testY = invert_predictions(
+    #     humidity_trainPredict, humidity_trainY, humidity_testPredict, humidity_testY)
+    # soil_moisture_trainPredict, soil_moisture_trainY, soil_moisture_testPredict, soil_moisture_testY = invert_predictions(
+    #     soil_moisture_trainPredict, soil_moisture_trainY, soil_moisture_testPredict, soil_moisture_testY)
+    # uv_trainPredict, uv_trainY, uv_testPredict, uv_testY = invert_predictions(
+    #     uv_trainPredict, uv_trainY, uv_testPredict, uv_testY)
+    # rain_trainPredict, rain_trainY, rain_testPredict, rain_testY = invert_predictions(
+    #     rain_trainPredict, rain_trainY, rain_testPredict, rain_testY)
 
-    humidity_trainScore = calculate_rmse(
-        humidity_trainY, humidity_trainPredict)
-    print('Humidity train Score: %.2f RMSE' % humidity_trainScore)
-    humidity_testScore = calculate_rmse(humidity_testY, humidity_testPredict)
-    print('Humidity test Score: %.2f RMSE' % humidity_testScore)
+    # # Calculate root mean squared error
+    # temp_trainScore = calculate_rmse(temp_trainY, temp_trainPredict)
+    # print('Temp train Score: %.2f RMSE' % temp_trainScore)
+    # temp_testScore = calculate_rmse(temp_testY, temp_testPredict)
+    # print('Temp test Score: %.2f RMSE' % temp_testScore)
 
-    soil_moisture_trainScore = calculate_rmse(
-        soil_moisture_trainY, soil_moisture_trainPredict)
-    print('Soil moisture train Score: %.2f RMSE' % soil_moisture_trainScore)
-    soil_moisture_testScore = calculate_rmse(
-        soil_moisture_testY, soil_moisture_testPredict)
-    print('Soil moisture test Score: %.2f RMSE' % soil_moisture_testScore)
+    # humidity_trainScore = calculate_rmse(
+    #     humidity_trainY, humidity_trainPredict)
+    # print('Humidity train Score: %.2f RMSE' % humidity_trainScore)
+    # humidity_testScore = calculate_rmse(humidity_testY, humidity_testPredict)
+    # print('Humidity test Score: %.2f RMSE' % humidity_testScore)
 
-    uv_trainScore = calculate_rmse(uv_trainY, uv_trainPredict)
-    print('UV train Score: %.2f RMSE' % uv_trainScore)
-    uv_testScore = calculate_rmse(uv_testY, uv_testPredict)
-    print('UV test Score: %.2f RMSE' % uv_testScore)
+    # soil_moisture_trainScore = calculate_rmse(
+    #     soil_moisture_trainY, soil_moisture_trainPredict)
+    # print('Soil moisture train Score: %.2f RMSE' % soil_moisture_trainScore)
+    # soil_moisture_testScore = calculate_rmse(
+    #     soil_moisture_testY, soil_moisture_testPredict)
+    # print('Soil moisture test Score: %.2f RMSE' % soil_moisture_testScore)
 
-    rain_trainScore = calculate_rmse(rain_trainY, rain_trainPredict)
-    print('Rain train Score: %.2f RMSE' % rain_trainScore)
-    rain_testScore = calculate_rmse(rain_testY, rain_testPredict)
-    print('Rain test Score: %.2f RMSE' % rain_testScore)
+    # uv_trainScore = calculate_rmse(uv_trainY, uv_trainPredict)
+    # print('UV train Score: %.2f RMSE' % uv_trainScore)
+    # uv_testScore = calculate_rmse(uv_testY, uv_testPredict)
+    # print('UV test Score: %.2f RMSE' % uv_testScore)
 
+    # rain_trainScore = calculate_rmse(rain_trainY, rain_trainPredict)
+    # print('Rain train Score: %.2f RMSE' % rain_trainScore)
+    # rain_testScore = calculate_rmse(rain_testY, rain_testPredict)
+    # print('Rain test Score: %.2f RMSE' % rain_testScore)
+    # ////////////////////////////////////////////////////////////////////////////////////////
     # Plot predictions
     # plot_predictions(temp, temp_trainPredict, temp_testPredict, look_back)
     # plot_predictions(humidity, humidity_trainPredict,
@@ -233,10 +235,40 @@ with mlflow.start_run() as run:
 
     @app.route('/predict', methods=['POST'])
     def predict():
+        print('##################')
         # Receive temperature data as JSON
-        historyMeasurements = pd.DataFrame(request.get_json())
-        # temperature_data = request.get_json()['temperature_data']
-        print(historyMeasurements)
+        historyMeasurementsDf = pd.DataFrame.from_dict(
+            request.get_json(), orient='columns')
+        # temperature_data = pd.DataFrame.from_dict(
+        #     request.get_json()['temperature'])
+
+        history_temp = historyMeasurementsDf[['temperature']]
+
+        history_temp = history_temp.values.astype('float32')
+
+        history_temp = scaler.fit_transform(history_temp)
+
+        history_temp_train, history_temp_test = split_data(
+            history_temp, train_ratio=0.67)
+
+        look_back = 1
+        history_temp_trainX, history_temp_trainY = create_dataset(
+            history_temp_train, look_back)
+        history_temp_testX, history_temp_testY = create_dataset(
+            history_temp_test, look_back)
+
+        history_temp_trainX, history_temp_testX = map(reshape_data_for_lstm, [
+            history_temp_trainX, history_temp_testX])
+
+        history_temp_model = create_and_train_lstm_model(
+            input_shape=(1, look_back))
+        history_temp_trainPredict, history_temp_testPredict = train_and_predict(
+            history_temp_model, history_temp_trainX, history_temp_testX, history_temp_trainY)
+
+        history_temp_trainPredict, history_temp_trainY, history_temp_testPredict, history_temp_testY = invert_predictions(
+            history_temp_trainPredict, history_temp_trainY, history_temp_testPredict, history_temp_testY)
+
+        print(history_temp_trainPredict)
 
         # Scale the received temperature data
         # scaled_data = scaler.transform(temperature_data)
@@ -254,7 +286,9 @@ with mlflow.start_run() as run:
 
         # Return the predictions as a JSON response
 
-        return jsonify({'predicted_temperature': temp_trainPredict.tolist(), 'predicted_humidity': humidity_trainPredict.tolist(), 'predicted_soil_moisture': soil_moisture_trainPredict.tolist(), 'predicted_uv': uv_trainPredict.tolist(), 'predicted_rain': rain_trainPredict.tolist()})
+        return jsonify({
+            'predicted_temperature': history_temp_trainPredict.tolist(),
+        })
 
 if __name__ == '__main__':
     app.run(debug=True)
