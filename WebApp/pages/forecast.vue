@@ -137,6 +137,9 @@
       .subtract(subtractionEnd * 24, 'minutes')
       .valueOf()
 
+    console.log(startTs)
+    console.log(endTs)
+
     await tbApi
       .getForecast(startTs, endTs)
       .then((response) => {

@@ -139,6 +139,7 @@
     await tbApi
       .getHistory(startTs, endTs)
       .then((response) => {
+        console.log(response.data.data)
         if (Object.keys(response.data.data).length === 0) {
           noWeatherData.value = true
         }
