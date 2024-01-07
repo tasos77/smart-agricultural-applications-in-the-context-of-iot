@@ -139,7 +139,6 @@
     await tbApi
       .getHistory(startTs, endTs)
       .then((response) => {
-        console.log(response.data.data)
         if (Object.keys(response.data.data).length === 0) {
           noWeatherData.value = true
         }
@@ -164,7 +163,7 @@
         measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
       })
       .catch((e) => {
-        console.log(e)
+        noWeatherData.value = false
       })
     loading.value = false
   }

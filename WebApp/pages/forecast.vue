@@ -137,34 +137,32 @@
       .subtract(subtractionEnd * 24, 'minutes')
       .valueOf()
 
-    console.log(startTs)
-    console.log(endTs)
-
     await tbApi
       .getForecast(startTs, endTs)
       .then((response) => {
         predictedData.value = response.data.data
-        // if (Object.keys(response.data.data).length === 0) {
-        //   noWeatherData.value = true
-        // }
-        // options.value.xaxis.categories = response.data.data.temperature.map(
-        //   (item) => `${moment(item.ts).format('hh:mm A')}`
-        // )
-        // listOfColors.value = createListOfColors(options.value.xaxis.categories, '#FFFFFF')
-        // measurements.value.temperature.series[0].data = response.data.data.temperature.map(
-        //   (item) => item.value
-        // )
-        // measurements.value.humidity.series[0].data = response.data.data.humidity.map(
-        //   (item) => item.value
-        // )
-        // measurements.value.soilMoisture.series[0].data = response.data.data.soilMoisture.map(
-        //   (item) => item.value
-        // )
-        // measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
-        // measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
+
+        if (Object.keys(response.data.data).length === 0) {
+          noWeatherData.value = true
+        }
+        options.value.xaxis.categories = response.data.data.temperature.map(
+          (item) => `${moment(item.ts).format('hh:mm A')}`
+        )
+        listOfColors.value = createListOfColors(options.value.xaxis.categories, '#FFFFFF')
+        measurements.value.temperature.series[0].data = response.data.data.temperature.map(
+          (item) => item.value
+        )
+        measurements.value.humidity.series[0].data = response.data.data.humidity.map(
+          (item) => item.value
+        )
+        measurements.value.soilMoisture.series[0].data = response.data.data.soil_moisture.map(
+          (item) => item.value
+        )
+        measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
+        measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
       })
       .catch((e) => {
-        console.log(e)
+        noWeatherData.value = false
       })
     loading.value = false
   }
@@ -175,8 +173,29 @@
 
 <template>
   <div>
-    <v-row class="pa-4">
-      <v-col>{{ predictedData }}</v-col>
+    <v-row class="pa-4" v-if="!loading && !noWeatherData">
+      <v-col v-for="(measurement, index) in measurements" :key="index" cols="12" md="6" sm="12">
+        <v-card rounded="xl" color="color_surface_mixed_200" class="pa-4">
+          <v-card-title>{{ measurement.series[0].name }}</v-card-title>
+          <v-card-text class="pa-0">
+            <div>
+              <apexchart
+                width="100%"
+                height="300"
+                type="line"
+                :options="options"
+                :series="measurement.series"
+              ></apexchart>
+            </div>
+          </v-card-text>
+        </v-card>
+      </v-col>
     </v-row>
+    <div v-if="noWeatherData">
+      <client-only>
+        <Vue3Lottie :animation-data="lottie" height="200px" width="200px" />
+      </client-only>
+      <div class="text-h6 d-flex justify-center">No weather data!</div>
+    </div>
   </div>
 </template>

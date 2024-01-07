@@ -97,7 +97,7 @@ const getTelemetryRange = (
   keys = 'temperature,humidity,rain,soilMoisture,uv'
 ) => {
   return instance.get(
-    `/plugins/telemetry/DEVICE/${entityId}/values/timeseries?keys=${keys}&endTs=${endTs}&startTs=${startTs}&orderBy=ASC`,
+    `/plugins/telemetry/DEVICE/${entityId}/values/timeseries?keys=${keys}&endTs=${endTs}&startTs=${startTs}&orderBy=ASC&limit=99999&agg=NONE`,
     {
       headers: {
         'X-Authorization': `Bearer ${token}`

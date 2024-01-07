@@ -22,33 +22,26 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
   const rain = []
   const uv = []
 
-  temperature: [
-    {
-      ts: 123,
-      value: '66.3'
-    }
-  ]
-
   for (let i = 0; i < data.predicted_temperature.length; i++) {
     temperature.push({
-      timestamp: data.predicted_timestamp[i][0],
-      value: data.predicted_temperature[i][0]
+      ts: data.predicted_timestamp[i][0],
+      value: data.predicted_temperature[i][0].toFixed(1)
     })
     humidity.push({
-      timestamp: data.predicted_timestamp[i][0],
-      value: data.predicted_humidity[i][0]
+      ts: data.predicted_timestamp[i][0],
+      value: data.predicted_humidity[i][0].toFixed(1)
     })
     soil_moisture.push({
-      timestamp: data.predicted_timestamp[i][0],
-      value: data.predicted_soil_moisture[i][0]
+      ts: data.predicted_timestamp[i][0],
+      value: data.predicted_soil_moisture[i][0].toFixed(1)
     })
     rain.push({
-      timestamp: data.predicted_timestamp[i][0],
-      value: data.predicted_rain[i][0]
+      ts: data.predicted_timestamp[i][0],
+      value: data.predicted_rain[i][0].toFixed(1)
     })
     uv.push({
-      timestamp: data.predicted_timestamp[i][0],
-      value: data.predicted_uv[i][0]
+      ts: data.predicted_timestamp[i][0],
+      value: data.predicted_uv[i][0].toFixed(1)
     })
   }
   return {

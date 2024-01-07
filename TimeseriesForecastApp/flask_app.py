@@ -10,15 +10,20 @@ from keras.layers import Dense, LSTM
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.metrics import mean_squared_error
 import requests
-
+from datetime import datetime, timedelta
 # Define the app
 app = Flask(__name__)
 
 
 def getHistoryData():
+    now = datetime.today()
+    sub24mins = datetime.today() - timedelta(hours=0, minutes=24)
+    now_in_ms = int(float(now.strftime('%s.%f'))*1000)
+    sub24mins_in_ms = int(float(sub24mins.strftime('%s.%f'))*1000)
+
     response = requests.post(
         "http://localhost:3005/getTrainData",
-        json={"startTs": 1704472906522, "endTs": 1704474346522})
+        json={"startTs": sub24mins_in_ms, "endTs": now_in_ms})
     # Check the response
     if response.status_code == 200:
         print("POST Request Successful")
