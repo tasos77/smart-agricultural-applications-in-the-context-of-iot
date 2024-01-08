@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export function transformTBDataToTimeseriesForecastAppFormat(data) {
   const timeseriesForecastAppCompatibleHistoryMeasurements = []
 
@@ -44,6 +46,19 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
       value: data.predicted_uv[i][0].toFixed(1)
     })
   }
+
+  // Example usage:
+  const originalArray = temperature.map((item) => parseFloat(item.value))
+  console.log(originalArray)
+  const numGroups = 24
+
+  const aggregatedArray = aggregateArray(originalArray, numGroups)
+
+  // const aggregatedTimestampts = aggregatedArray.map(item, (index) => {
+  //   return moment.subtract(index, 'minutes')
+  // })
+  // console.log(aggregatedArray)
+  // console.log(aggregatedTimestampts)
   return {
     temperature,
     humidity,
@@ -51,4 +66,25 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
     rain,
     uv
   }
+}
+
+function aggregateArray(array, numGroups) {
+  const groupSize = Math.ceil(array.length / numGroups)
+  const aggregatedArray = []
+
+  for (let i = 0; i < numGroups; i++) {
+    const startIndex = i * groupSize
+    const endIndex = Math.min((i + 1) * groupSize, array.length)
+
+    if (startIndex < endIndex) {
+      // Calculate the average for the current group
+      const groupValues = array.slice(startIndex, endIndex)
+      const groupAverage = groupValues.reduce((sum, value) => sum + value, 0) / groupValues.length
+
+      // Push the average to the aggregated array
+      aggregatedArray.push(groupAverage)
+    }
+  }
+
+  return aggregatedArray
 }
