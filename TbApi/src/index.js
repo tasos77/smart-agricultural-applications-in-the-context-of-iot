@@ -7,7 +7,8 @@ import WebSocket from 'ws'
 import { WebSocketServer } from 'ws'
 import {
   transformTBDataToTimeseriesForecastAppFormat,
-  transformTimeseriesForecastAppToTBDataFormat
+  transformTimeseriesForecastAppToTBDataFormat,
+  aggregateHistoryData
 } from './utils/convertions.js'
 import forecastAppApi from './api/forecastAppApi.js'
 const port = config.port
@@ -272,14 +273,15 @@ if (tbTokens) {
           telemetryRangeInfo.endTs
         )
         .then((tbRes) => {
+          const aggregatedHistoryData = aggregateHistoryData(tbRes.data)
           res.status(200)
           middlresponse.msg = `Got telemetry range!`
           middlresponse.status = 200
-          middlresponse.data = tbRes.data
+          middlresponse.data = aggregatedHistoryData
           res.json(middlresponse)
         })
         .catch((e) => {
-          console.log(e.response.data)
+          console.log(e)
           res.status(400)
           middlresponse.msg = 'Failed to get history data!'
           middlresponse.status = 400

@@ -47,18 +47,6 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
     })
   }
 
-  // Example usage:
-  const originalArray = temperature.map((item) => parseFloat(item.value))
-  console.log(originalArray)
-  const numGroups = 24
-
-  const aggregatedArray = aggregateArray(originalArray, numGroups)
-
-  // const aggregatedTimestampts = aggregatedArray.map(item, (index) => {
-  //   return moment.subtract(index, 'minutes')
-  // })
-  // console.log(aggregatedArray)
-  // console.log(aggregatedTimestampts)
   return {
     temperature,
     humidity,
@@ -68,7 +56,54 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
   }
 }
 
-function aggregateArray(array, numGroups) {
+export function aggregateHistoryData(data) {
+  const numGroups = 24
+
+  const temperatureValues = exportTBValuesArray(data.temperature)
+  const humidityValues = exportTBValuesArray(data.humidity)
+  const soilMoistureValues = exportTBValuesArray(data.soilMoisture)
+  const rainValues = exportTBValuesArray(data.rain)
+  const uvValues = exportTBValuesArray(data.uv)
+
+  const aggregatedTemperatureArray = aggregateArray(temperatureValues, numGroups)
+  const aggregatedHumidityArray = aggregateArray(humidityValues, numGroups)
+  const aggregatedSoilMoistureArray = aggregateArray(soilMoistureValues, numGroups)
+  const aggregatedRainArray = aggregateArray(rainValues, numGroups)
+  const aggregatedUvArray = aggregateArray(uvValues, numGroups)
+
+  const aggregatedTimestampsArray = calcTimestampsArray(aggregatedTemperatureArray)
+
+  return {
+    temperature: rebuildTbResponseFormat(aggregatedTemperatureArray, aggregatedTimestampsArray),
+    humidity: rebuildTbResponseFormat(aggregatedHumidityArray, aggregatedTimestampsArray),
+    soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
+    rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
+    uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray)
+  }
+}
+
+const rebuildTbResponseFormat = (values, timestamps) => {
+  return values.map((value, index) => {
+    return {
+      ts: timestamps[index],
+      value: value.toFixed(2)
+    }
+  })
+}
+
+const calcTimestampsArray = (array) => {
+  const timestamps = []
+  array.forEach((item, index) => {
+    timestamps.push(moment().subtract(index, 'hours').valueOf())
+  })
+  return timestamps.reverse()
+}
+
+const exportTBValuesArray = (array) => {
+  return array.map((item) => parseFloat(item.value))
+}
+
+const aggregateArray = (array, numGroups) => {
   const groupSize = Math.ceil(array.length / numGroups)
   const aggregatedArray = []
 
@@ -85,6 +120,5 @@ function aggregateArray(array, numGroups) {
       aggregatedArray.push(groupAverage)
     }
   }
-
   return aggregatedArray
 }
