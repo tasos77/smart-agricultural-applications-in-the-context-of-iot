@@ -335,7 +335,7 @@ if (tbTokens) {
               res.json(middlresponse)
             })
             .catch((e) => {
-              console.log(e.response.data)
+              console.log(e)
               res.status(400)
               middlresponse.msg = 'Failed to get predicted data!'
               middlresponse.status = 400

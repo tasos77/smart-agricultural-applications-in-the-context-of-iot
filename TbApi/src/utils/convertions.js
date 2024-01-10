@@ -20,10 +20,11 @@ export function transformTBDataToTimeseriesForecastAppFormat(data) {
 export function transformTimeseriesForecastAppToTBDataFormat(data) {
   const humidity = []
   const temperature = []
-  const soil_moisture = []
+  const soilMoisture = []
   const rain = []
   const uv = []
-
+  const numGroups = 24
+  console.log(data.predicted_temperature.length)
   for (let i = 0; i < data.predicted_temperature.length; i++) {
     temperature.push({
       ts: data.predicted_timestamp[i][0],
@@ -33,7 +34,7 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
       ts: data.predicted_timestamp[i][0],
       value: data.predicted_humidity[i][0].toFixed(1)
     })
-    soil_moisture.push({
+    soilMoisture.push({
       ts: data.predicted_timestamp[i][0],
       value: data.predicted_soil_moisture[i][0].toFixed(1)
     })
@@ -47,12 +48,26 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
     })
   }
 
+  const temperatureValues = exportTBValuesArray(temperature)
+  const humidityValues = exportTBValuesArray(humidity)
+  const soilMoistureValues = exportTBValuesArray(soilMoisture)
+  const rainValues = exportTBValuesArray(rain)
+  const uvValues = exportTBValuesArray(uv)
+
+  const aggregatedTemperatureArray = aggregateArray(temperatureValues, numGroups)
+  const aggregatedHumidityArray = aggregateArray(humidityValues, numGroups)
+  const aggregatedSoilMoistureArray = aggregateArray(soilMoistureValues, numGroups)
+  const aggregatedRainArray = aggregateArray(rainValues, numGroups)
+  const aggregatedUvArray = aggregateArray(uvValues, numGroups)
+
+  const aggregatedTimestampsArray = calcForecastTimestampsArray(aggregatedTemperatureArray)
+
   return {
-    temperature,
-    humidity,
-    soil_moisture,
-    rain,
-    uv
+    temperature: rebuildTbResponseFormat(aggregatedTemperatureArray, aggregatedTimestampsArray),
+    humidity: rebuildTbResponseFormat(aggregatedHumidityArray, aggregatedTimestampsArray),
+    soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
+    rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
+    uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray)
   }
 }
 
@@ -71,7 +86,7 @@ export function aggregateHistoryData(data) {
   const aggregatedRainArray = aggregateArray(rainValues, numGroups)
   const aggregatedUvArray = aggregateArray(uvValues, numGroups)
 
-  const aggregatedTimestampsArray = calcTimestampsArray(aggregatedTemperatureArray)
+  const aggregatedTimestampsArray = calcHistoryTimestampsArray(aggregatedTemperatureArray)
 
   return {
     temperature: rebuildTbResponseFormat(aggregatedTemperatureArray, aggregatedTimestampsArray),
@@ -91,7 +106,15 @@ const rebuildTbResponseFormat = (values, timestamps) => {
   })
 }
 
-const calcTimestampsArray = (array) => {
+const calcForecastTimestampsArray = (array) => {
+  const timestamps = []
+  array.forEach((item, index) => {
+    timestamps.push(moment().add(index, 'hours').valueOf())
+  })
+  return timestamps
+}
+
+const calcHistoryTimestampsArray = (array) => {
   const timestamps = []
   array.forEach((item, index) => {
     timestamps.push(moment().subtract(index, 'hours').valueOf())
