@@ -74,7 +74,7 @@ void reconnect()
     {
       Serial.println("MQTT connected");
       mqttClient.subscribe("v1/devices/me/telemetry");
-      mqttClient.subscribe("v1/devices/me/attrubutes");
+      mqttClient.subscribe("v1/devices/me/attributes");
       Serial.println("Topic subscribed");
     }
     else
@@ -90,7 +90,7 @@ void reconnect()
 // Callback function which will be called when message is received
 void callback(char *topic, byte *payload, unsigned int length)
 {
-  Serial.println('AttR Update!');
+  Serial.println("Attr Update!");
   digitalWrite(waterPumpRelay, HIGH);
   delay(2000);
   digitalWrite(waterPumpRelay, LOW);
