@@ -22,6 +22,11 @@
           @click="navigateTo('/history')"
         ></VListItem>
         <VListItem
+          prepend-icon="mdi-thermometer"
+          title="Forecast"
+          @click="navigateTo('/forecast')"
+        ></VListItem>
+        <VListItem
           prepend-icon="mdi-account"
           title="Profile"
           @click="navigateTo('/profile')"

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
   import moment from 'moment'
   import tbApi from '~/api/tbApi'
   import { useTheme } from 'vuetify'
@@ -8,6 +8,7 @@
     layout: 'main'
   })
 
+  const predictedData = ref()
   const lottie = ref(index['empty_state_dashboards'])
   const theme = useTheme()
   const activeTab = ref(1)
@@ -137,28 +138,26 @@
       .valueOf()
 
     await tbApi
-      .getHistory(startTs, endTs)
+      .getForecast(startTs, endTs)
       .then((response) => {
+        predictedData.value = response.data.data
+
         if (Object.keys(response.data.data).length === 0) {
           noWeatherData.value = true
         }
         options.value.xaxis.categories = response.data.data.temperature.map(
           (item) => `${moment(item.ts).format('hh:mm A')}`
         )
-
         listOfColors.value = createListOfColors(options.value.xaxis.categories, '#FFFFFF')
-
         measurements.value.temperature.series[0].data = response.data.data.temperature.map(
           (item) => item.value
         )
-
         measurements.value.humidity.series[0].data = response.data.data.humidity.map(
           (item) => item.value
         )
-        measurements.value.soilMoisture.series[0].data = response.data.data.soilMoisture.map(
+        measurements.value.soilMoisture.series[0].data = response.data.data.soil_moisture.map(
           (item) => item.value
         )
-
         measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
         measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
       })
@@ -167,7 +166,6 @@
       })
     loading.value = false
   }
-
   onMounted(async () => {
     fillGraphs(1, 0)
   })
@@ -175,16 +173,6 @@
 
 <template>
   <div>
-    <VTabs v-model="activeTab" grow :mandatory="true" show-arrows color="primary">
-      <VTab
-        :value="tabs.length - index"
-        v-for="(tab, index) in tabs"
-        :key="index"
-        @click="fillGraphs(tabs.length - index, tabs.length - index - 1)"
-        >{{ tab }}
-      </VTab>
-    </VTabs>
-
     <v-row class="pa-4" v-if="!loading && !noWeatherData">
       <v-col v-for="(measurement, index) in measurements" :key="index" cols="12" md="6" sm="12">
         <v-card rounded="xl" color="color_surface_mixed_200" class="pa-4">
@@ -211,5 +199,3 @@
     </div>
   </div>
 </template>
-
-<style scoped></style>

@@ -27,7 +27,7 @@ DHTesp dht;
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
-const char *mqttServer = "192.168.1.8";
+const char *mqttServer = "192.168.1.9";
 const char *mqttUsername = "vTOVeTArkQsY0RQDhG7b";
 const char *id = "";
 const char *mqttPass = "";
@@ -74,6 +74,7 @@ void reconnect()
     {
       Serial.println("MQTT connected");
       mqttClient.subscribe("v1/devices/me/telemetry");
+      mqttClient.subscribe("v1/devices/me/attrubutes");
       Serial.println("Topic subscribed");
     }
     else
@@ -89,6 +90,11 @@ void reconnect()
 // Callback function which will be called when message is received
 void callback(char *topic, byte *payload, unsigned int length)
 {
+  Serial.println('AttR Update!');
+  digitalWrite(waterPumpRelay, HIGH);
+  delay(2000);
+  digitalWrite(waterPumpRelay, LOW);
+
   Serial.print("Message arrived in topic: ");
   Serial.println(topic);
   Serial.print("Message: ");
@@ -150,7 +156,7 @@ void setup()
   mqttClient.setServer(mqttServer, 1883);
 
   // defining function which will be called when message is received
-  // mqttClient.setCallback(callback);
+  mqttClient.setCallback(callback);
 }
 
 void loop()
@@ -176,8 +182,6 @@ void loop()
     else
     {
 
-      digitalWrite(waterPumpRelay, HIGH);
-      delay(2000);
       // reading temperature or humidity takes about 250 milliseconds
       // sensor readings may also be up to 2 seconds 'old'
       // read humidity
@@ -260,8 +264,6 @@ void loop()
 
       mqttClient.publish("v1/devices/me/telemetry", msg);
       msgStr = "";
-
-      digitalWrite(waterPumpRelay, LOW);
     }
   }
 

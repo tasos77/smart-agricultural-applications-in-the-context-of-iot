@@ -27,7 +27,7 @@
             <div class="pa-3">
               <CurrentMeasurement
                 :measurementName="'UV Index'"
-                :measurement="props.currentMeasurements.UV"
+                :measurement="props.currentMeasurements.uv"
               />
             </div>
           </VCol>
