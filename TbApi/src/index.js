@@ -13,8 +13,8 @@ import {
 import forecastAppApi from './api/forecastAppApi.js'
 const port = config.port
 const domain = config.domain
-const entityId = 'e5236870-5aca-11ed-8a9a-75998db067ac'
-
+const entityId = config.entityId
+import moment from 'moment'
 // try to get TB access token
 const tbTokens = await thingsboardApi
   .login(config.tenantUsername, config.tenantPassword)
@@ -405,6 +405,35 @@ if (tbTokens) {
       middlresponse.status = 400
       res.json(middlresponse)
     }
+  })
+
+  /////////////// Update device attribute /////////////////
+
+  app.post(`/updateAttr`, async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    let middlresponse = {
+      msg: '',
+      status: null,
+      data: {}
+    }
+    const nextWatering = moment()
+    console.log(nextWatering)
+    thingsboardApi
+      .updateDeviceSharedAttr(tbTokens.token, entityId, nextWatering)
+      .then((response) => {
+        res.status(200)
+        middlresponse.msg = `Device Attribute Updated!`
+        middlresponse.status = 200
+        middlresponse.data = {}
+        res.json(middlresponse)
+      })
+      .catch((e) => {
+        console.log(e.response.data)
+        res.status(400)
+        middlresponse.msg = 'Failed to update device attribute!'
+        middlresponse.status = 400
+        res.json(middlresponse)
+      })
   })
 
   ////////////////////// init socket //////////////////////

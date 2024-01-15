@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { config } from '../config/public.js'
-
 // create axios instance
 const instance = axios.create({
   baseURL: config.tbBaseUrl
@@ -106,6 +105,20 @@ const getTelemetryRange = (
   )
 }
 
+const updateDeviceSharedAttr = (token, deviceId, nextWatering) => {
+  return instance.post(
+    `plugins/telemetry/DEVICE/${deviceId}/attributes/SHARED_SCOPE`,
+    {
+      watering: nextWatering
+    },
+    {
+      headers: {
+        'X-Authorization': `Bearer ${token}`
+      }
+    }
+  )
+}
+
 export default {
   login,
   activateUser,
@@ -113,5 +126,6 @@ export default {
   createUser,
   logout,
   getUser,
-  getTelemetryRange
+  getTelemetryRange,
+  updateDeviceSharedAttr
 }
