@@ -436,7 +436,25 @@ if (tbTokens) {
       })
   })
 
-  ////////////////////// init socket //////////////////////
+  ////////////////////// init alarm socket ////////////////////
+  // let aralmWs = null
+  // const draftSocket = new WebSocketServer({ port: 4444 })
+  // draftSocket.on('connection', function connection(ws) {
+  //   aralmWs = ws
+  //   ws.on('message', (message) => {
+  //     console.log(`received from a client: ${message}`)
+  //   })
+  //   ws.send('Hello world!')
+  // })
+
+  // app.post(`/propagateAlarm`, async (req, res) => {
+  //   res.header('Access-Control-Allow-Origin', '*')
+  //   console.log(req.body)
+  //   ws.send('Hello world2!')
+  //   res.sendStatus(200)
+  // })
+
+  ////////////////////// init telemetries socket //////////////////////
 
   const wss = new WebSocketServer({ port: 8080 })
   wss.on('connection', function connection(ws) {

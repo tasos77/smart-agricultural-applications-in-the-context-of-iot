@@ -16,12 +16,12 @@
   const temp = ref(0)
   const currentMeasurements = ref({})
 
-  const socket = new WebSocket('ws://localhost:8080')
-  socket.onopen = function (event) {
-    console.log('WebSocket connection opened:', event)
+  const telemetrySocket = new WebSocket('ws://localhost:8080')
+  telemetrySocket.onopen = function (event) {
+    console.log('Telemetry WebSocket connection opened:', event)
   }
 
-  socket.onmessage = function (event) {
+  telemetrySocket.onmessage = function (event) {
     let apiTelemetries = JSON.parse(event.data)
     console.log(apiTelemetries)
     timestamp.value = apiTelemetries.timestamp
@@ -29,12 +29,12 @@
     currentMeasurements.value = apiTelemetries
   }
 
-  socket.onerror = function (error) {
-    console.log('WebSocket error:', error)
+  telemetrySocket.onerror = function (error) {
+    console.log('Telemetry WebSocket error:', error)
   }
 
-  socket.onclose = function (event) {
-    console.log('WebSocket connection closed:', event.code)
+  telemetrySocket.onclose = function (event) {
+    console.log('Telemetry WebSocket connection closed:', event.code)
   }
 </script>
 
