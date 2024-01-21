@@ -10,6 +10,7 @@ import {
   transformTimeseriesForecastAppToTBDataFormat,
   aggregateHistoryData
 } from './utils/convertions.js'
+import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
 import forecastAppApi from './api/forecastAppApi.js'
 const port = config.port
 const domain = config.domain
@@ -437,22 +438,23 @@ if (tbTokens) {
   })
 
   ////////////////////// init alarm socket ////////////////////
-  // let aralmWs = null
-  // const draftSocket = new WebSocketServer({ port: 4444 })
-  // draftSocket.on('connection', function connection(ws) {
-  //   aralmWs = ws
-  //   ws.on('message', (message) => {
-  //     console.log(`received from a client: ${message}`)
-  //   })
-  //   ws.send('Hello world!')
-  // })
 
-  // app.post(`/propagateAlarm`, async (req, res) => {
-  //   res.header('Access-Control-Allow-Origin', '*')
-  //   console.log(req.body)
-  //   ws.send('Hello world2!')
-  //   res.sendStatus(200)
-  // })
+  let alarmWs = null
+  const draftSocket = new WebSocketServer({ port: 4444 })
+  draftSocket.on('connection', function connection(ws) {
+    alarmWs = ws
+    ws.on('message', (message) => {
+      console.log(`received from a client: ${message}`)
+    })
+    ws.send(JSON.stringify({ message: 'hello world' }))
+  })
+
+  app.get(`/propagateAlarm`, async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    console.log(req.body)
+    alarmWs.send(JSON.stringify({ message: 'hello world2' }))
+    res.sendStatus(200)
+  })
 
   ////////////////////// init telemetries socket //////////////////////
 
@@ -460,7 +462,8 @@ if (tbTokens) {
   wss.on('connection', function connection(ws) {
     var token = tbTokens.token
 
-    var webSocket = new WebSocket('ws://localhost:9090/api/ws/plugins/telemetry?token=' + token)
+    var webSocket = new WebSocket('ws://localhost:9090/api/ws')
+    // plugins/telemetry?token=' + token
 
     if (entityId === 'YOUR_DEVICE_ID') {
       console.log('Invalid device id!')
@@ -476,16 +479,77 @@ if (tbTokens) {
 
     webSocket.onopen = function () {
       var object = {
-        tsSubCmds: [
+        authCmd: {
+          cmdId: 0,
+          token: token
+        },
+        cmds: [
           {
             entityType: 'DEVICE',
             entityId: entityId,
             scope: 'LATEST_TELEMETRY',
-            cmdId: 10
+            cmdId: 1,
+            type: 'TIMESERIES'
+          },
+          {
+            cmdId: 2,
+            query: {
+              alarmFields: [
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'createdTime'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'originator'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'type'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'severity'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'status'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'assignee'
+                }
+              ],
+              entityFields: [],
+              entityFilter: {
+                type: 'singleEntity',
+                singleEntity: {
+                  entityType: 'DEVICE',
+                  id: '587325a0-b7bc-11ee-a93d-57cbe3542689'
+                }
+              },
+              latestValues: [],
+              pageLink: {
+                page: 0,
+                pageSize: 10,
+                searchPropagatedAlarms: false,
+                severityList: [],
+                sortOrder: {
+                  direction: 'DESC',
+                  key: {
+                    key: 'createdTime',
+                    type: 'ALARM_FIELD'
+                  }
+                },
+                statusList: [],
+                textSearch: null,
+                timeWindow: 86400000,
+                typeList: []
+              }
+            },
+            type: 'ALARM_DATA'
           }
-        ],
-        historyCmds: [],
-        attrSubCmds: []
+        ]
       }
       var data = JSON.stringify(object)
       webSocket.send(data)
@@ -493,23 +557,32 @@ if (tbTokens) {
     }
 
     webSocket.onmessage = function (event) {
-      let parsedRawTBtelemetries = JSON.parse(event.data).data
+      let parsedData = JSON.parse(event.data)
+      if (parsedData?.subscriptionId === 1) {
+        let parsedRawTBtelemetries = parsedData.data
 
-      let formatedTbTelemetries = {
-        timestamp: parsedRawTBtelemetries.temperature[0][0],
-        temperature: parseFloat(parsedRawTBtelemetries.temperature[0][1]),
-        humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
-        rain: parseFloat(parsedRawTBtelemetries.rain[0][1]),
-        soilMoisture: parseFloat(parsedRawTBtelemetries.soilMoisture[0][1]),
-        uv: parseFloat(parsedRawTBtelemetries.uv[0][1])
+        let formatedTbTelemetries = {
+          timestamp: parsedRawTBtelemetries.temperature[0][0],
+          temperature: parseFloat(parsedRawTBtelemetries.temperature[0][1]),
+          humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
+          rain: parseFloat(parsedRawTBtelemetries.rain[0][1]),
+          soilMoisture: parseFloat(parsedRawTBtelemetries.soilMoisture[0][1]),
+          uv: parseFloat(parsedRawTBtelemetries.uv[0][1])
+        }
+
+        console.log(formatedTbTelemetries)
+        ws.send(JSON.stringify(formatedTbTelemetries))
+      } else {
+        let alarmName = parsedData?.update ? `${parsedData.update[0].name}` : null
+
+        const alarmMetadata = convertAlarmEvent(alarmName)
+        console.log(alarmMetadata)
+        ws.send(JSON.stringify(alarmMetadata))
       }
-
-      console.log(formatedTbTelemetries)
-      ws.send(JSON.stringify(formatedTbTelemetries))
     }
 
     webSocket.onclose = function (event) {
-      console.log('Connection is closed!')
+      console.log('TB WS Connection is closed!')
     }
 
     ws.on('error', console.error)

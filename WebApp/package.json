@@ -21,6 +21,7 @@
     "socket.io-client": "^4.7.2",
     "vue3-apexcharts": "^1.4.4",
     "vue3-lottie": "^3.0.0",
-    "vuetify": "^3.3.11"
+    "vuetify": "^3.3.11",
+    "@voerro/vue-notifications": "^1.0.1"
   }
 }

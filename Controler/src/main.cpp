@@ -28,7 +28,7 @@ DHTesp dht;
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
 const char *mqttServer = "192.168.1.9";
-const char *mqttUsername = "vTOVeTArkQsY0RQDhG7b";
+const char *mqttUsername = "U9HU1LRFJQ7SKjPNADsI";
 const char *id = "";
 const char *mqttPass = "";
 
