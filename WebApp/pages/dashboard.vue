@@ -13,9 +13,6 @@
   const timestamp = ref(0)
   const temp = ref(0)
   const currentMeasurements = ref({})
-  const alarm = ref(false)
-  const alarmTitle = ref('')
-  const alarmText = ref('')
   const alarmList = ref<any>([])
 
   const handleAlarmData = (alarmData: AlarmData) => {
@@ -33,16 +30,14 @@
     }
     if (
       alarmList.value.find((item: any) => {
-        item.alarmKey === alarmData.measurement
+        return item.alarmKey === alarmData.measurement
       }) &&
       alarmData.flag === 0
     ) {
-      alarmList.value.filter((item: any) => {
-        item.alarmKey === alarmData.measurement
+      alarmList.value = alarmList.value.filter((item: any) => {
+        return item.alarmKey !== alarmData.measurement
       })
     }
-
-    console.log(alarmList.value)
   }
 
   const socket = new WebSocket('ws://localhost:8080')
