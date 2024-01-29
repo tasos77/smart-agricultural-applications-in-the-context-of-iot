@@ -118,9 +118,25 @@ const getForecast = (startTs: number, endTs: number) => {
   })
 }
 
+const getDashboardForecast = (startTs: number, endTs: number) => {
+  return client.post(`/getDashboardForecast`, {
+    startTs,
+    endTs
+  })
+}
+
 // // try to get users devices
 // const getDevices = () => {
 //   return client.get(`api/v1/me/devices`);
 // };
 
-export default { login, registration, activateUser, logout, getUser, getHistory, getForecast }
+export default {
+  login,
+  registration,
+  activateUser,
+  logout,
+  getUser,
+  getHistory,
+  getForecast,
+  getDashboardForecast
+}

@@ -1,7 +1,7 @@
 <script setup lang="ts">
   // import Weather from '~/components/Weather.vue'
   import DeviceInfo from '~/components/DeviceInfo.vue'
-  import Forecast from '~/components/Forecast.vue'
+  import DashboardForecast from '~/components/DashboardForecast.vue'
   interface AlarmData {
     measurement: string
     flag: number
@@ -70,7 +70,7 @@
 <template>
   <div>
     <DeviceInfo :currentMeasurements="currentMeasurements" :timestamp="timestamp" :temp="temp" />
-    <Forecast />
+    <DashboardForecast />
 
     <div class="notificationContainer">
       <v-slide-y-transition group>

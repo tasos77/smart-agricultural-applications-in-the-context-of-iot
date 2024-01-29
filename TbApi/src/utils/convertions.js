@@ -1,5 +1,60 @@
 import moment from 'moment'
 
+const nightTimeArray = [
+  '6 PM',
+  '7 PM',
+  '8 PM',
+  '9 PM',
+  '10 PM',
+  '11 PM',
+  '12 AM',
+  '1 AM',
+  '2 AM',
+  '3 AM',
+  '4 AM',
+  '5 AM'
+]
+const dayTimeArray = [
+  '6 AM',
+  '7 AM',
+  '8 AM',
+  '9 AM',
+  '10 AM',
+  '11 AM',
+  '12 PM',
+  '1 PM',
+  '2 PM',
+  '3 PM',
+  '4 PM',
+  '5 PM'
+]
+
+export function aggregateHistoryData(data) {
+  const numGroups = 24
+
+  const temperatureValues = exportTBValuesArray(data.temperature)
+  const humidityValues = exportTBValuesArray(data.humidity)
+  const soilMoistureValues = exportTBValuesArray(data.soilMoisture)
+  const rainValues = exportTBValuesArray(data.rain)
+  const uvValues = exportTBValuesArray(data.uv)
+
+  const aggregatedTemperatureArray = aggregateArray(temperatureValues, numGroups)
+  const aggregatedHumidityArray = aggregateArray(humidityValues, numGroups)
+  const aggregatedSoilMoistureArray = aggregateArray(soilMoistureValues, numGroups)
+  const aggregatedRainArray = aggregateArray(rainValues, numGroups)
+  const aggregatedUvArray = aggregateArray(uvValues, numGroups)
+
+  const aggregatedTimestampsArray = calcHistoryTimestampsArray(aggregatedTemperatureArray)
+
+  return {
+    temperature: rebuildTbResponseFormat(aggregatedTemperatureArray, aggregatedTimestampsArray),
+    humidity: rebuildTbResponseFormat(aggregatedHumidityArray, aggregatedTimestampsArray),
+    soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
+    rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
+    uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray)
+  }
+}
+
 export function transformTBDataToTimeseriesForecastAppFormat(data) {
   const timeseriesForecastAppCompatibleHistoryMeasurements = []
 
@@ -24,7 +79,7 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
   const rain = []
   const uv = []
   const numGroups = 24
-  console.log(data.predicted_temperature.length)
+
   for (let i = 0; i < data.predicted_temperature.length; i++) {
     temperature.push({
       ts: data.predicted_timestamp[i][0],
@@ -60,41 +115,41 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
   const aggregatedRainArray = aggregateArray(rainValues, numGroups)
   const aggregatedUvArray = aggregateArray(uvValues, numGroups)
 
-  const aggregatedTimestampsArray = calcForecastTimestampsArray(aggregatedTemperatureArray)
+  const aggregatedTemperatureMinMax = aggregateArrayMinMax(temperatureValues, numGroups)
+  // const aggregatedHumidityMinMax = aggregateArrayMinMax(humidityValues, numGroups)
+  // const aggregatedSoilMoistureMinMax = aggregateArrayMinMax(soilMoistureValues, numGroups)
+  // const aggregatedRainMinMax = aggregateArrayMinMax(rainValues, numGroups)
+  // const aggregatedUvMinMax = aggregateArrayMinMax(uvValues, numGroups)
 
+  const aggregatedTimestampsArray = calcForecastTimestampsArray(aggregatedTemperatureArray)
+  aggregatedTimestampsArray.forEach((time) => {})
   return {
-    temperature: rebuildTbResponseFormat(aggregatedTemperatureArray, aggregatedTimestampsArray),
+    temperature: buildExtendedResponseFormat(
+      aggregatedTemperatureArray,
+      aggregatedTimestampsArray,
+      aggregatedTemperatureMinMax
+    ),
     humidity: rebuildTbResponseFormat(aggregatedHumidityArray, aggregatedTimestampsArray),
     soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
     rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
-    uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray)
+    uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray),
+    icons: calcIcon(
+      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+      aggregatedTimestampsArray
+    )
   }
 }
 
-export function aggregateHistoryData(data) {
-  const numGroups = 24
-
-  const temperatureValues = exportTBValuesArray(data.temperature)
-  const humidityValues = exportTBValuesArray(data.humidity)
-  const soilMoistureValues = exportTBValuesArray(data.soilMoisture)
-  const rainValues = exportTBValuesArray(data.rain)
-  const uvValues = exportTBValuesArray(data.uv)
-
-  const aggregatedTemperatureArray = aggregateArray(temperatureValues, numGroups)
-  const aggregatedHumidityArray = aggregateArray(humidityValues, numGroups)
-  const aggregatedSoilMoistureArray = aggregateArray(soilMoistureValues, numGroups)
-  const aggregatedRainArray = aggregateArray(rainValues, numGroups)
-  const aggregatedUvArray = aggregateArray(uvValues, numGroups)
-
-  const aggregatedTimestampsArray = calcHistoryTimestampsArray(aggregatedTemperatureArray)
-
-  return {
-    temperature: rebuildTbResponseFormat(aggregatedTemperatureArray, aggregatedTimestampsArray),
-    humidity: rebuildTbResponseFormat(aggregatedHumidityArray, aggregatedTimestampsArray),
-    soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
-    rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
-    uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray)
-  }
+const calcIcon = (aggregatdRainValues, aggregatedTimestampsArray) => {
+  return aggregatdRainValues.map((rainValue, index) => {
+    if (rainValue >= 1) {
+      return 'rain'
+    } else if (nightTimeArray.includes(moment(aggregatedTimestampsArray[index]).format('h A'))) {
+      return 'clear_night'
+    } else {
+      return 'clear_day'
+    }
+  })
 }
 
 const rebuildTbResponseFormat = (values, timestamps) => {
@@ -102,6 +157,16 @@ const rebuildTbResponseFormat = (values, timestamps) => {
     return {
       ts: timestamps[index],
       value: value.toFixed(2)
+    }
+  })
+}
+
+const buildExtendedResponseFormat = (values, timestamps, minMaxArray) => {
+  return values.map((value, index) => {
+    return {
+      ts: timestamps[index],
+      value: value.toFixed(2),
+      range: minMaxArray[index]
     }
   })
 }
@@ -141,6 +206,27 @@ const aggregateArray = (array, numGroups) => {
 
       // Push the average to the aggregated array
       aggregatedArray.push(groupAverage)
+    }
+  }
+  return aggregatedArray
+}
+
+const aggregateArrayMinMax = (array, numGroups) => {
+  const groupSize = Math.ceil(array.length / numGroups)
+  const aggregatedArray = []
+
+  for (let i = 0; i < numGroups; i++) {
+    const startIndex = i * groupSize
+    const endIndex = Math.min((i + 1) * groupSize, array.length)
+
+    if (startIndex < endIndex) {
+      // Calculate the min and max for the current group
+      const groupValues = array.slice(startIndex, endIndex)
+      const groupMin = Math.min(...groupValues)
+      const groupMax = Math.max(...groupValues)
+
+      // Push the min and max to the aggregated array
+      aggregatedArray.push({ min: groupMin, max: groupMax })
     }
   }
   return aggregatedArray

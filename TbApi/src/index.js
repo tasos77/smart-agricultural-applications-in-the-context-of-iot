@@ -358,6 +358,69 @@ if (tbTokens) {
     }
   })
 
+  //////////////////// GET DASHBOARD FORECASE ////////////////////
+  app.post(`/getDashboardForecast`, async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    const telemetryRangeInfo = {
+      startTs: req.body.startTs,
+      endTs: req.body.endTs
+    }
+    let middlresponse = {
+      msg: '',
+      status: null,
+      data: {}
+    }
+    if (
+      telemetryRangeInfo.hasOwnProperty('startTs') &&
+      telemetryRangeInfo.hasOwnProperty('endTs') &&
+      telemetryRangeInfo.startTs &&
+      telemetryRangeInfo.endTs
+    ) {
+      thingsboardApi
+        .getTelemetryRange(
+          tbTokens.token,
+          entityId,
+          telemetryRangeInfo.startTs,
+          telemetryRangeInfo.endTs
+        )
+        .then((tbRes) => {
+          const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
+            tbRes.data
+          )
+          forecastAppApi
+            .getPredictedData(timeseriesForecastAppFormatedData)
+            .then((predictedMeasurements) => {
+              res.status(200)
+              middlresponse.msg = `Got forecast data!`
+              middlresponse.status = 200
+              middlresponse.data = transformTimeseriesForecastAppToTBDataFormat(
+                predictedMeasurements.data
+              )
+              res.json(middlresponse)
+            })
+            .catch((e) => {
+              console.log(e)
+              res.status(400)
+              middlresponse.msg = 'Failed to get predicted data!'
+              middlresponse.status = 400
+              res.json(middlresponse)
+            })
+        })
+        .catch((e) => {
+          console.log(e.response.data)
+          res.status(400)
+          middlresponse.msg = 'Failed to get forecast data!'
+          middlresponse.status = 400
+          res.json(middlresponse)
+        })
+    } else {
+      res.status(400)
+      middlresponse.msg = `Missing or invalid body`
+      middlresponse.status = 400
+      res.json(middlresponse)
+    }
+  })
+
   //////////////////////// GET TRAIN DATA ////////////////////////
   app.post(`/getTrainData`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')

@@ -1,5 +1,8 @@
 <script setup lang="ts">
   import index from '~/assets/animations/index'
+  import tbApi from '~/api/tbApi'
+  import moment from 'moment'
+
   const model = ref(null)
   const forecasts = ref([
     {
@@ -75,6 +78,32 @@
     { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
     { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' }
   ])
+
+  const temperatureValues = ref([])
+  const icons = ref([])
+
+  const fillGraphs = async (subtractionStart: number, subtractionEnd: number) => {
+    const startTs = moment()
+      .subtract(subtractionStart * 24, 'minutes')
+      .valueOf()
+    const endTs = moment()
+      .subtract(subtractionEnd * 24, 'minutes')
+      .valueOf()
+
+    await tbApi
+      .getForecast(startTs, endTs)
+      .then((response) => {
+        console.log(response)
+        icons.value = response.data.data.icons
+        temperatureValues.value = response.data.data.temperature
+      })
+      .catch((e) => {
+        console.log(e)
+      })
+  }
+  onMounted(async () => {
+    fillGraphs(1, 0)
+  })
 </script>
 
 <template>
@@ -83,8 +112,8 @@
     <v-sheet class="mx-auto" elevation="8" color="color_surface_mixed_300">
       <v-slide-group v-model="model" class="pa-0">
         <v-slide-group-item
-          v-for="(forecast, index) in forecasts"
-          :key="index"
+          v-for="(tempItem, i) in temperatureValues"
+          :key="i"
           v-slot="{ isSelected, toggle, selectedClass }"
         >
           <v-card
@@ -99,20 +128,22 @@
             <div class="d-flex justify-center align-center">
               <div>
                 <client-only>
-                  <Vue3Lottie :animation-data="forecast.lottie" height="auto" width="auto" />
+                  <Vue3Lottie :animation-data="index[`${icons[i]}`]" height="auto" width="auto" />
                 </client-only>
                 <div class="d-flex align-baseline justify-center">
-                  <span class="text-body-1">{{ forecast.maxTemp }}/</span>
-                  <span class="text-body-2">{{ forecast.minTemp }}</span>
+                  <span class="text-body-1">{{ tempItem.range.max }}/</span>
+                  <span class="text-body-2">{{ tempItem.range.min }}</span>
                 </div>
-                <div class="d-flex justify-center align-center">{{ forecast.date }}</div>
                 <div class="d-flex justify-center align-center">
-                  {{ forecast.day }}
+                  {{ moment(tempItem.ts).format('h A') }}
                 </div>
+                <!-- <div class="d-flex justify-center align-center">
+                  {{ moment(tempItem.ts).format('dddd') }}
+                </div> -->
               </div>
             </div>
 
-            <div class="d-flex fill-height align-center justify-center">
+            <!-- <div class="d-flex fill-height align-center justify-center">
               <v-scale-transition>
                 <v-icon
                   v-if="isSelected"
@@ -121,7 +152,7 @@
                   icon="mdi-close-circle-outline"
                 ></v-icon>
               </v-scale-transition>
-            </div>
+            </div> -->
           </v-card>
         </v-slide-group-item>
       </v-slide-group>
