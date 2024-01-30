@@ -8,7 +8,8 @@ import { WebSocketServer } from 'ws'
 import {
   transformTBDataToTimeseriesForecastAppFormat,
   transformTimeseriesForecastAppToTBDataFormat,
-  aggregateHistoryData
+  aggregateHistoryData,
+  calcSingleIcon
 } from './utils/convertions.js'
 import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
 import forecastAppApi from './api/forecastAppApi.js'
@@ -324,6 +325,7 @@ if (tbTokens) {
           const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
             tbRes.data
           )
+
           forecastAppApi
             .getPredictedData(timeseriesForecastAppFormatedData)
             .then((predictedMeasurements) => {
@@ -630,7 +632,11 @@ if (tbTokens) {
           humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
           rain: parseFloat(parsedRawTBtelemetries.rain[0][1]),
           soilMoisture: parseFloat(parsedRawTBtelemetries.soilMoisture[0][1]),
-          uv: parseFloat(parsedRawTBtelemetries.uv[0][1])
+          uv: parseFloat(parsedRawTBtelemetries.uv[0][1]),
+          icon: calcSingleIcon(
+            parseFloat(parsedRawTBtelemetries.rain[0][1]),
+            parsedRawTBtelemetries.temperature[0][0]
+          )
         }
 
         console.log(formatedTbTelemetries)

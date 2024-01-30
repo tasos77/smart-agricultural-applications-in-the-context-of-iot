@@ -79,27 +79,28 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
   const rain = []
   const uv = []
   const numGroups = 24
-
+  console.log(data.predicted_rain)
+  console.log(data.predicted_uv)
   for (let i = 0; i < data.predicted_temperature.length; i++) {
     temperature.push({
       ts: data.predicted_timestamp[i][0],
-      value: data.predicted_temperature[i][0].toFixed(1)
+      value: data.predicted_temperature[i][0]
     })
     humidity.push({
       ts: data.predicted_timestamp[i][0],
-      value: data.predicted_humidity[i][0].toFixed(1)
+      value: data.predicted_humidity[i][0]
     })
     soilMoisture.push({
       ts: data.predicted_timestamp[i][0],
-      value: data.predicted_soil_moisture[i][0].toFixed(1)
+      value: data.predicted_soil_moisture[i][0]
     })
     rain.push({
       ts: data.predicted_timestamp[i][0],
-      value: data.predicted_rain[i][0].toFixed(1)
+      value: data.predicted_rain[i][0]
     })
     uv.push({
       ts: data.predicted_timestamp[i][0],
-      value: data.predicted_uv[i][0].toFixed(1)
+      value: data.predicted_uv[i][0]
     })
   }
 
@@ -122,7 +123,7 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
   // const aggregatedUvMinMax = aggregateArrayMinMax(uvValues, numGroups)
 
   const aggregatedTimestampsArray = calcForecastTimestampsArray(aggregatedTemperatureArray)
-  aggregatedTimestampsArray.forEach((time) => {})
+
   return {
     temperature: buildExtendedResponseFormat(
       aggregatedTemperatureArray,
@@ -133,10 +134,7 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
     soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
     rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
     uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray),
-    icons: calcIcon(
-      [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-      aggregatedTimestampsArray
-    )
+    icons: calcIcon(aggregatedRainArray, aggregatedTimestampsArray)
   }
 }
 
@@ -150,6 +148,16 @@ const calcIcon = (aggregatdRainValues, aggregatedTimestampsArray) => {
       return 'clear_day'
     }
   })
+}
+
+export function calcSingleIcon(rainValue, timestamp) {
+  if (rainValue >= 1) {
+    return 'rain'
+  } else if (nightTimeArray.includes(moment(timestamp).format('h A'))) {
+    return 'clear_night'
+  } else {
+    return 'clear_day'
+  }
 }
 
 const rebuildTbResponseFormat = (values, timestamps) => {

@@ -148,18 +148,20 @@
         options.value.xaxis.categories = response.data.data.temperature.map(
           (item) => `${moment(item.ts).format('hh:mm A')}`
         )
+
         listOfColors.value = createListOfColors(options.value.xaxis.categories, '#FFFFFF')
+
         measurements.value.temperature.series[0].data = response.data.data.temperature.map(
           (item) => item.value
         )
+        measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
+        measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
         measurements.value.humidity.series[0].data = response.data.data.humidity.map(
           (item) => item.value
         )
-        measurements.value.soilMoisture.series[0].data = response.data.data.soil_moisture.map(
+        measurements.value.soilMoisture.series[0].data = response.data.data.soilMoisture.map(
           (item) => item.value
         )
-        measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
-        measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
       })
       .catch((e) => {
         noWeatherData.value = false

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-  // import Weather from '~/components/Weather.vue'
   import DeviceInfo from '~/components/DeviceInfo.vue'
   import DashboardForecast from '~/components/DashboardForecast.vue'
   interface AlarmData {

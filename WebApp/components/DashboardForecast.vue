@@ -142,17 +142,6 @@
                 </div> -->
               </div>
             </div>
-
-            <!-- <div class="d-flex fill-height align-center justify-center">
-              <v-scale-transition>
-                <v-icon
-                  v-if="isSelected"
-                  color="white"
-                  size="48"
-                  icon="mdi-close-circle-outline"
-                ></v-icon>
-              </v-scale-transition>
-            </div> -->
           </v-card>
         </v-slide-group-item>
       </v-slide-group>

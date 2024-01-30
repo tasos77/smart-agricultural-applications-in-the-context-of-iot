@@ -3,7 +3,11 @@
     <VCardTitle>Current Measurements</VCardTitle>
     <VRow align="stretch" justify="center" class="pa-0 ma-0">
       <VCol sm="12" md="4">
-        <CurrentCondition :timestamp="props.timestamp" :temp="props.temp" />
+        <CurrentCondition
+          :timestamp="props.timestamp"
+          :temp="props.temp"
+          :icon="props.currentMeasurements.icon"
+        />
       </VCol>
       <VCol sm="12" md="8">
         <VCard rounded="xl" color="color_surface_mixed_300">

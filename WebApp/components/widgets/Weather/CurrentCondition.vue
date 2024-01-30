@@ -1,16 +1,17 @@
 <script setup lang="ts">
   import moment from 'moment'
   import index from '../../../assets/animations/index'
-  const lottie = ref(index['clear_day'])
 
   const props = withDefaults(
     defineProps<{
       timestamp?: number
       temp?: number
+      icon?: string
     }>(),
     {
       timestamp: 0,
-      temp: 0
+      temp: 0,
+      icon: 'not_available'
     }
   )
 
@@ -27,7 +28,7 @@
       <VCol>
         <div>
           <client-only>
-            <Vue3Lottie :animation-data="lottie" height="auto" width="auto" />
+            <Vue3Lottie :animation-data="index[`${props.icon}`]" height="auto" width="auto" />
           </client-only>
         </div>
 
