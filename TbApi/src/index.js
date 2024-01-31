@@ -11,6 +11,7 @@ import {
   aggregateHistoryData,
   calcSingleIcon
 } from './utils/convertions.js'
+import { pumpFunc } from './utils/handlePump.js'
 import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
 import forecastAppApi from './api/forecastAppApi.js'
 const port = config.port
@@ -38,13 +39,13 @@ if (tbTokens) {
   })
 
   // tell express to use body-parser's JSON parsing
-  app.use(bodyParser.json())
-  // avoid CORS errors
-  app.use(
-    cors({
-      origin: '*'
-    })
-  )
+  app.use(bodyParser.json()) -
+    // avoid CORS errors
+    app.use(
+      cors({
+        origin: '*'
+      })
+    )
   //////////////////////// LOGIN ////////////////////////
   app.post(`/login`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
@@ -296,6 +297,54 @@ if (tbTokens) {
       res.json(middlresponse)
     }
   })
+
+  //////////////////////  WATERING POLLING /////////////////////
+
+  function watering() {
+    const startTs = moment()
+      .subtract(1 * 24, 'minutes')
+      .valueOf()
+    const endTs = moment()
+      .subtract(0 * 24, 'minutes')
+      .valueOf()
+
+    thingsboardApi
+      .getTelemetryRange(tbTokens.token, entityId, startTs, endTs)
+      .then((tbRes) => {
+        const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
+          tbRes.data
+        )
+
+        forecastAppApi
+          .getPredictedData(timeseriesForecastAppFormatedData)
+          .then((predictedMeasurements) => {
+            const threshold = pumpFunc(predictedMeasurements.data.predicted_rain)
+            if (threshold) {
+              console.log('Watering threshold reached..!')
+              const nextWatering = moment()
+              console.log(`Next watering at ${nextWatering.format('h A')}`)
+
+              thingsboardApi
+                .updateDeviceSharedAttr(tbTokens.token, entityId, nextWatering)
+                .then((response) => {
+                  console.log(`Device Attribute Updated!`)
+                })
+                .catch((e) => {
+                  console.log('Failed to update device attribute!')
+                })
+            }
+          })
+          .catch((e) => {
+            console.log('Cant get forecast data...!!')
+          })
+      })
+      .catch((e) => {
+        console.log('Cant get tb data..!!')
+      })
+  }
+  watering()
+  setInterval(watering, 10000)
+
   //////////////////////// GET FORECAST ////////////////////////
   app.post(`/getForecast`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
@@ -500,25 +549,6 @@ if (tbTokens) {
         middlresponse.status = 400
         res.json(middlresponse)
       })
-  })
-
-  ////////////////////// init alarm socket ////////////////////
-
-  let alarmWs = null
-  const draftSocket = new WebSocketServer({ port: 4444 })
-  draftSocket.on('connection', function connection(ws) {
-    alarmWs = ws
-    ws.on('message', (message) => {
-      console.log(`received from a client: ${message}`)
-    })
-    ws.send(JSON.stringify({ message: 'hello world' }))
-  })
-
-  app.get(`/propagateAlarm`, async (req, res) => {
-    res.header('Access-Control-Allow-Origin', '*')
-    console.log(req.body)
-    alarmWs.send(JSON.stringify({ message: 'hello world2' }))
-    res.sendStatus(200)
   })
 
   ////////////////////// init telemetries socket //////////////////////
