@@ -4,80 +4,6 @@
   import moment from 'moment'
 
   const model = ref(null)
-  const forecasts = ref([
-    {
-      lottie: index['clear_day'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Tuesday'
-    },
-    {
-      lottie: index['clear_night'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Wednesday'
-    },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Thursday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Friday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
-    {
-      lottie: index['clear_day'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Tuesday'
-    },
-    {
-      lottie: index['clear_night'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Wednesday'
-    },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Thursday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Friday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
-    {
-      lottie: index['clear_day'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Tuesday'
-    },
-    {
-      lottie: index['clear_night'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Wednesday'
-    },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Thursday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Friday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
-    {
-      lottie: index['clear_day'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Tuesday'
-    },
-    {
-      lottie: index['clear_night'],
-      minTemp: '24°C',
-      maxTemp: '30°C',
-      date: '15 July',
-      day: 'Wednesday'
-    },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Thursday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Friday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' },
-    { lottie: index['rain'], minTemp: '24°C', maxTemp: '30°C', date: '15 July', day: 'Saturday' }
-  ])
 
   const temperatureValues = ref([])
   const icons = ref([])
@@ -128,7 +54,7 @@
             <div class="d-flex justify-center align-center">
               <div>
                 <client-only>
-                  <Vue3Lottie :animation-data="index[`${icons[i]}`]" height="auto" width="auto" />
+                  <Vue3Lottie :animation-data="index[`${icons[i]}`]" height="50px" width="50px" />
                 </client-only>
                 <div class="d-flex align-baseline justify-center">
                   <span class="text-body-1">{{ tempItem.range.max }}/</span>

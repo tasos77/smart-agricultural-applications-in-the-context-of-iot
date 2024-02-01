@@ -3,26 +3,26 @@ export function pumpFunc(predictedData) {
   let soilMoisture = []
   let humidity = []
 
-  rain = predictedData.predected_rain.map((item) => {
+  rain = predictedData.predicted_rain.map((item) => {
     return parseFloat(item[0])
   })
 
-  soilMoisture = predictedData.predected_soil_moisture.map((item) => {
+  soilMoisture = predictedData.predicted_soil_moisture.map((item) => {
     return parseFloat(item[0])
   })
-  humidity = predictedData.predected_humidity.map((item) => {
+  humidity = predictedData.predicted_humidity.map((item) => {
     return parseFloat(item[0])
   })
 
   const aggregatedHumidityArray = aggregateArray(humidity)
   const aggregatedSoilMoistureArray = aggregateArray(soilMoisture)
   const aggregatedRainArray = aggregateArray(rain)
-  const customArrayHumidity = [0, 0, 0, 0, 0, 1]
-  const customArraySoilMoisture = [1, 0, 0, 0, 0]
-  const customArrayRain = [0, 0, 0, 1, 0]
+  const customArrayHumidity = [0, 0, 0, 0, 0, 0]
+  const customArraySoilMoisture = [0, 0, 0, 0, 0]
+  const customArrayRain = [0, 0, 0, 0, 0]
 
   //   return aggregatedRainArray.some((value) => value >= 1)
-  return (
+  return !(
     customArrayHumidity.some((value) => value >= 1) ||
     customArraySoilMoisture.some((value) => value >= 1) ||
     customArrayRain.some((value) => value >= 1)

@@ -91,41 +91,102 @@ void reconnect()
 void callback(char *topic, byte *payload, unsigned int length)
 {
   Serial.println("Attr Update!");
-  digitalWrite(waterPumpRelay, HIGH);
-  delay(2000);
-  digitalWrite(waterPumpRelay, LOW);
+  // digitalWrite(waterPumpRelay, HIGH);
+  // delay(2000);
+  // digitalWrite(waterPumpRelay, LOW);
+  Serial.println("Pump about to start...");
+  // MQTT message buffer
+  String pumpState = "";
+  pumpState = "{\"pump_state\": started}";
+  byte arrSize = pumpState.length() + 1;
+  char msg[arrSize];
+  pumpState.toCharArray(msg, arrSize);
+  mqttClient.publish("v1/devices/me/attributes", msg);
 
-  Serial.print("Message arrived in topic: ");
-  Serial.println(topic);
-  Serial.print("Message: ");
-  for (int i = 0; i < length; i++)
+  int counter = 0;
+  while (counter < 10)
   {
-    Serial.print((char)payload[i]);
+    Serial.println("Check Rain...");
+    // read rain
+    float current_rain = analogRead(rainSensor) * (3.3 / 4095);
+    float current_calcedRainVoltage = 3.3 - current_rain;
+    if (counter > 4)
+    {
+      current_calcedRainVoltage = 2;
+    }
+    if (
+        current_calcedRainVoltage <= 1)
+    {
+      digitalWrite(waterPumpRelay, HIGH);
+      counter++;
+      delay(1000);
+    }
+    else
+    {
+      break;
+    }
   }
-  Serial.println();
-  Serial.print("Message size: ");
-  Serial.println(length);
-  Serial.println();
-  Serial.println("-----------------");
 
-  // read JSON data
-  StaticJsonDocument<256> doc;
-  // deserialise it
-  deserializeJson(doc, payload, length);
-  JsonObject command = doc["command"];
+  digitalWrite(waterPumpRelay, LOW);
+  // read rain
+  float current_rain = analogRead(rainSensor) * (3.3 / 4095);
+  float current_calcedRainVoltage = 3.3 - current_rain;
 
-  // get value of led, which will be 1 or 0
-  int command_parameters_led = command["parameters"]["led"];
-
-  if (command_parameters_led = 1)
+  if (current_calcedRainVoltage > 1)
   {
-    Serial.println("LED");
-    digitalWrite(LED_BUILTIN, HIGH);
+    Serial.println("Rain Started");
+    Serial.println("Pump stopped");
+    // MQTT message buffer
+    String pumpState = "";
+    pumpState = "{\"pump_state\": interrupted}";
+    byte arrSize = pumpState.length() + 1;
+    char msg[arrSize];
+    pumpState.toCharArray(msg, arrSize);
+    mqttClient.publish("v1/devices/me/attributes", msg);
   }
   else
   {
-    digitalWrite(LED_BUILTIN, LOW);
+    Serial.println("Pump stopped");
+    // MQTT message buffer
+    String pumpState = "";
+    pumpState = "{\"pump_state\": finished}";
+    byte arrSize = pumpState.length() + 1;
+    char msg[arrSize];
+    pumpState.toCharArray(msg, arrSize);
+    mqttClient.publish("v1/devices/me/attributes", msg);
   }
+
+  // Serial.print("Message arrived in topic: ");
+  // Serial.println(topic);
+  // Serial.print("Message: ");
+  // for (int i = 0; i < length; i++)
+  // {
+  //   Serial.print((char)payload[i]);
+  // }
+  // Serial.println();
+  // Serial.print("Message size: ");
+  // Serial.println(length);
+  // Serial.println();
+  // Serial.println("-----------------");
+
+  // // read JSON data
+  // StaticJsonDocument<256> doc;
+  // // deserialise it
+  // deserializeJson(doc, payload, length);
+  // JsonObject command = doc["command"];
+
+  // // get value of led, which will be 1 or 0
+  // int command_parameters_led = command["parameters"]["led"];
+
+  // if (command_parameters_led = 1)
+  // {
+  //   Serial.println("LED");
+  //   digitalWrite(LED_BUILTIN, HIGH);
+  // }
+  // else
+  // {
+  //   digitalWrite(LED_BUILTIN, LOW);
+  // }
 }
 
 void setup()
@@ -203,15 +264,6 @@ void loop()
       float calcedSoilMoistureVoltage = 3.3 - soilMoisture;
       // read uv
       float uvIndex = (analogRead(uvSensor) * (3.3 / 4095)) / .1;
-
-      if (calcedRainVoltage < 1.1)
-      {
-        Serial.println("Valve on");
-      }
-      else
-      {
-        Serial.println("Valve off");
-      }
 
       Serial.println("******************");
       Serial.print(F("Humidity: "));

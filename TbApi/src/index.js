@@ -319,7 +319,7 @@ if (tbTokens) {
           .getPredictedData(timeseriesForecastAppFormatedData)
           .then((predictedMeasurements) => {
             const threshold = pumpFunc(predictedMeasurements.data)
-            if (!threshold) {
+            if (threshold) {
               console.log('Watering threshold reached..!')
               const nextWatering = moment()
               console.log(`Next watering at ${nextWatering.format('h A')}`)
@@ -335,6 +335,7 @@ if (tbTokens) {
             }
           })
           .catch((e) => {
+            console.log(e)
             console.log('Cant get forecast data...!!')
           })
       })
@@ -343,7 +344,7 @@ if (tbTokens) {
       })
   }
   watering()
-  setInterval(watering, 10000)
+  setInterval(watering, 20000)
 
   //////////////////////// GET FORECAST ////////////////////////
   app.post(`/getForecast`, async (req, res) => {
@@ -643,6 +644,40 @@ if (tbTokens) {
               }
             },
             type: 'ALARM_DATA'
+          },
+          {
+            cmdId: 3,
+            latestCmd: {
+              keys: [
+                {
+                  type: 'ATTRIBUTE',
+                  key: 'pump_state'
+                }
+              ]
+            },
+            query: {
+              entityFields: [
+                { key: 'name', type: 'ENTITY_FIELD' },
+                { key: 'label', type: 'ENTITY_FIELD' },
+                { key: 'additionalInfo', type: 'ENTITY_FIELD' }
+              ],
+              entityFilter: {
+                singleEntity: {
+                  entityType: 'DEVICE',
+                  id: '587325a0-b7bc-11ee-a93d-57cbe3542689'
+                },
+                type: 'singleEntity'
+              },
+              latestValues: [{ key: 'pump_state', type: 'ATTRIBUTE' }],
+              pageLink: {
+                dynamic: true,
+                page: 0,
+                pageSize: 10,
+                sortOrder: null,
+                textSearch: null
+              }
+            },
+            type: 'ENTITY_DATA'
           }
         ]
       }
@@ -653,6 +688,11 @@ if (tbTokens) {
 
     webSocket.onmessage = function (event) {
       let parsedData = JSON.parse(event.data)
+
+      if (parsedData.cmdId === 3) {
+        console.log(parsedData?.update ? parsedData?.update[0]?.latest : 'qwqeqwe')
+      }
+
       if (parsedData?.subscriptionId === 1) {
         let parsedRawTBtelemetries = parsedData.data
 

@@ -234,7 +234,7 @@ const aggregateArrayMinMax = (array, numGroups) => {
       const groupMax = Math.max(...groupValues)
 
       // Push the min and max to the aggregated array
-      aggregatedArray.push({ min: groupMin, max: groupMax })
+      aggregatedArray.push({ min: groupMin.toFixed(2), max: groupMax.toFixed(2) })
     }
   }
   return aggregatedArray
