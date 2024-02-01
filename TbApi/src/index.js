@@ -318,8 +318,8 @@ if (tbTokens) {
         forecastAppApi
           .getPredictedData(timeseriesForecastAppFormatedData)
           .then((predictedMeasurements) => {
-            const threshold = pumpFunc(predictedMeasurements.data.predicted_rain)
-            if (threshold) {
+            const threshold = pumpFunc(predictedMeasurements.data)
+            if (!threshold) {
               console.log('Watering threshold reached..!')
               const nextWatering = moment()
               console.log(`Next watering at ${nextWatering.format('h A')}`)
