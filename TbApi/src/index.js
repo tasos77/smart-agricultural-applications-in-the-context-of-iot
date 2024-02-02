@@ -335,7 +335,6 @@ if (tbTokens) {
             }
           })
           .catch((e) => {
-            console.log(e)
             console.log('Cant get forecast data...!!')
           })
       })
@@ -689,10 +688,6 @@ if (tbTokens) {
     webSocket.onmessage = function (event) {
       let parsedData = JSON.parse(event.data)
 
-      if (parsedData.cmdId === 3) {
-        console.log(parsedData?.update ? parsedData?.update[0]?.latest : 'qwqeqwe')
-      }
-
       if (parsedData?.subscriptionId === 1) {
         let parsedRawTBtelemetries = parsedData.data
 
@@ -711,6 +706,12 @@ if (tbTokens) {
 
         console.log(formatedTbTelemetries)
         ws.send(JSON.stringify(formatedTbTelemetries))
+      } else if (parsedData.cmdId === 3) {
+        const pump_state_enum = parsedData?.update
+          ? parsedData?.update[0]?.latest?.ATTRIBUTE?.pump_state?.value
+          : null
+        console.log(pump_state_enum)
+        ws.send(JSON.stringify(pump_state_enum))
       } else {
         let alarmName = parsedData?.update ? `${parsedData.update[0].name}` : null
 

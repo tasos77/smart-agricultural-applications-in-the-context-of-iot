@@ -15,6 +15,10 @@
   const currentMeasurements = ref({})
   const alarmList = ref<any>([])
 
+  const snackbar = ref(false)
+  const snackbar_text = ref('')
+  const timeout = ref(2000)
+
   const handleAlarmData = (alarmData: AlarmData) => {
     if (
       !alarmList.value.find((item: any) => {
@@ -48,6 +52,27 @@
   socket.onmessage = function (event) {
     let websocketData = JSON.parse(event.data)
 
+    if (
+      websocketData === 'started' ||
+      websocketData === 'finished' ||
+      websocketData === 'interrupted'
+    ) {
+      console.log(websocketData)
+      switch (websocketData) {
+        case 'started':
+          snackbar_text.value = 'Pump started!'
+          snackbar.value = true
+          break
+        case 'finished':
+          snackbar_text.value = 'Pump finished!'
+          snackbar.value = true
+          break
+        case 'interrupted':
+          snackbar_text.value = 'Pump interrupted!'
+          snackbar.value = true
+          break
+      }
+    }
     if ('timestamp' in websocketData) {
       timestamp.value = websocketData.timestamp
       temp.value = websocketData.temperature
@@ -87,6 +112,14 @@
         ></VAlert>
       </v-slide-y-transition>
     </div>
+
+    <v-snackbar v-model="snackbar" :timeout="timeout">
+      {{ snackbar_text }}
+
+      <template v-slot:actions>
+        <v-btn color="blue" variant="text" @click="snackbar = false"> Close </v-btn>
+      </template>
+    </v-snackbar>
   </div>
 </template>
 
