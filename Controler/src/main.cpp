@@ -255,13 +255,14 @@ void loop()
       float heatIndexC = dht.computeHeatIndex(temperatureC, humidity, false);
       // compute heat index in Fahrenheit
       float heatIndexF = dht.computeHeatIndex(temperatureF, humidity, true);
-
       // read rain
-      float rain = analogRead(rainSensor) * (3.3 / 4095);
-      float calcedRainVoltage = 3.3 - rain;
+      // float rain = analogRead(rainSensor) * (3.3 / 4095);
+      // float calcedRainVoltage = 3.3 - rain;
+      float rain_in_percentage = 100 - map(analogRead(rainSensor), 0, 4095, 0, 100);
       // read soil sensor
-      float soilMoisture = analogRead(soilSensor) * (3.3 / 4095);
-      float calcedSoilMoistureVoltage = 3.3 - soilMoisture;
+      // float soilMoisture = analogRead(soilSensor) * (3.3 / 4095);
+      // float calcedSoilMoistureVoltage = 3.3 - soilMoisture;
+      float soil_in_percentage = 100 - map(analogRead(soilSensor), 0, 4095, 0, 100);
       // read uv
       float uvIndex = (analogRead(uvSensor) * (3.3 / 4095)) / .1;
 
@@ -275,11 +276,13 @@ void loop()
       Serial.print(temperatureF);
       Serial.println(F("°F "));
       Serial.print("Rain: ");
-      Serial.println(rain);
+      Serial.print(rain_in_percentage);
+      Serial.println("%");
       Serial.print("UV Index: ");
       Serial.println(uvIndex);
       Serial.print("Soil Moisture: ");
-      Serial.println(soilMoisture);
+      Serial.print(soil_in_percentage);
+      Serial.println("%");
       Serial.println("<---------------------------------------------------->");
 
       lcd.clear();
@@ -296,16 +299,16 @@ void loop()
 
       lcd.setCursor(0, 2);
       lcd.print("Soil Moisture:");
-      lcd.print(calcedSoilMoistureVoltage);
+      lcd.print(soil_in_percentage);
 
       lcd.setCursor(0, 3);
       lcd.print("Rain:");
-      lcd.print(calcedRainVoltage);
+      lcd.print(rain_in_percentage);
       lcd.print(" ");
       lcd.print("UV:");
       lcd.print(uvIndex);
 
-      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(calcedRainVoltage) + ",\"uv\":" + String(uvIndex) + ",\"soilMoisture\":" + String(calcedSoilMoistureVoltage) + "}";
+      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain_in_percentage) + ",\"uv\":" + String(uvIndex) + ",\"soilMoisture\":" + String(soil_in_percentage) + "}";
 
       byte arrSize = msgStr.length() + 1;
       char msg[arrSize];
