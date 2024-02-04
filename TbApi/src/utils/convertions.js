@@ -1,33 +1,12 @@
-import moment from 'moment'
-
-const nightTimeArray = [
-  '6 PM',
-  '7 PM',
-  '8 PM',
-  '9 PM',
-  '10 PM',
-  '11 PM',
-  '12 AM',
-  '1 AM',
-  '2 AM',
-  '3 AM',
-  '4 AM',
-  '5 AM'
-]
-const dayTimeArray = [
-  '6 AM',
-  '7 AM',
-  '8 AM',
-  '9 AM',
-  '10 AM',
-  '11 AM',
-  '12 PM',
-  '1 PM',
-  '2 PM',
-  '3 PM',
-  '4 PM',
-  '5 PM'
-]
+import {
+  aggregateArray,
+  calcHistoryTimestampsArray,
+  rebuildTbResponseFormat,
+  exportTBValuesArray,
+  aggregateArrayMinMax,
+  calcForecastTimestampsArray,
+  calcIcon
+} from './commonTools.js'
 
 export function aggregateHistoryData(data) {
   const numGroups = 24
@@ -79,8 +58,7 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
   const rain = []
   const uv = []
   const numGroups = 24
-  console.log(data.predicted_rain)
-  console.log(data.predicted_uv)
+
   for (let i = 0; i < data.predicted_temperature.length; i++) {
     temperature.push({
       ts: data.predicted_timestamp[i][0],
@@ -136,106 +114,4 @@ export function transformTimeseriesForecastAppToTBDataFormat(data) {
     uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray),
     icons: calcIcon(aggregatedRainArray, aggregatedTimestampsArray)
   }
-}
-
-const calcIcon = (aggregatdRainValues, aggregatedTimestampsArray) => {
-  return aggregatdRainValues.map((rainValue, index) => {
-    if (rainValue >= 1) {
-      return 'rain'
-    } else if (nightTimeArray.includes(moment(aggregatedTimestampsArray[index]).format('h A'))) {
-      return 'clear_night'
-    } else {
-      return 'clear_day'
-    }
-  })
-}
-
-export function calcSingleIcon(rainValue, timestamp) {
-  if (rainValue >= 1) {
-    return 'rain'
-  } else if (nightTimeArray.includes(moment(timestamp).format('h A'))) {
-    return 'clear_night'
-  } else {
-    return 'clear_day'
-  }
-}
-
-const rebuildTbResponseFormat = (values, timestamps) => {
-  return values.map((value, index) => {
-    return {
-      ts: timestamps[index],
-      value: value.toFixed(2)
-    }
-  })
-}
-
-const buildExtendedResponseFormat = (values, timestamps, minMaxArray) => {
-  return values.map((value, index) => {
-    return {
-      ts: timestamps[index],
-      value: value.toFixed(2),
-      range: minMaxArray[index]
-    }
-  })
-}
-
-const calcForecastTimestampsArray = (array) => {
-  const timestamps = []
-  array.forEach((item, index) => {
-    timestamps.push(moment().add(index, 'hours').valueOf())
-  })
-  return timestamps
-}
-
-const calcHistoryTimestampsArray = (array) => {
-  const timestamps = []
-  array.forEach((item, index) => {
-    timestamps.push(moment().subtract(index, 'hours').valueOf())
-  })
-  return timestamps.reverse()
-}
-
-const exportTBValuesArray = (array) => {
-  return array.map((item) => parseFloat(item.value))
-}
-
-const aggregateArray = (array, numGroups) => {
-  const groupSize = Math.ceil(array.length / numGroups)
-  const aggregatedArray = []
-
-  for (let i = 0; i < numGroups; i++) {
-    const startIndex = i * groupSize
-    const endIndex = Math.min((i + 1) * groupSize, array.length)
-
-    if (startIndex < endIndex) {
-      // Calculate the average for the current group
-      const groupValues = array.slice(startIndex, endIndex)
-      const groupAverage = groupValues.reduce((sum, value) => sum + value, 0) / groupValues.length
-
-      // Push the average to the aggregated array
-      aggregatedArray.push(groupAverage)
-    }
-  }
-  return aggregatedArray
-}
-
-const aggregateArrayMinMax = (array, numGroups) => {
-  const groupSize = Math.ceil(array.length / numGroups)
-  const aggregatedArray = []
-
-  for (let i = 0; i < numGroups; i++) {
-    const startIndex = i * groupSize
-    const endIndex = Math.min((i + 1) * groupSize, array.length)
-
-    if (startIndex < endIndex) {
-      // Calculate the min and max for the current group
-      const groupValues = array.slice(startIndex, endIndex)
-      const groupMin = Math.min(...groupValues)
-      const groupMax = Math.max(...groupValues)
-
-      // Push the min and max to the aggregated array
-      aggregatedArray.push({ min: groupMin.toFixed(2), max: groupMax.toFixed(2) })
-    }
-  }
-  return aggregatedArray
 }

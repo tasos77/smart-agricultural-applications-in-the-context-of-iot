@@ -28,9 +28,9 @@
     }
 
     switch (measurement === 'Rain') {
-      case value >= 0 && value <= 40:
+      case value >= 0 && value <= 30:
         return '#61DBC3'
-      case value > 40 && value <= 60:
+      case value > 30 && value <= 60:
         return '#95DA74'
       case value > 61 && value <= 100:
         return '#EB656F'
@@ -47,17 +47,8 @@
   const series = ref([0])
   const chartOptions2 = computed(() => {
     return {
-      // chart: {
-      //   height: '400',
-      //   type: 'radialBar',
-      //   toolbar: {
-      //     show: false
-      //   }
-      // },
       plotOptions: {
         radialBar: {
-          // startAngle: -135,
-          // endAngle: 225,
           hollow: {
             margin: 0,
             size: '70%',
@@ -96,9 +87,6 @@
               fontSize: '15px'
             },
             value: {
-              // formatter: function (val) {
-              //   return parseInt(val)
-              // },
               color: '#111',
               fontSize: '30px',
               show: true

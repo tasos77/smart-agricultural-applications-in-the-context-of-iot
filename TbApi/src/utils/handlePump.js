@@ -1,3 +1,11 @@
+import { aggregateArray } from './commonTools.js'
+
+const humidityUpperThreshold = 60
+const humidityLowerThreshold = 40
+const soilMoistureUpperThreshold = 75
+const soilMoistureLowerThreshold = 50
+const rainLowerThreshold = 30
+
 export function pumpFunc(predictedData) {
   let rain = []
   let soilMoisture = []
@@ -17,34 +25,10 @@ export function pumpFunc(predictedData) {
   const aggregatedHumidityArray = aggregateArray(humidity)
   const aggregatedSoilMoistureArray = aggregateArray(soilMoisture)
   const aggregatedRainArray = aggregateArray(rain)
-  const customArrayHumidity = [0, 0, 0, 0, 0, 0]
-  const customArraySoilMoisture = [0, 0, 0, 0, 0]
-  const customArrayRain = [0, 0, 0, 0, 0]
 
-  //   return aggregatedRainArray.some((value) => value >= 1)
   return !(
-    customArrayHumidity.some((value) => value >= 1) ||
-    customArraySoilMoisture.some((value) => value >= 1) ||
-    customArrayRain.some((value) => value >= 1)
+    aggregatedHumidityArray.some((value) => value > humidityUpperThreshold) ||
+    aggregatedSoilMoistureArray.some((value) => value > soilMoistureUpperThreshold) ||
+    aggregatedRainArray.some((value) => value > rainLowerThreshold)
   )
-}
-
-const aggregateArray = (array, numGroups = 24) => {
-  const groupSize = Math.ceil(array.length / numGroups)
-  const aggregatedArray = []
-
-  for (let i = 0; i < numGroups; i++) {
-    const startIndex = i * groupSize
-    const endIndex = Math.min((i + 1) * groupSize, array.length)
-
-    if (startIndex < endIndex) {
-      // Calculate the average for the current group
-      const groupValues = array.slice(startIndex, endIndex)
-      const groupAverage = groupValues.reduce((sum, value) => sum + value, 0) / groupValues.length
-
-      // Push the average to the aggregated array
-      aggregatedArray.push(groupAverage)
-    }
-  }
-  return aggregatedArray
 }

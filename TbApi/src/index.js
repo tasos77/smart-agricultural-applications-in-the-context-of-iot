@@ -1,15 +1,15 @@
 import bodyParser from 'body-parser'
 import cors from 'cors'
-import express, { response } from 'express'
+import express from 'express'
 import thingsboardApi from './api/thingsboardApi.js'
 import { config } from './config/public.js'
 import WebSocket from 'ws'
 import { WebSocketServer } from 'ws'
+import { calcSingleIcon } from './utils/commonTools.js'
 import {
   transformTBDataToTimeseriesForecastAppFormat,
   transformTimeseriesForecastAppToTBDataFormat,
-  aggregateHistoryData,
-  calcSingleIcon
+  aggregateHistoryData
 } from './utils/convertions.js'
 import { pumpFunc } from './utils/handlePump.js'
 import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
@@ -27,6 +27,12 @@ const tbTokens = await thingsboardApi
   })
 
 console.log(tbTokens.token)
+
+let middlresponse = {
+  msg: '',
+  status: null,
+  data: {}
+}
 
 if (tbTokens) {
   // create express application
@@ -46,6 +52,7 @@ if (tbTokens) {
         origin: '*'
       })
     )
+
   //////////////////////// LOGIN ////////////////////////
   app.post(`/login`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
@@ -53,17 +60,7 @@ if (tbTokens) {
       username: req.body.username,
       password: req.body.password
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      loginInfo.hasOwnProperty('username') &&
-      loginInfo.hasOwnProperty('password') &&
-      loginInfo.username &&
-      loginInfo.password
-    ) {
+    if (!!loginInfo.username && !!loginInfo.password) {
       thingsboardApi
         .login(loginInfo.username, loginInfo.password)
         .then((tbRes) => {
@@ -93,18 +90,7 @@ if (tbTokens) {
       activateToken: req.body.activationInfo.activateToken,
       password: req.body.activationInfo.password
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (
-      activationInfo.hasOwnProperty('activateToken') &&
-      activationInfo.hasOwnProperty('password') &&
-      activationInfo.activateToken &&
-      activationInfo.password
-    ) {
+    if (!!activationInfo.activateToken && !!activationInfo.password) {
       thingsboardApi
         .activateUser(tbTokens.token, activationInfo)
         .then(() => {
@@ -135,20 +121,7 @@ if (tbTokens) {
       lastName: req.body.lastName
     }
 
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (
-      registrationInfo.hasOwnProperty('email') &&
-      registrationInfo.hasOwnProperty('firstName') &&
-      registrationInfo.hasOwnProperty('lastName') &&
-      registrationInfo.email &&
-      registrationInfo.firstName &&
-      registrationInfo.lastName
-    ) {
+    if (!!registrationInfo.email && !!registrationInfo.firstName && !!registrationInfo.lastName) {
       await thingsboardApi
         .createCustomer(tbTokens.token, registrationInfo.email)
         .then(async (response) => {
@@ -187,13 +160,7 @@ if (tbTokens) {
     const logoutInfo = {
       accessToken: req.body.accessToken
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (logoutInfo.hasOwnProperty('accessToken') && logoutInfo.accessToken) {
+    if (!!logoutInfo.accessToken) {
       thingsboardApi
         .logout(logoutInfo.accessToken)
         .then(() => {
@@ -221,13 +188,7 @@ if (tbTokens) {
     const userInfo = {
       accessToken: req.body.accessToken
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (userInfo.hasOwnProperty('accessToken') && userInfo.accessToken) {
+    if (!!userInfo.accessToken) {
       thingsboardApi
         .getUser(userInfo.accessToken)
         .then((tbRes) => {
@@ -257,17 +218,7 @@ if (tbTokens) {
       startTs: req.body.startTs,
       endTs: req.body.endTs
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      telemetryRangeInfo.hasOwnProperty('startTs') &&
-      telemetryRangeInfo.hasOwnProperty('endTs') &&
-      telemetryRangeInfo.startTs &&
-      telemetryRangeInfo.endTs
-    ) {
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
           tbTokens.token,
@@ -299,8 +250,7 @@ if (tbTokens) {
   })
 
   //////////////////////  WATERING POLLING /////////////////////
-
-  function watering() {
+  const watering = () => {
     const startTs = moment()
       .subtract(1 * 24, 'minutes')
       .valueOf()
@@ -320,7 +270,7 @@ if (tbTokens) {
           .then((predictedMeasurements) => {
             const threshold = pumpFunc(predictedMeasurements.data)
             if (threshold) {
-              console.log('Watering threshold reached..!')
+              console.log('Forecast under upper thresholds..!')
               const nextWatering = moment()
               console.log(`Next watering at ${nextWatering.format('h A')}`)
 
@@ -343,7 +293,8 @@ if (tbTokens) {
       })
   }
   watering()
-  setInterval(watering, 20000)
+  // execute watering function every 24mins
+  setInterval(watering, 1440000)
 
   //////////////////////// GET FORECAST ////////////////////////
   app.post(`/getForecast`, async (req, res) => {
@@ -352,17 +303,8 @@ if (tbTokens) {
       startTs: req.body.startTs,
       endTs: req.body.endTs
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      telemetryRangeInfo.hasOwnProperty('startTs') &&
-      telemetryRangeInfo.hasOwnProperty('endTs') &&
-      telemetryRangeInfo.startTs &&
-      telemetryRangeInfo.endTs
-    ) {
+
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
           tbTokens.token,
@@ -416,17 +358,7 @@ if (tbTokens) {
       startTs: req.body.startTs,
       endTs: req.body.endTs
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      telemetryRangeInfo.hasOwnProperty('startTs') &&
-      telemetryRangeInfo.hasOwnProperty('endTs') &&
-      telemetryRangeInfo.startTs &&
-      telemetryRangeInfo.endTs
-    ) {
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
           tbTokens.token,
@@ -479,17 +411,7 @@ if (tbTokens) {
       startTs: req.body.startTs,
       endTs: req.body.endTs
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      telemetryRangeInfo.hasOwnProperty('startTs') &&
-      telemetryRangeInfo.hasOwnProperty('endTs') &&
-      telemetryRangeInfo.startTs &&
-      telemetryRangeInfo.endTs
-    ) {
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
           tbTokens.token,
@@ -523,14 +445,8 @@ if (tbTokens) {
   })
 
   /////////////// Update device attribute /////////////////
-
   app.post(`/updateAttr`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
     const nextWatering = moment()
     console.log(nextWatering)
     thingsboardApi
@@ -552,13 +468,11 @@ if (tbTokens) {
   })
 
   ////////////////////// init telemetries socket //////////////////////
-
   const wss = new WebSocketServer({ port: 8080 })
   wss.on('connection', function connection(ws) {
     var token = tbTokens.token
 
     var webSocket = new WebSocket('ws://localhost:9090/api/ws')
-    // plugins/telemetry?token=' + token
 
     if (entityId === 'YOUR_DEVICE_ID') {
       console.log('Invalid device id!')
