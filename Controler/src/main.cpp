@@ -1,20 +1,15 @@
 #include <Arduino.h>
-
-// humidity/temp sensor, LCD display libs
 #include "DHTesp.h"
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
-// wifi, mqtt, json libs
 #include <PubSubClient.h>
 #include <ArduinoJson.h>
 #include <WiFi.h>
 
 // Set up LCD
 LiquidCrystal_I2C lcd(0x27, 20, 4); // set the LCD address to 0x27 for a 16 chars and 2 line display
-
 // DHT set up
 DHTesp dht;
-
 // define pins
 #define redLedPin 14
 #define greenLenPin 16
@@ -23,7 +18,6 @@ DHTesp dht;
 #define soilSensor 34
 #define uvSensor 36
 #define rainSensor 39
-
 // MQTT credentials
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
@@ -31,25 +25,72 @@ const char *mqttServer = "192.168.1.9";
 const char *mqttUsername = "U9HU1LRFJQ7SKjPNADsI";
 const char *id = "";
 const char *mqttPass = "";
-
-// MQTT message buffer
-String msgStr = "";
-
-// Ethernet and MQTT related objects
-WiFiClient espWifi;
-PubSubClient mqttClient(espWifi);
+// const string texts to print
+const String temperature_text = "Temp: ";
+const String humidity_text = "Humi: ";
+const String rain_text = "Rain: ";
+const String soil_moisture_text = "Soil: ";
+const String uv_text = "UV  : ";
+// const string units to print
+const String temperature_unit = "°C";
+const String humidity_unit = "%";
+const String rain_unit = "%";
+const String soil_moisture_unit = "%";
+const String uv_unit = "";
+// thresholds
+const int humidity_upper_threshold = 60;
+const int humidity_lower_threshold = 40;
+const int soil_moisture_upper_threshold = 75;
+const int soil_moisture_lower_threshold = 50;
+const int rain_lower_threshold = 30;
 
 // parameters for using non-blocking delay
 unsigned long previousMillis = 0;
 const long interval = 3000;
+// Ethernet and MQTT related objects
+WiFiClient espWifi;
+PubSubClient mqttClient(espWifi);
+// print measurements in serial func
+void PrintMeasurementInSerial(String text, String unit, float value)
+{
+  Serial.print(text);
+  Serial.print(value);
+  Serial.println(unit);
+}
+// print measurements in LCD func
+void PrintMeasurementsInLCD(float temperature, float humidity, float rain, float soil, float uv)
+{
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Temp:");
+  lcd.print(temperature);
+  lcd.print((char)223);
+  lcd.print("C");
+
+  lcd.setCursor(0, 1);
+  lcd.print("Humi:");
+  lcd.print(humidity);
+  lcd.print("%");
+
+  lcd.setCursor(0, 2);
+  lcd.print("Soil:");
+  lcd.print(soil);
+  lcd.print("%");
+
+  lcd.setCursor(0, 3);
+  lcd.print("Rain:");
+  lcd.print(rain);
+  lcd.print("%");
+  lcd.print("  ");
+  lcd.print("UV:");
+  lcd.print(uv);
+}
 
 // Set up wifi function
 void setupWifi()
 {
-
   WiFi.begin(wifi_ssid, wifi_pass);
   Serial.println("Connecting...");
-
   while (WiFi.status() != WL_CONNECTED)
   {
     digitalWrite(redLedPin, HIGH);
@@ -64,7 +105,6 @@ void setupWifi()
   Serial.print("Connected IP Address: ");
   Serial.println(WiFi.localIP());
 }
-
 // Reconnect function
 void reconnect()
 {
@@ -86,107 +126,99 @@ void reconnect()
     }
   }
 }
-
-// Callback function which will be called when message is received
-void callback(char *topic, byte *payload, unsigned int length)
+// publish telemetry func
+void PublishTelemetryData(float temperature, float humidity, float rain, float soil, float uv)
 {
-  Serial.println("Attr Update!");
-  // digitalWrite(waterPumpRelay, HIGH);
-  // delay(2000);
-  // digitalWrite(waterPumpRelay, LOW);
-  Serial.println("Pump about to start...");
-  // MQTT message buffer
-  String pumpState = "";
-  pumpState = "{\"pump_state\": started}";
-  byte arrSize = pumpState.length() + 1;
+  String telemetries_msg = "{\"temperature\":" + String(temperature) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain) + ",\"uv\":" + String(uv) + ",\"soilMoisture\":" + String(soil) + "}";
+  byte arrSize = telemetries_msg.length() + 1;
   char msg[arrSize];
-  pumpState.toCharArray(msg, arrSize);
+  telemetries_msg.toCharArray(msg, arrSize);
+  mqttClient.publish("v1/devices/me/telemetry", msg);
+  telemetries_msg = "";
+}
+// publish pump state func
+void PublishWaterPumpState(String state)
+{
+  String pump_state_msg = "{\"pump_state\":" + state + " }";
+  byte arrSize = pump_state_msg.length() + 1;
+  char msg[arrSize];
+  pump_state_msg.toCharArray(msg, arrSize);
   mqttClient.publish("v1/devices/me/attributes", msg);
-
-  int counter = 0;
-  while (counter < 10)
-  {
-    Serial.println("Check Rain...");
-    // read rain
-    float current_rain = analogRead(rainSensor) * (3.3 / 4095);
-    float current_calcedRainVoltage = 3.3 - current_rain;
-    if (counter > 4)
-    {
-      current_calcedRainVoltage = 2;
-    }
-    if (
-        current_calcedRainVoltage <= 1)
-    {
-      digitalWrite(waterPumpRelay, HIGH);
-      counter++;
-      delay(1000);
-    }
-    else
-    {
-      break;
-    }
-  }
-
+  pump_state_msg = "";
+}
+// start pump
+void StartWaterPump()
+{
+  digitalWrite(waterPumpRelay, HIGH);
+}
+// stop pump
+void StopWaterPump()
+{
   digitalWrite(waterPumpRelay, LOW);
-  // read rain
-  float current_rain = analogRead(rainSensor) * (3.3 / 4095);
-  float current_calcedRainVoltage = 3.3 - current_rain;
-
-  if (current_calcedRainVoltage > 1)
+}
+// monitor sensor
+float MonitorRainSensor()
+{
+  return 100 - map(analogRead(rainSensor), 0, 4095, 0, 100);
+}
+// monitor sensor
+float MonitorSoilSensor()
+{
+  return 100 - map(analogRead(soilSensor), 0, 4095, 0, 100);
+}
+// monitor sensor
+float MonitorHumiditySensor()
+{
+  return dht.getHumidity();
+}
+// check conditions
+boolean CheckWateringConditions()
+{
+  if (MonitorHumiditySensor() > humidity_upper_threshold || MonitorSoilSensor() > soil_moisture_upper_threshold || MonitorRainSensor() > rain_lower_threshold)
   {
-    Serial.println("Rain Started");
-    Serial.println("Pump stopped");
-    // MQTT message buffer
-    String pumpState = "";
-    pumpState = "{\"pump_state\": interrupted}";
-    byte arrSize = pumpState.length() + 1;
-    char msg[arrSize];
-    pumpState.toCharArray(msg, arrSize);
-    mqttClient.publish("v1/devices/me/attributes", msg);
+    return false;
   }
   else
   {
-    Serial.println("Pump stopped");
-    // MQTT message buffer
-    String pumpState = "";
-    pumpState = "{\"pump_state\": finished}";
-    byte arrSize = pumpState.length() + 1;
-    char msg[arrSize];
-    pumpState.toCharArray(msg, arrSize);
-    mqttClient.publish("v1/devices/me/attributes", msg);
+    return true;
   }
-
-  // Serial.print("Message arrived in topic: ");
-  // Serial.println(topic);
-  // Serial.print("Message: ");
-  // for (int i = 0; i < length; i++)
-  // {
-  //   Serial.print((char)payload[i]);
-  // }
-  // Serial.println();
-  // Serial.print("Message size: ");
-  // Serial.println(length);
-  // Serial.println();
-  // Serial.println("-----------------");
-
-  // // read JSON data
-  // StaticJsonDocument<256> doc;
-  // // deserialise it
-  // deserializeJson(doc, payload, length);
-  // JsonObject command = doc["command"];
-
-  // // get value of led, which will be 1 or 0
-  // int command_parameters_led = command["parameters"]["led"];
-
-  // if (command_parameters_led = 1)
-  // {
-  //   Serial.println("LED");
-  //   digitalWrite(LED_BUILTIN, HIGH);
-  // }
-  // else
-  // {
-  //   digitalWrite(LED_BUILTIN, LOW);
-  // }
+}
+// check interruption
+boolean CheckIfWateringInterrupted()
+{
+  return MonitorRainSensor() >= rain_lower_threshold;
+}
+// callback function which will be called when message is received
+void callback(char *topic, byte *payload, unsigned int length)
+{
+  int counter = 0;
+  if (CheckWateringConditions())
+  {
+    PublishWaterPumpState("started");
+    while (counter < 10)
+    {
+      if (CheckWateringConditions())
+      {
+        StartWaterPump();
+        counter++;
+        delay(1000);
+      }
+      else
+      {
+        break;
+      }
+    }
+    StopWaterPump();
+    boolean rain_interruption = CheckIfWateringInterrupted();
+    if (rain_interruption)
+    {
+      PublishWaterPumpState("interrupted");
+    }
+    else
+    {
+      PublishWaterPumpState("stopped");
+    }
+  }
 }
 
 void setup()
@@ -195,27 +227,18 @@ void setup()
   pinMode(redLedPin, OUTPUT);
   pinMode(greenLenPin, OUTPUT);
   pinMode(waterPumpRelay, OUTPUT);
-  // pinMode(humiditySensor, INPUT);
-  // pinMode(rainSensor, INPUT);
-  // pinMode(uvSensor, INPUT);
-  // pinMode(soilSensor, INPUT);
-
   // initalize DHT
   dht.setup(humiditySensor, DHTesp::DHT11);
-
   //  initialize the lcd
   lcd.init();
   lcd.backlight();
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print("Booting up...");
-
   // start wifi set up
   setupWifi();
-
-  // set the MQTT server to the server stated above ^
+  // set the MQTT server
   mqttClient.setServer(mqttServer, 1883);
-
   // defining function which will be called when message is received
   mqttClient.setCallback(callback);
 }
@@ -229,97 +252,31 @@ void loop()
   mqttClient.loop();
   // read current time
   unsigned long currentMillis = millis();
-
   // if current time - last time >= 3 secs
   if (currentMillis - previousMillis >= interval)
   {
     previousMillis = currentMillis;
-
-    if (dht.getStatusString() != "OK")
-    {
-      Serial.println(F("Failed to read from DHT sensor"));
-      return;
-    }
-    else
-    {
-
-      // reading temperature or humidity takes about 250 milliseconds
-      // sensor readings may also be up to 2 seconds 'old'
-      // read humidity
-      float humidity = dht.getHumidity();
-      // read temperature as Celsius (default)
-      float temperatureC = dht.getTemperature();
-      // temperature as Fahrenheit
-      float temperatureF = dht.toFahrenheit(temperatureC);
-      // compute heat index in Celsius
-      float heatIndexC = dht.computeHeatIndex(temperatureC, humidity, false);
-      // compute heat index in Fahrenheit
-      float heatIndexF = dht.computeHeatIndex(temperatureF, humidity, true);
-      // read rain
-      // float rain = analogRead(rainSensor) * (3.3 / 4095);
-      // float calcedRainVoltage = 3.3 - rain;
-      float rain_in_percentage = 100 - map(analogRead(rainSensor), 0, 4095, 0, 100);
-      // read soil sensor
-      // float soilMoisture = analogRead(soilSensor) * (3.3 / 4095);
-      // float calcedSoilMoistureVoltage = 3.3 - soilMoisture;
-      float soil_in_percentage = 100 - map(analogRead(soilSensor), 0, 4095, 0, 100);
-      // read uv
-      float uvIndex = (analogRead(uvSensor) * (3.3 / 4095)) / .1;
-
-      Serial.println("******************");
-      Serial.print(F("Humidity: "));
-      Serial.print(humidity);
-      Serial.println("%");
-      Serial.print(F("Temperature: "));
-      Serial.print(temperatureC);
-      Serial.print(F("°C "));
-      Serial.print(temperatureF);
-      Serial.println(F("°F "));
-      Serial.print("Rain: ");
-      Serial.print(rain_in_percentage);
-      Serial.println("%");
-      Serial.print("UV Index: ");
-      Serial.println(uvIndex);
-      Serial.print("Soil Moisture: ");
-      Serial.print(soil_in_percentage);
-      Serial.println("%");
-      Serial.println("<---------------------------------------------------->");
-
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print("Temp:");
-      lcd.print(temperatureC);
-      lcd.print((char)223);
-      lcd.print("C");
-
-      lcd.setCursor(0, 1);
-      lcd.print("Humidity:");
-      lcd.print(humidity);
-      lcd.print("%");
-
-      lcd.setCursor(0, 2);
-      lcd.print("Soil Moisture:");
-      lcd.print(soil_in_percentage);
-
-      lcd.setCursor(0, 3);
-      lcd.print("Rain:");
-      lcd.print(rain_in_percentage);
-      lcd.print(" ");
-      lcd.print("UV:");
-      lcd.print(uvIndex);
-
-      msgStr = "{\"temperature\":" + String(temperatureC) + ",\"humidity\":" + String(humidity) + ",\"rain\":" + String(rain_in_percentage) + ",\"uv\":" + String(uvIndex) + ",\"soilMoisture\":" + String(soil_in_percentage) + "}";
-
-      byte arrSize = msgStr.length() + 1;
-      char msg[arrSize];
-
-      Serial.print("Publish data: ");
-      Serial.println(msgStr);
-      msgStr.toCharArray(msg, arrSize);
-
-      mqttClient.publish("v1/devices/me/telemetry", msg);
-      msgStr = "";
-    }
+    // read temperature
+    float temperature = dht.getTemperature();
+    // read humidity
+    float humidity = dht.getHumidity();
+    // read rain
+    float rain_in_percentage = 100 - map(analogRead(rainSensor), 0, 4095, 0, 100);
+    // read soil sensor
+    float soil_in_percentage = 100 - map(analogRead(soilSensor), 0, 4095, 0, 100);
+    // read uv
+    float uv = (analogRead(uvSensor) * (3.3 / 4095)) / .1;
+    // print measurements in serial
+    PrintMeasurementInSerial(temperature_text, temperature_unit, temperature);
+    PrintMeasurementInSerial(humidity_text, humidity_unit, humidity);
+    PrintMeasurementInSerial(rain_text, rain_unit, rain_in_percentage);
+    PrintMeasurementInSerial(soil_moisture_text, soil_moisture_unit, soil_in_percentage);
+    PrintMeasurementInSerial(uv_text, uv_unit, uv);
+    Serial.println("<---------------------------------------------------->");
+    // print measurements in LCD
+    PrintMeasurementsInLCD(temperature, humidity, rain_in_percentage, soil_in_percentage, uv);
+    // publish measurements
+    PublishTelemetryData(temperature, humidity, rain_in_percentage, soil_in_percentage, uv);
   }
 
   delay(5000);
