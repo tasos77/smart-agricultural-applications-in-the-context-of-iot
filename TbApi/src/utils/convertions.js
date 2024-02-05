@@ -2,6 +2,7 @@ import {
   aggregateArray,
   calcHistoryTimestampsArray,
   rebuildTbResponseFormat,
+  buildExtendedResponseFormat,
   exportTBValuesArray,
   aggregateArrayMinMax,
   calcForecastTimestampsArray,

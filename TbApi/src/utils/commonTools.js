@@ -96,7 +96,7 @@ export function exportTBValuesArray(array) {
 }
 
 export function calcSingleIcon(rainValue, timestamp) {
-  if (rainValue >= 1) {
+  if (rainValue > 20) {
     return 'rain'
   } else if (nightTimeArray.includes(moment(timestamp).format('h A'))) {
     return 'clear_night'
@@ -107,7 +107,7 @@ export function calcSingleIcon(rainValue, timestamp) {
 
 export function calcIcon(aggregatdRainValues, aggregatedTimestampsArray) {
   return aggregatdRainValues.map((rainValue, index) => {
-    if (rainValue >= 1) {
+    if (rainValue > 20) {
       return 'rain'
     } else if (nightTimeArray.includes(moment(aggregatedTimestampsArray[index]).format('h A'))) {
       return 'clear_night'
