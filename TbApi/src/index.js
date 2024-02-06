@@ -45,13 +45,13 @@ if (tbTokens) {
   })
 
   // tell express to use body-parser's JSON parsing
-  app.use(bodyParser.json()) -
-    // avoid CORS errors
-    app.use(
-      cors({
-        origin: '*'
-      })
-    )
+  app.use(bodyParser.json())
+  // avoid CORS errors
+  app.use(
+    cors({
+      origin: '*'
+    })
+  )
 
   //////////////////////// LOGIN ////////////////////////
   app.post(`/login`, async (req, res) => {
