@@ -125,6 +125,10 @@ const getDashboardForecast = (startTs: number, endTs: number) => {
   })
 }
 
+const updateTBWateringAttr = () => {
+  return client.post(`/updateAttr`)
+}
+
 // // try to get users devices
 // const getDevices = () => {
 //   return client.get(`api/v1/me/devices`);
@@ -138,5 +142,6 @@ export default {
   getUser,
   getHistory,
   getForecast,
-  getDashboardForecast
+  getDashboardForecast,
+  updateTBWateringAttr
 }
