@@ -29,6 +29,23 @@
     })
   }
 
+  const chooseChartUnit = (measurementName: string) => {
+    switch (measurementName) {
+      case 'Temperature':
+        return '°C'
+      case 'Humidity':
+        return '%'
+      case 'Soil Moisture':
+        return '%'
+      case 'Rain':
+        return '%'
+      case 'UV':
+        return ''
+      default:
+        return ''
+    }
+  }
+
   const options = ref({
     chart: {
       offsetY: -10,
@@ -41,7 +58,9 @@
     dataLabels: {
       style: {
         colors: [...listOfColors.value]
-      }
+      },
+      enable: false,
+      enabledOnSeries: []
     },
     stroke: {
       width: 3,
@@ -50,7 +69,13 @@
     colors: [...listOfColors.value],
     tooltip: {
       enabled: true,
-      theme: theme.current.value.dark ? 'dark' : 'light'
+      theme: theme.current.value.dark ? 'dark' : 'light',
+      y: {
+        formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
+          console.log(w.globals.seriesNames[0])
+          return value + chooseChartUnit(w.globals.seriesNames[0])
+        }
+      }
     },
 
     xaxis: {
@@ -175,6 +200,16 @@
 
 <template>
   <div>
+    <div
+      style="height: 48px"
+      class="px-4 d-flex justify-center align-center text-primary"
+      :style="{
+        borderBottom: `2px solid ${theme.current.value.colors.primary}`
+      }"
+    >
+      {{ moment().format('MMM DD/M/YYYY ') }}
+    </div>
+
     <v-row class="pa-4" v-if="!loading && !noWeatherData">
       <v-col v-for="(measurement, index) in measurements" :key="index" cols="12" md="6" sm="12">
         <v-card rounded="xl" color="color_surface_mixed_200" class="pa-4">
@@ -184,7 +219,7 @@
               <apexchart
                 width="100%"
                 height="300"
-                type="line"
+                :type="measurement.series[0].name === 'UV' ? 'bar' : 'line'"
                 :options="options"
                 :series="measurement.series"
               ></apexchart>

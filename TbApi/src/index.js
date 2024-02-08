@@ -411,6 +411,7 @@ if (tbTokens) {
       startTs: req.body.startTs,
       endTs: req.body.endTs
     }
+
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
@@ -424,6 +425,7 @@ if (tbTokens) {
           const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
             tbRes.data
           )
+          console.log(timeseriesForecastAppFormatedData)
           middlresponse.msg = `Got telemetry range!`
           middlresponse.status = 200
           middlresponse.data = timeseriesForecastAppFormatedData

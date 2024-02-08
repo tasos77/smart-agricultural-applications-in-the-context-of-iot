@@ -51,22 +51,27 @@
             width="100"
             @click="toggle"
           >
-            <div class="d-flex justify-center align-center">
+            <div>
               <div>
                 <client-only>
-                  <Vue3Lottie :animation-data="index[`${icons[i]}`]" height="50px" width="50px" />
+                  <Vue3Lottie :animation-data="index[`${icons[i]}`]" height="auto" width="auto" />
                 </client-only>
+              </div>
+
+              <div class="d-flex flex-column justify-center align-center">
+                <div>Max / Min</div>
                 <div class="d-flex align-baseline justify-center">
-                  <span class="text-body-1">{{ tempItem.range.max }}/</span>
+                  <span class="text-body-1">{{ tempItem.range.max + '/' }}</span>
                   <span class="text-body-2">{{ tempItem.range.min }}</span>
                 </div>
                 <div class="d-flex justify-center align-center">
-                  {{ moment(tempItem.ts).format('h A') }}
+                  {{ moment(tempItem.ts).format('dd h A') }}
                 </div>
-                <!-- <div class="d-flex justify-center align-center">
+              </div>
+
+              <!-- <div class="d-flex justify-center align-center">
                   {{ moment(tempItem.ts).format('dddd') }}
                 </div> -->
-              </div>
             </div>
           </v-card>
         </v-slide-group-item>

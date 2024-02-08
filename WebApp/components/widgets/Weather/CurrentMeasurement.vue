@@ -117,7 +117,7 @@
         <VCol class="pa-0">
           <apexchart
             type="radialBar"
-            height="400"
+            height="auto"
             :options="chartOptions2"
             :series="series"
           ></apexchart>
