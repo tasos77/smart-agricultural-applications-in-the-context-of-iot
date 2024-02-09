@@ -52,13 +52,15 @@ export function transformTBDataToTimeseriesForecastAppFormat(data) {
   return timeseriesForecastAppCompatibleHistoryMeasurements
 }
 
-export function transformTimeseriesForecastAppToTBDataFormat(data) {
+export function transformTimeseriesForecastAppToTBDataFormat(predicted_data) {
   const humidity = []
   const temperature = []
   const soilMoisture = []
   const rain = []
   const uv = []
   const numGroups = 24
+
+  const data = JSON.parse(JSON.stringify(predicted_data))
 
   for (let i = 0; i < data.predicted_temperature.length; i++) {
     temperature.push({

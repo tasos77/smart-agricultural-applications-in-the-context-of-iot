@@ -72,7 +72,6 @@
       theme: theme.current.value.dark ? 'dark' : 'light',
       y: {
         formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
-          console.log(w.globals.seriesNames[0])
           return value + chooseChartUnit(w.globals.seriesNames[0])
         }
       }

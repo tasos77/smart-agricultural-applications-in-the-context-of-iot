@@ -17,7 +17,7 @@ app = Flask(__name__)
 
 def getHistoryData():
     now = datetime.today()
-    sub24mins = datetime.today() - timedelta(hours=0, minutes=24)
+    sub24mins = datetime.today() - timedelta(hours=0, minutes=2)
     now_in_ms = int(float(now.strftime('%s.%f'))*1000)
     sub24mins_in_ms = int(float(sub24mins.strftime('%s.%f'))*1000)
 

@@ -94,7 +94,7 @@
 <template>
   <div>
     <DeviceInfo :currentMeasurements="currentMeasurements" :timestamp="timestamp" :temp="temp" />
-    <DashboardForecast />
+    <DashboardForecast @openDialog="dialog = true" />
 
     <div class="notificationContainer">
       <v-slide-y-transition group>
