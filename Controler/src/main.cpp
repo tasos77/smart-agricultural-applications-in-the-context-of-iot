@@ -256,27 +256,35 @@ void loop()
   if (currentMillis - previousMillis >= interval)
   {
     previousMillis = currentMillis;
-    // read temperature
-    float temperature = dht.getTemperature();
-    // read humidity
-    float humidity = dht.getHumidity();
-    // read rain
-    float rain_in_percentage = 100 - map(analogRead(rainSensor), 0, 4095, 0, 100);
-    // read soil sensor
-    float soil_in_percentage = 100 - map(analogRead(soilSensor), 0, 4095, 0, 100);
-    // read uv
-    float uv = (analogRead(uvSensor) * (3.3 / 4095)) / .1;
-    // print measurements in serial
-    PrintMeasurementInSerial(temperature_text, temperature_unit, temperature);
-    PrintMeasurementInSerial(humidity_text, humidity_unit, humidity);
-    PrintMeasurementInSerial(rain_text, rain_unit, rain_in_percentage);
-    PrintMeasurementInSerial(soil_moisture_text, soil_moisture_unit, soil_in_percentage);
-    PrintMeasurementInSerial(uv_text, uv_unit, uv);
-    Serial.println("<---------------------------------------------------->");
-    // print measurements in LCD
-    PrintMeasurementsInLCD(temperature, humidity, rain_in_percentage, soil_in_percentage, uv);
-    // publish measurements
-    PublishTelemetryData(temperature, humidity, rain_in_percentage, soil_in_percentage, uv);
+    if (dht.getStatusString() != "OK")
+    {
+      Serial.println(F("Failed to read from DHT sensor"));
+      return;
+    }
+    else
+    {
+      // read temperature
+      float temperature = dht.getTemperature();
+      // read humidity
+      float humidity = dht.getHumidity();
+      // read rain
+      float rain_in_percentage = 100 - map(analogRead(rainSensor), 0, 4095, 0, 100);
+      // read soil sensor
+      float soil_in_percentage = 100 - map(analogRead(soilSensor), 0, 4095, 0, 100);
+      // read uv
+      float uv = (analogRead(uvSensor) * (3.3 / 4095)) / .1;
+      // print measurements in serial
+      PrintMeasurementInSerial(temperature_text, temperature_unit, temperature);
+      PrintMeasurementInSerial(humidity_text, humidity_unit, humidity);
+      PrintMeasurementInSerial(rain_text, rain_unit, rain_in_percentage);
+      PrintMeasurementInSerial(soil_moisture_text, soil_moisture_unit, soil_in_percentage);
+      PrintMeasurementInSerial(uv_text, uv_unit, uv);
+      Serial.println("<---------------------------------------------------->");
+      // print measurements in LCD
+      PrintMeasurementsInLCD(temperature, humidity, rain_in_percentage, soil_in_percentage, uv);
+      // publish measurements
+      PublishTelemetryData(temperature, humidity, rain_in_percentage, soil_in_percentage, uv);
+    }
   }
 
   delay(5000);
