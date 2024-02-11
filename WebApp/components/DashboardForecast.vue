@@ -2,8 +2,10 @@
   import index from '~/assets/animations/index'
   import tbApi from '~/api/tbApi'
   import moment from 'moment'
+  import { useDisplay } from 'vuetify'
 
   const emit = defineEmits(['openDialog'])
+  const display = useDisplay()
   const dialog = ref(false)
   const model = ref(null)
   const mesIndex = ref(0)
@@ -13,6 +15,10 @@
   const rain = ref([])
   const soilMoisture = ref([])
   const uv = ref([])
+
+  const smBreakpoint = computed(() => {
+    return display.smAndDown
+  })
 
   const fillGraphs = async (subtractionStart: number, subtractionEnd: number) => {
     const startTs = moment()
@@ -47,7 +53,7 @@
     <VCard class="ma-4" color="color_surface_mixed_200">
       <VCardTitle>Forecast (24h)</VCardTitle>
       <v-sheet class="mx-auto" elevation="8" color="color_surface_mixed_300">
-        <v-slide-group v-model="model" class="pa-0">
+        <v-slide-group v-model="model" class="pa-0" mobile-breakpoint="sm" :show-arrows="false">
           <v-slide-group-item v-for="(tempItem, i) in temperature" :key="i">
             <v-card
               rounded="lg"
@@ -79,10 +85,6 @@
                     {{ moment(tempItem.ts).format('dd h A') }}
                   </div>
                 </div>
-
-                <!-- <div class="d-flex justify-center align-center">
-                  {{ moment(tempItem.ts).format('dddd') }}
-                </div> -->
               </div>
             </v-card>
           </v-slide-group-item>
@@ -94,17 +96,22 @@
         <v-card-text>
           <div>
             <VRow>
-              <VCol cols="6" class="d-flex flex-column justify-center align-center">
+              <VCol cols="12" sm="12" md="6" class="d-flex flex-column justify-center align-center">
                 <client-only>
                   <Vue3Lottie
                     :animation-data="index[`${icons[mesIndex]}`]"
-                    height="auto"
-                    width="auto"
+                    :height="smBreakpoint ? '150px' : 'auto'"
+                    :width="smBreakpoint ? '150px' : 'auto'"
                   />
                 </client-only>
                 <div class="text-h3">{{ temperature[mesIndex].value }}°C</div>
               </VCol>
-              <VCol cols="6" class="d-flex flex-column justify-space-evenly align-start">
+              <VCol
+                cols="12"
+                sm="12"
+                md="6"
+                class="d-flex flex-column justify-space-evenly align-start"
+              >
                 <div class="d-flex pa-2">
                   <div class="d-flex justify-center align-center pa-0">
                     <VIcon size="x-large">mdi-water-percent</VIcon>
@@ -147,8 +154,11 @@
               </VCol>
             </VRow>
           </div>
+          <div class="d-flex justify-center pt-4">
+            {{ moment(temperature[mesIndex].ts).format('dddd hh:mm A') }}
+          </div>
         </v-card-text>
-        <v-card-actions class="pa-4 d-flex justify-end">
+        <v-card-actions class="pa-4 pt-0 d-flex justify-end">
           <v-btn color="primary" @click="dialog = false" variant="elevated">Close</v-btn>
         </v-card-actions>
       </v-card>
