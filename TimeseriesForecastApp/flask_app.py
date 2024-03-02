@@ -21,9 +21,8 @@ def getHistoryData():
     now_in_ms = int(float(now.strftime('%s.%f'))*1000)
     sub24mins_in_ms = int(float(sub24mins.strftime('%s.%f'))*1000)
 
-    response = requests.post(
-        "http://localhost:3005/getTrainData",
-        json={"startTs": sub24mins_in_ms, "endTs": now_in_ms})
+    response = requests.get(
+        "http://localhost:3005/getTrainData", params={"startTs": sub24mins_in_ms, "endTs": now_in_ms})
     # Check the response
     if response.status_code == 200:
         print("POST Request Successful")

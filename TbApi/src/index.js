@@ -183,10 +183,10 @@ if (tbTokens) {
     }
   })
   //////////////////////// GET USER ////////////////////////
-  app.post(`/getUser`, async (req, res) => {
+  app.get(`/user`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const userInfo = {
-      accessToken: req.body.accessToken
+      accessToken: req.query.accessToken
     }
     if (!!userInfo.accessToken) {
       thingsboardApi
@@ -212,11 +212,11 @@ if (tbTokens) {
     }
   })
   //////////////////////// GET HISTORY ////////////////////////
-  app.post(`/getHistory`, async (req, res) => {
+  app.get(`/history`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
-      startTs: req.body.startTs,
-      endTs: req.body.endTs
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
     }
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
@@ -297,11 +297,11 @@ if (tbTokens) {
   setInterval(watering, 1440000)
 
   //////////////////////// GET FORECAST ////////////////////////
-  app.post(`/getForecast`, async (req, res) => {
+  app.get(`/forecast`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
-      startTs: req.body.startTs,
-      endTs: req.body.endTs
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
     }
 
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
@@ -352,11 +352,11 @@ if (tbTokens) {
   })
 
   //////////////////// GET DASHBOARD FORECASE ////////////////////
-  app.post(`/getDashboardForecast`, async (req, res) => {
+  app.get(`/dashboardForecast`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
-      startTs: req.body.startTs,
-      endTs: req.body.endTs
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
     }
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
@@ -405,11 +405,11 @@ if (tbTokens) {
   })
 
   //////////////////////// GET TRAIN DATA ////////////////////////
-  app.post(`/getTrainData`, async (req, res) => {
+  app.get(`/trainData`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
-      startTs: req.body.startTs,
-      endTs: req.body.endTs
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
     }
 
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
