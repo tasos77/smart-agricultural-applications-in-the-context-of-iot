@@ -74,12 +74,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = e.response.data.message
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -103,12 +105,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `Activation failed!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -138,6 +142,8 @@ if (tbTokens) {
               res.status(400)
               middlresponse.msg = `User creation failed!`
               middlresponse.status = 400
+              console.log(e)
+              middlresponse.data = {}
               res.json(middlresponse)
             })
         })
@@ -145,12 +151,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `Customer creation failed!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -173,12 +181,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `User logout failed!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -202,12 +212,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `Failed to get user!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -239,12 +251,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = 'Failed to get history data!'
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -333,6 +347,7 @@ if (tbTokens) {
               res.status(400)
               middlresponse.msg = 'Failed to get predicted data!'
               middlresponse.status = 400
+              middlresponse.data = {}
               res.json(middlresponse)
             })
         })
@@ -341,12 +356,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = 'Failed to get forecast data!'
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -386,6 +403,7 @@ if (tbTokens) {
               res.status(400)
               middlresponse.msg = 'Failed to get predicted data!'
               middlresponse.status = 400
+              middlresponse.data = {}
               res.json(middlresponse)
             })
         })
@@ -394,12 +412,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = 'Failed to get forecast data!'
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -436,12 +456,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = 'Failed to get history data!'
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
