@@ -8,5 +8,6 @@ export const config = {
   domain: process.env.DOMAIN,
   tenantUsername: process.env.TENANT_USERNAME,
   tenantPassword: process.env.TENANT_PASSWORD,
-  forecastAppUrl: process.env.FORECAST_APP_BASE_URL
+  forecastAppUrl: process.env.FORECAST_APP_BASE_URL,
+  entityId: process.env.ENTITY_ID
 }

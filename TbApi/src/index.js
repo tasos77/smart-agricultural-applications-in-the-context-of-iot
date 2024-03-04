@@ -1,20 +1,23 @@
 import bodyParser from 'body-parser'
 import cors from 'cors'
-import express, { response } from 'express'
+import express from 'express'
 import thingsboardApi from './api/thingsboardApi.js'
 import { config } from './config/public.js'
 import WebSocket from 'ws'
 import { WebSocketServer } from 'ws'
+import { calcSingleIcon } from './utils/commonTools.js'
 import {
   transformTBDataToTimeseriesForecastAppFormat,
   transformTimeseriesForecastAppToTBDataFormat,
   aggregateHistoryData
 } from './utils/convertions.js'
+import { pumpFunc } from './utils/handlePump.js'
+import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
 import forecastAppApi from './api/forecastAppApi.js'
 const port = config.port
 const domain = config.domain
-const entityId = 'e5236870-5aca-11ed-8a9a-75998db067ac'
-
+const entityId = config.entityId
+import moment from 'moment'
 // try to get TB access token
 const tbTokens = await thingsboardApi
   .login(config.tenantUsername, config.tenantPassword)
@@ -24,6 +27,12 @@ const tbTokens = await thingsboardApi
   })
 
 console.log(tbTokens.token)
+
+let middlresponse = {
+  msg: '',
+  status: null,
+  data: {}
+}
 
 if (tbTokens) {
   // create express application
@@ -43,6 +52,7 @@ if (tbTokens) {
       origin: '*'
     })
   )
+
   //////////////////////// LOGIN ////////////////////////
   app.post(`/login`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
@@ -50,17 +60,7 @@ if (tbTokens) {
       username: req.body.username,
       password: req.body.password
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      loginInfo.hasOwnProperty('username') &&
-      loginInfo.hasOwnProperty('password') &&
-      loginInfo.username &&
-      loginInfo.password
-    ) {
+    if (!!loginInfo.username && !!loginInfo.password) {
       thingsboardApi
         .login(loginInfo.username, loginInfo.password)
         .then((tbRes) => {
@@ -74,12 +74,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = e.response.data.message
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -90,18 +92,7 @@ if (tbTokens) {
       activateToken: req.body.activationInfo.activateToken,
       password: req.body.activationInfo.password
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (
-      activationInfo.hasOwnProperty('activateToken') &&
-      activationInfo.hasOwnProperty('password') &&
-      activationInfo.activateToken &&
-      activationInfo.password
-    ) {
+    if (!!activationInfo.activateToken && !!activationInfo.password) {
       thingsboardApi
         .activateUser(tbTokens.token, activationInfo)
         .then(() => {
@@ -114,12 +105,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `Activation failed!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -132,20 +125,7 @@ if (tbTokens) {
       lastName: req.body.lastName
     }
 
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (
-      registrationInfo.hasOwnProperty('email') &&
-      registrationInfo.hasOwnProperty('firstName') &&
-      registrationInfo.hasOwnProperty('lastName') &&
-      registrationInfo.email &&
-      registrationInfo.firstName &&
-      registrationInfo.lastName
-    ) {
+    if (!!registrationInfo.email && !!registrationInfo.firstName && !!registrationInfo.lastName) {
       await thingsboardApi
         .createCustomer(tbTokens.token, registrationInfo.email)
         .then(async (response) => {
@@ -162,6 +142,8 @@ if (tbTokens) {
               res.status(400)
               middlresponse.msg = `User creation failed!`
               middlresponse.status = 400
+              console.log(e)
+              middlresponse.data = {}
               res.json(middlresponse)
             })
         })
@@ -169,12 +151,14 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `Customer creation failed!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
@@ -184,13 +168,7 @@ if (tbTokens) {
     const logoutInfo = {
       accessToken: req.body.accessToken
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (logoutInfo.hasOwnProperty('accessToken') && logoutInfo.accessToken) {
+    if (!!logoutInfo.accessToken) {
       thingsboardApi
         .logout(logoutInfo.accessToken)
         .then(() => {
@@ -203,28 +181,24 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `User logout failed!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
   //////////////////////// GET USER ////////////////////////
-  app.post(`/getUser`, async (req, res) => {
+  app.get(`/user`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const userInfo = {
-      accessToken: req.body.accessToken
+      accessToken: req.query.accessToken
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-
-    if (userInfo.hasOwnProperty('accessToken') && userInfo.accessToken) {
+    if (!!userInfo.accessToken) {
       thingsboardApi
         .getUser(userInfo.accessToken)
         .then((tbRes) => {
@@ -238,33 +212,25 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = `Failed to get user!`
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body!`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
   //////////////////////// GET HISTORY ////////////////////////
-  app.post(`/getHistory`, async (req, res) => {
+  app.get(`/history`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
-      startTs: req.body.startTs,
-      endTs: req.body.endTs
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      telemetryRangeInfo.hasOwnProperty('startTs') &&
-      telemetryRangeInfo.hasOwnProperty('endTs') &&
-      telemetryRangeInfo.startTs &&
-      telemetryRangeInfo.endTs
-    ) {
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
           tbTokens.token,
@@ -285,33 +251,131 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = 'Failed to get history data!'
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
+
+  //////////////////////  WATERING POLLING /////////////////////
+  const watering = () => {
+    const startTs = moment()
+      .subtract(1 * 24, 'minutes')
+      .valueOf()
+    const endTs = moment()
+      .subtract(0 * 24, 'minutes')
+      .valueOf()
+
+    thingsboardApi
+      .getTelemetryRange(tbTokens.token, entityId, startTs, endTs)
+      .then((tbRes) => {
+        const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
+          tbRes.data
+        )
+
+        forecastAppApi
+          .getPredictedData(timeseriesForecastAppFormatedData)
+          .then((predictedMeasurements) => {
+            const threshold = pumpFunc(predictedMeasurements.data)
+            if (threshold) {
+              console.log('Forecast under upper thresholds..!')
+              const nextWatering = moment()
+              console.log(`Next watering at ${nextWatering.format('h A')}`)
+
+              thingsboardApi
+                .updateDeviceSharedAttr(tbTokens.token, entityId, nextWatering)
+                .then((response) => {
+                  console.log(`Device Attribute Updated!`)
+                })
+                .catch((e) => {
+                  console.log('Failed to update device attribute!')
+                })
+            }
+          })
+          .catch((e) => {
+            console.log('Cant get forecast data...!!')
+          })
+      })
+      .catch((e) => {
+        console.log('Cant get tb data..!!')
+      })
+  }
+  watering()
+  // execute watering function every 24mins
+  setInterval(watering, 1440000)
+
   //////////////////////// GET FORECAST ////////////////////////
-  app.post(`/getForecast`, async (req, res) => {
+  app.get(`/forecast`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
-      startTs: req.body.startTs,
-      endTs: req.body.endTs
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
+
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
+      thingsboardApi
+        .getTelemetryRange(
+          tbTokens.token,
+          entityId,
+          telemetryRangeInfo.startTs,
+          telemetryRangeInfo.endTs
+        )
+        .then((tbRes) => {
+          const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
+            tbRes.data
+          )
+
+          forecastAppApi
+            .getPredictedData(timeseriesForecastAppFormatedData)
+            .then((predictedMeasurements) => {
+              res.status(200)
+              middlresponse.msg = `Got forecast data!`
+              middlresponse.status = 200
+              middlresponse.data = transformTimeseriesForecastAppToTBDataFormat(
+                predictedMeasurements.data
+              )
+              res.json(middlresponse)
+            })
+            .catch((e) => {
+              console.log(e)
+              res.status(400)
+              middlresponse.msg = 'Failed to get predicted data!'
+              middlresponse.status = 400
+              middlresponse.data = {}
+              res.json(middlresponse)
+            })
+        })
+        .catch((e) => {
+          console.log(e.response.data)
+          res.status(400)
+          middlresponse.msg = 'Failed to get forecast data!'
+          middlresponse.status = 400
+          middlresponse.data = {}
+          res.json(middlresponse)
+        })
+    } else {
+      res.status(400)
+      middlresponse.msg = `Missing or invalid body`
+      middlresponse.status = 400
+      middlresponse.data = {}
+      res.json(middlresponse)
     }
-    if (
-      telemetryRangeInfo.hasOwnProperty('startTs') &&
-      telemetryRangeInfo.hasOwnProperty('endTs') &&
-      telemetryRangeInfo.startTs &&
-      telemetryRangeInfo.endTs
-    ) {
+  })
+
+  //////////////////// GET DASHBOARD FORECASE ////////////////////
+  app.get(`/dashboardForecast`, async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    const telemetryRangeInfo = {
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
+    }
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
           tbTokens.token,
@@ -339,6 +403,7 @@ if (tbTokens) {
               res.status(400)
               middlresponse.msg = 'Failed to get predicted data!'
               middlresponse.status = 400
+              middlresponse.data = {}
               res.json(middlresponse)
             })
         })
@@ -347,34 +412,27 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = 'Failed to get forecast data!'
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
 
   //////////////////////// GET TRAIN DATA ////////////////////////
-  app.post(`/getTrainData`, async (req, res) => {
+  app.get(`/trainData`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
-      startTs: req.body.startTs,
-      endTs: req.body.endTs
+      startTs: req.query.startTs,
+      endTs: req.query.endTs
     }
-    let middlresponse = {
-      msg: '',
-      status: null,
-      data: {}
-    }
-    if (
-      telemetryRangeInfo.hasOwnProperty('startTs') &&
-      telemetryRangeInfo.hasOwnProperty('endTs') &&
-      telemetryRangeInfo.startTs &&
-      telemetryRangeInfo.endTs
-    ) {
+
+    if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
           tbTokens.token,
@@ -387,6 +445,7 @@ if (tbTokens) {
           const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
             tbRes.data
           )
+          console.log(timeseriesForecastAppFormatedData)
           middlresponse.msg = `Got telemetry range!`
           middlresponse.status = 200
           middlresponse.data = timeseriesForecastAppFormatedData
@@ -397,23 +456,47 @@ if (tbTokens) {
           res.status(400)
           middlresponse.msg = 'Failed to get history data!'
           middlresponse.status = 400
+          middlresponse.data = {}
           res.json(middlresponse)
         })
     } else {
       res.status(400)
       middlresponse.msg = `Missing or invalid body`
       middlresponse.status = 400
+      middlresponse.data = {}
       res.json(middlresponse)
     }
   })
 
-  ////////////////////// init socket //////////////////////
+  /////////////// Update device attribute /////////////////
+  app.post(`/updateAttr`, async (req, res) => {
+    res.header('Access-Control-Allow-Origin', '*')
+    const nextWatering = moment()
+    console.log(nextWatering)
+    thingsboardApi
+      .updateDeviceSharedAttr(tbTokens.token, entityId, nextWatering)
+      .then((response) => {
+        res.status(200)
+        middlresponse.msg = `Device Attribute Updated!`
+        middlresponse.status = 200
+        middlresponse.data = {}
+        res.json(middlresponse)
+      })
+      .catch((e) => {
+        console.log(e.response.data)
+        res.status(400)
+        middlresponse.msg = 'Failed to update device attribute!'
+        middlresponse.status = 400
+        res.json(middlresponse)
+      })
+  })
 
+  ////////////////////// init telemetries socket //////////////////////
   const wss = new WebSocketServer({ port: 8080 })
   wss.on('connection', function connection(ws) {
     var token = tbTokens.token
 
-    var webSocket = new WebSocket('ws://localhost:9090/api/ws/plugins/telemetry?token=' + token)
+    var webSocket = new WebSocket('ws://localhost:9090/api/ws')
 
     if (entityId === 'YOUR_DEVICE_ID') {
       console.log('Invalid device id!')
@@ -429,16 +512,111 @@ if (tbTokens) {
 
     webSocket.onopen = function () {
       var object = {
-        tsSubCmds: [
+        authCmd: {
+          cmdId: 0,
+          token: token
+        },
+        cmds: [
           {
             entityType: 'DEVICE',
             entityId: entityId,
             scope: 'LATEST_TELEMETRY',
-            cmdId: 10
+            cmdId: 1,
+            type: 'TIMESERIES'
+          },
+          {
+            cmdId: 2,
+            query: {
+              alarmFields: [
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'createdTime'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'originator'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'type'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'severity'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'status'
+                },
+                {
+                  type: 'ALARM_FIELD',
+                  key: 'assignee'
+                }
+              ],
+              entityFields: [],
+              entityFilter: {
+                type: 'singleEntity',
+                singleEntity: {
+                  entityType: 'DEVICE',
+                  id: '587325a0-b7bc-11ee-a93d-57cbe3542689'
+                }
+              },
+              latestValues: [],
+              pageLink: {
+                page: 0,
+                pageSize: 10,
+                searchPropagatedAlarms: false,
+                severityList: [],
+                sortOrder: {
+                  direction: 'DESC',
+                  key: {
+                    key: 'createdTime',
+                    type: 'ALARM_FIELD'
+                  }
+                },
+                statusList: [],
+                textSearch: null,
+                timeWindow: 86400000,
+                typeList: []
+              }
+            },
+            type: 'ALARM_DATA'
+          },
+          {
+            cmdId: 3,
+            latestCmd: {
+              keys: [
+                {
+                  type: 'ATTRIBUTE',
+                  key: 'pump_state'
+                }
+              ]
+            },
+            query: {
+              entityFields: [
+                { key: 'name', type: 'ENTITY_FIELD' },
+                { key: 'label', type: 'ENTITY_FIELD' },
+                { key: 'additionalInfo', type: 'ENTITY_FIELD' }
+              ],
+              entityFilter: {
+                singleEntity: {
+                  entityType: 'DEVICE',
+                  id: '587325a0-b7bc-11ee-a93d-57cbe3542689'
+                },
+                type: 'singleEntity'
+              },
+              latestValues: [{ key: 'pump_state', type: 'ATTRIBUTE' }],
+              pageLink: {
+                dynamic: true,
+                page: 0,
+                pageSize: 10,
+                sortOrder: null,
+                textSearch: null
+              }
+            },
+            type: 'ENTITY_DATA'
           }
-        ],
-        historyCmds: [],
-        attrSubCmds: []
+        ]
       }
       var data = JSON.stringify(object)
       webSocket.send(data)
@@ -446,23 +624,43 @@ if (tbTokens) {
     }
 
     webSocket.onmessage = function (event) {
-      let parsedRawTBtelemetries = JSON.parse(event.data).data
+      let parsedData = JSON.parse(event.data)
 
-      let formatedTbTelemetries = {
-        timestamp: parsedRawTBtelemetries.temperature[0][0],
-        temperature: parseFloat(parsedRawTBtelemetries.temperature[0][1]),
-        humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
-        rain: parseFloat(parsedRawTBtelemetries.rain[0][1]),
-        soilMoisture: parseFloat(parsedRawTBtelemetries.soilMoisture[0][1]),
-        uv: parseFloat(parsedRawTBtelemetries.uv[0][1])
+      if (parsedData?.subscriptionId === 1) {
+        let parsedRawTBtelemetries = parsedData.data
+
+        let formatedTbTelemetries = {
+          timestamp: parsedRawTBtelemetries.temperature[0][0],
+          temperature: parseFloat(parsedRawTBtelemetries.temperature[0][1]),
+          humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
+          rain: parseFloat(parsedRawTBtelemetries.rain[0][1]),
+          soilMoisture: parseFloat(parsedRawTBtelemetries.soilMoisture[0][1]),
+          uv: parseFloat(parsedRawTBtelemetries.uv[0][1]),
+          icon: calcSingleIcon(
+            parseFloat(parsedRawTBtelemetries.rain[0][1]),
+            parsedRawTBtelemetries.temperature[0][0]
+          )
+        }
+
+        console.log(formatedTbTelemetries)
+        ws.send(JSON.stringify(formatedTbTelemetries))
+      } else if (parsedData.cmdId === 3) {
+        const pump_state_enum = parsedData?.update
+          ? parsedData?.update[0]?.latest?.ATTRIBUTE?.pump_state?.value
+          : null
+        console.log(pump_state_enum)
+        ws.send(JSON.stringify(pump_state_enum))
+      } else {
+        let alarmName = parsedData?.update ? `${parsedData.update[0].name}` : null
+
+        const alarmMetadata = convertAlarmEvent(alarmName)
+        console.log(alarmMetadata)
+        ws.send(JSON.stringify(alarmMetadata))
       }
-
-      console.log(formatedTbTelemetries)
-      ws.send(JSON.stringify(formatedTbTelemetries))
     }
 
     webSocket.onclose = function (event) {
-      console.log('Connection is closed!')
+      console.log('TB WS Connection is closed!')
     }
 
     ws.on('error', console.error)

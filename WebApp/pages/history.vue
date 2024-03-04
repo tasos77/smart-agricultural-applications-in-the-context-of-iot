@@ -28,6 +28,23 @@
     })
   }
 
+  const chooseChartUnit = (measurementName: string) => {
+    switch (measurementName) {
+      case 'Temperature':
+        return '°C'
+      case 'Humidity':
+        return '%'
+      case 'Soil Moisture':
+        return '%'
+      case 'Rain':
+        return '%'
+      case 'UV':
+        return ''
+      default:
+        return ''
+    }
+  }
+
   const options = ref({
     chart: {
       offsetY: -10,
@@ -40,7 +57,9 @@
     dataLabels: {
       style: {
         colors: [...listOfColors.value]
-      }
+      },
+      enable: false,
+      enabledOnSeries: []
     },
     stroke: {
       width: 3,
@@ -49,7 +68,12 @@
     colors: [...listOfColors.value],
     tooltip: {
       enabled: true,
-      theme: theme.current.value.dark ? 'dark' : 'light'
+      theme: theme.current.value.dark ? 'dark' : 'light',
+      y: {
+        formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
+          return value + chooseChartUnit(w.globals.seriesNames[0])
+        }
+      }
     },
 
     xaxis: {
@@ -79,7 +103,7 @@
           show: true
         }
       },
-      strokeDashArray: 2
+      strokeDashArray: 1
     }
   })
 
@@ -194,7 +218,7 @@
               <apexchart
                 width="100%"
                 height="300"
-                type="line"
+                :type="measurement.series[0].name === 'UV' ? 'bar' : 'line'"
                 :options="options"
                 :series="measurement.series"
               ></apexchart>

@@ -21,9 +21,8 @@ def getHistoryData():
     now_in_ms = int(float(now.strftime('%s.%f'))*1000)
     sub24mins_in_ms = int(float(sub24mins.strftime('%s.%f'))*1000)
 
-    response = requests.post(
-        "http://localhost:3005/getTrainData",
-        json={"startTs": sub24mins_in_ms, "endTs": now_in_ms})
+    response = requests.get(
+        "http://localhost:3005/trainData", params={"startTs": sub24mins_in_ms, "endTs": now_in_ms})
     # Check the response
     if response.status_code == 200:
         print("POST Request Successful")
@@ -61,7 +60,7 @@ def create_dataset(dataset, look_back=1):
 
 
 def train_and_predict(model, trainX, testX, trainY):
-    model.fit(trainX, trainY, epochs=20, batch_size=1, verbose=2)
+    model.fit(trainX, trainY, epochs=10, batch_size=1, verbose=2)
     trainPredict = model.predict(trainX)
     testPredict = model.predict(testX)
     return trainPredict, testPredict
