@@ -48,7 +48,6 @@ const activateUser = (token, activationInfo) => {
   )
 }
 
-// try to create tb customer and set clerk's userId as server attribute
 const createCustomer = (token, email) => {
   return instance.post(
     '/customer',
