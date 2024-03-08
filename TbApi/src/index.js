@@ -41,7 +41,7 @@ if (tbTokens) {
   const server = app.listen(port, function () {
     const host = server.address().address
     const port = server.address().port
-    console.log(`Example app listening at http://${domain}:${port}`)
+    console.log(`Server listening at http://${domain}:${port}`)
   })
 
   // tell express to use body-parser's JSON parsing
