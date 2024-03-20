@@ -259,7 +259,8 @@ void loop()
     if (dht.getStatusString() != "OK")
     {
       Serial.println(F("Failed to read from DHT sensor"));
-      return;
+      // publish measurements
+      PublishTelemetryData(0, 0, 0, 0, 0);
     }
     else
     {
@@ -267,6 +268,11 @@ void loop()
       float temperature = dht.getTemperature();
       // read humidity
       float humidity = dht.getHumidity();
+      if (isnan(temperature) || isnan(humidity))
+      {
+        temperature = 0;
+        humidity = 0;
+      }
       // read rain
       float rain_in_percentage = 100 - map(analogRead(rainSensor), 0, 4095, 0, 100);
       // read soil sensor
