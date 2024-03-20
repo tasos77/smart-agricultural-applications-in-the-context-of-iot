@@ -22,7 +22,7 @@ DHTesp dht;
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
 const char *mqttServer = "192.168.1.9";
-const char *mqttUsername = "U9HU1LRFJQ7SKjPNADsI";
+const char *mqttUsername = "fa9onZzg5S34ul2CcSpy";
 const char *id = "";
 const char *mqttPass = "";
 // const string texts to print
@@ -191,7 +191,64 @@ boolean CheckIfWateringInterrupted()
 // callback function which will be called when message is received
 void callback(char *topic, byte *payload, unsigned int length)
 {
+
+  char str[length + 1];
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+  // int i = 0;
+  // for (i = 0; i < length; i++)
+  // {
+  //   Serial.print((char)payload[i]);
+  //   str[i] = (char)payload[i];
+  // }
+  // Convert the payload to a string
+  String message;
+  for (int i = 0; i < length; i++)
+  {
+    message += (char)payload[i];
+  }
+
+  // str[i] = 0; // Null termination
+  Serial.println();
+  // practise string
+  // char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
+
+  StaticJsonDocument<200> doc;
+  deserializeJson(doc, message);
+  const char *watering = doc["watering"];
   int counter = 0;
+  char cmpstring[] = "now";
+  if (strcmp(watering, cmpstring) == 0)
+  {
+    Serial.print("nownow");
+
+    PublishWaterPumpState("started");
+    while (counter < 10)
+    {
+      if (true)
+      {
+        StartWaterPump();
+        counter++;
+        delay(1000);
+      }
+      else
+      {
+        break;
+      }
+    }
+    StopWaterPump();
+    boolean rain_interruption = CheckIfWateringInterrupted();
+    if (rain_interruption)
+    {
+      PublishWaterPumpState("interrupted");
+    }
+    else
+    {
+      PublishWaterPumpState("stopped");
+    }
+  }
+
   if (CheckWateringConditions())
   {
     PublishWaterPumpState("started");

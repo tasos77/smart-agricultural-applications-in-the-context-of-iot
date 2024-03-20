@@ -368,7 +368,7 @@ if (tbTokens) {
     }
   })
 
-  //////////////////// GET DASHBOARD FORECASE ////////////////////
+  //////////////////// GET DASHBOARD FORECAST ////////////////////
   app.get(`/dashboardForecast`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     const telemetryRangeInfo = {
@@ -471,10 +471,9 @@ if (tbTokens) {
   /////////////// Update device attribute /////////////////
   app.post(`/updateAttr`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
-    const nextWatering = moment()
-    console.log(nextWatering)
+    console.log('nextWatering:now')
     thingsboardApi
-      .updateDeviceSharedAttr(tbTokens.token, entityId, nextWatering)
+      .updateDeviceSharedAttr(tbTokens.token, entityId, 'now')
       .then((response) => {
         res.status(200)
         middlresponse.msg = `Device Attribute Updated!`
