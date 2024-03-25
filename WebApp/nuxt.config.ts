@@ -10,5 +10,10 @@ export default defineNuxtConfig({
     define: {
       'process.env.DEBUG': false
     }
+  },
+  runtimeConfig: {
+    public: {
+      middlewareServerUrl: process.env.MIDDLEWARE_SERVER_URL
+    }
   }
 })

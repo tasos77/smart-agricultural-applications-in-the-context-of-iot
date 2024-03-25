@@ -3,8 +3,12 @@ import { RegistrationFormData, ActivationInfo } from '~/types/tbApiTypes'
 
 // create axios instance
 const client = axios.create({
-  baseURL: 'http://localhost:3005'
+  baseURL: ''
 })
+
+const setupAxios = (baseURL: string) => {
+  client.defaults.baseURL = baseURL
+}
 
 // try to login based on users creds
 const login = (username: string, password: string): any => {
@@ -55,6 +59,7 @@ const updateTBWateringAttr = () => {
 }
 
 export default {
+  setupAxios,
   login,
   registration,
   activateUser,
