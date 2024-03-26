@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-  import wxmApi from '~/api/tbApi.ts'
+  import wxmApi from '~/api/tbApi'
 
   const config = useRuntimeConfig().public
 
+  console.log(config.middlewareServerUrl)
+
   onBeforeMount(() => {
-    wxmApi.setupAxios(config.middlewareServerUrl)
+    // wxmApi.setupAxios(config.middlewareServerUrl)
   })
 </script>
 

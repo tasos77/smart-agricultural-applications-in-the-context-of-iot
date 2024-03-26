@@ -35,7 +35,7 @@
       case value > 60 && value <= 100:
         return '#EB656F'
     }
-    switch (measurement === 'UV') {
+    switch (measurement === 'UV Index') {
       case value >= 0 && value <= 3:
         return '#61DBC3'
       case value > 3 && value <= 7:
@@ -89,7 +89,10 @@
             value: {
               color: '#111',
               fontSize: '30px',
-              show: true
+              show: true,
+              formatter: function (val) {
+                return props.measurementName === 'UV Index' ? val : `${val}%`
+              }
             }
           }
         }

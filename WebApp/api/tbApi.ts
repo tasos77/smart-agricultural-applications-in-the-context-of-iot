@@ -3,7 +3,7 @@ import { RegistrationFormData, ActivationInfo } from '~/types/tbApiTypes'
 
 // create axios instance
 const client = axios.create({
-  baseURL: ''
+  baseURL: 'http://localhost:3005'
 })
 
 const setupAxios = (baseURL: string) => {

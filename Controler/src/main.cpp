@@ -22,7 +22,7 @@ DHTesp dht;
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
 const char *mqttServer = "192.168.1.9";
-const char *mqttUsername = "fa9onZzg5S34ul2CcSpy";
+const char *mqttUsername = "Up9WugYxbeqGzsEY0stJ";
 const char *id = "";
 const char *mqttPass = "";
 // const string texts to print
@@ -196,23 +196,12 @@ void callback(char *topic, byte *payload, unsigned int length)
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  // int i = 0;
-  // for (i = 0; i < length; i++)
-  // {
-  //   Serial.print((char)payload[i]);
-  //   str[i] = (char)payload[i];
-  // }
   // Convert the payload to a string
   String message;
   for (int i = 0; i < length; i++)
   {
     message += (char)payload[i];
   }
-
-  // str[i] = 0; // Null termination
-  Serial.println();
-  // practise string
-  // char json[] = "{\"sensor\":\"gps\",\"time\":1351824120,\"data\":[48.756080,2.302038]}";
 
   StaticJsonDocument<200> doc;
   deserializeJson(doc, message);
@@ -221,12 +210,10 @@ void callback(char *topic, byte *payload, unsigned int length)
   char cmpstring[] = "now";
   if (strcmp(watering, cmpstring) == 0)
   {
-    Serial.print("nownow");
-
     PublishWaterPumpState("started");
-    while (counter < 10)
+    while (counter < 20)
     {
-      if (true)
+      if (MonitorRainSensor() < rain_lower_threshold)
       {
         StartWaterPump();
         counter++;
@@ -248,32 +235,34 @@ void callback(char *topic, byte *payload, unsigned int length)
       PublishWaterPumpState("stopped");
     }
   }
-
-  if (CheckWateringConditions())
+  else
   {
-    PublishWaterPumpState("started");
-    while (counter < 10)
+    if (CheckWateringConditions())
     {
-      if (CheckWateringConditions())
+      PublishWaterPumpState("started");
+      while (counter < 20)
       {
-        StartWaterPump();
-        counter++;
-        delay(1000);
+        if (CheckWateringConditions())
+        {
+          StartWaterPump();
+          counter++;
+          delay(1000);
+        }
+        else
+        {
+          break;
+        }
+      }
+      StopWaterPump();
+      boolean rain_interruption = CheckIfWateringInterrupted();
+      if (rain_interruption)
+      {
+        PublishWaterPumpState("interrupted");
       }
       else
       {
-        break;
+        PublishWaterPumpState("stopped");
       }
-    }
-    StopWaterPump();
-    boolean rain_interruption = CheckIfWateringInterrupted();
-    if (rain_interruption)
-    {
-      PublishWaterPumpState("interrupted");
-    }
-    else
-    {
-      PublishWaterPumpState("stopped");
     }
   }
 }

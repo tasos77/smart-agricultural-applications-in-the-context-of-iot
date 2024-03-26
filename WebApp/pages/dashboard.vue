@@ -17,7 +17,7 @@
 
   const snackbar = ref(false)
   const snackbar_text = ref('')
-  const timeout = ref(2000)
+  const timeout = ref(4000)
 
   const handleAlarmData = (alarmData: AlarmData) => {
     if (
@@ -54,21 +54,21 @@
 
     if (
       websocketData === 'started' ||
-      websocketData === 'finished' ||
+      websocketData === 'stopped' ||
       websocketData === 'interrupted'
     ) {
       console.log(websocketData)
       switch (websocketData) {
         case 'started':
-          snackbar_text.value = 'Pump started!'
+          snackbar_text.value = 'Water pump started!'
           snackbar.value = true
           break
-        case 'finished':
-          snackbar_text.value = 'Pump finished!'
+        case 'stopped':
+          snackbar_text.value = 'Water pump finished!'
           snackbar.value = true
           break
         case 'interrupted':
-          snackbar_text.value = 'Pump interrupted!'
+          snackbar_text.value = 'Water pump interrupted!'
           snackbar.value = true
           break
       }
@@ -114,7 +114,9 @@
     </div>
 
     <v-snackbar v-model="snackbar" :timeout="timeout">
-      {{ snackbar_text }}
+      <div class="text-h6">
+        {{ snackbar_text }}
+      </div>
 
       <template v-slot:actions>
         <v-btn color="blue" variant="text" @click="snackbar = false"> Close </v-btn>

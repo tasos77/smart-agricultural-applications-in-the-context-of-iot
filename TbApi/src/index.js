@@ -557,7 +557,7 @@ if (tbTokens) {
                 type: 'singleEntity',
                 singleEntity: {
                   entityType: 'DEVICE',
-                  id: '587325a0-b7bc-11ee-a93d-57cbe3542689'
+                  id: `${config.entityId}`
                 }
               },
               latestValues: [],
@@ -600,7 +600,7 @@ if (tbTokens) {
               entityFilter: {
                 singleEntity: {
                   entityType: 'DEVICE',
-                  id: '587325a0-b7bc-11ee-a93d-57cbe3542689'
+                  id: `${config.entityId}`
                 },
                 type: 'singleEntity'
               },
@@ -624,7 +624,7 @@ if (tbTokens) {
 
     webSocket.onmessage = function (event) {
       let parsedData = JSON.parse(event.data)
-
+      console.log(parsedData)
       if (parsedData?.subscriptionId === 1) {
         let parsedRawTBtelemetries = parsedData.data
 
