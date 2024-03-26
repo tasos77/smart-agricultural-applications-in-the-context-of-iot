@@ -30,9 +30,9 @@
     switch (measurement === 'Rain') {
       case value >= 0 && value <= 30:
         return '#61DBC3'
-      case value > 30 && value <= 60:
+      case value > 30 && value <= 35:
         return '#95DA74'
-      case value > 60 && value <= 100:
+      case value > 35 && value <= 100:
         return '#EB656F'
     }
     switch (measurement === 'UV Index') {
