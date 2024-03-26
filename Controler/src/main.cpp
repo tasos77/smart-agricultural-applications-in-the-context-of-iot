@@ -38,7 +38,7 @@ const String rain_unit = "%";
 const String soil_moisture_unit = "%";
 const String uv_unit = "";
 // thresholds
-const int humidity_upper_threshold = 60;
+const int humidity_upper_threshold = 75;
 const int humidity_lower_threshold = 40;
 const int soil_moisture_upper_threshold = 75;
 const int soil_moisture_lower_threshold = 50;
@@ -202,6 +202,7 @@ void callback(char *topic, byte *payload, unsigned int length)
   {
     message += (char)payload[i];
   }
+  Serial.println();
 
   StaticJsonDocument<200> doc;
   deserializeJson(doc, message);
@@ -291,6 +292,7 @@ void setup()
 
 void loop()
 {
+
   if (!mqttClient.connected())
   {
     reconnect();
