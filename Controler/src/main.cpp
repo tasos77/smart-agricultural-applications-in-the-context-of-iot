@@ -22,7 +22,7 @@ DHTesp dht;
 const char *wifi_ssid = "COSMOTE-ts7hsv";
 const char *wifi_pass = "thxrfcexh5v4b64g";
 const char *mqttServer = "192.168.1.9";
-const char *mqttUsername = "Up9WugYxbeqGzsEY0stJ";
+const char *mqttUsername = "SDfDAFRHWnizWEGFjQFp";
 const char *id = "";
 const char *mqttPass = "";
 // const string texts to print
