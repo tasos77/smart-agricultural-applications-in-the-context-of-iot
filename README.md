@@ -1,3 +1,5 @@
+![MasterThesisArchitecture2](https://github.com/user-attachments/assets/378a50c3-e4e4-4272-ba65-b41ccc832f79)
+
 # Smart Agricultural applications in the context of IoT
 
 This project implements an smart system based on IoT technologies. The functions of the present system are to record, inform and warn a farmer about the status of his crop and then using machine learning algorithms to predict upcoming events in order to avoid consumption of unnecessary resources.
