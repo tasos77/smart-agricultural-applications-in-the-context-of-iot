@@ -150,3 +150,25 @@ curl -X POST http://127.0.0.1:5000/predict -H "Content-Type:application/json" -d
 > ```
 > docker-compose up -d
 > ```
+
+<h3 align="left">Languages and Tools:</h3>
+<p align="left">
+    <a href="https://isocpp.org" target="_blank" rel="noreferrer">
+    <img src="https://img.icons8.com/?size=100&id=40669&format=png&color=000000"
+    alt="c++" width="40" height="40" /></a>
+    <a href="https://www.python.org" target="_blank" rel="noreferrer">
+    <img src="https://img.icons8.com/?size=100&id=13441&format=png&color=000000"
+    alt="python" width="40" height="40" /></a>
+    <a href="https://www.typescriptlang.org" target="_blank" rel="noreferrer">
+    <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/typescript/typescript.png" alt="ts" width="40" height="40"
+    </a>
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer"> 
+    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="javascript" width="40" height="40"/></a>
+    <a href="https://nuxt.com" target="_blank" rel="noreferrer">
+    <img src="https://avatars.githubusercontent.com/u/23360933?s=48&v=4" alt="nuxtjs" width="40" height="40"/></a>
+    <a href="https://vuejs.org/" target="_blank" rel="noreferrer">
+    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/vuejs/vuejs-original-wordmark.svg" alt="vuejs" width="40" height="40"/></a>
+    <a href="https://vuetifyjs.com/en/" target="_blank" rel="noreferrer"> <img src="https://bestofjs.org/logos/vuetify.svg" alt="vuetify" width="40" height="40"/></a>
+    <a href="https://www.docker.com/" target="_blank" rel="noreferrer">
+    <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/docker/docker-original-wordmark.svg" alt="docker" width="40" height="40"/></a>
+    </p>
