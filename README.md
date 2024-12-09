@@ -2,7 +2,7 @@
 
 # Smart Agricultural applications in the context of IoT
 
-This project implements an smart system based on IoT technologies. The functions of the present system are to record, inform and warn a farmer about the status of his crop and then using machine learning algorithms to predict upcoming events in order to avoid consumption of unnecessary resources.
+This project implements a smart system based on IoT technologies. The functions of the present system are to record, inform and warn a farmer about the status of his crop and then using machine learning algorithms to predict upcoming events in order to avoid consumption of unnecessary resources.
 
 The components of the system are the following:
 
