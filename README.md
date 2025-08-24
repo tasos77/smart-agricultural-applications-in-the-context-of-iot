@@ -139,7 +139,7 @@ pip install -r requirements.txt -t <path-to-the-lib-directory>
 python flask_app.py
 ```
 
-- If you want to test the forecast server app you can tring the following command:
+- If you want to test the forecast server app you can a few times the following command:
 
 ```
 curl -X POST http://127.0.0.1:5000/predict -H "Content-Type:application/json" -d '[{"timestamp": 10, "temperature": 15, "humidity": 30, "soilMoisture": 10},{"timestamp": 10, "temperature": 15, "humidity": 30, "soilMoisture": 10},{"timestamp": 10, "temperature": 15, "humidity": 30, "soilMoisture": 10}]'
