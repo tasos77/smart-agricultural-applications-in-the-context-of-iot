@@ -1,12 +1,12 @@
 import {
   aggregateArray,
-  calcHistoryTimestampsArray,
-  rebuildTbResponseFormat,
-  buildExtendedResponseFormat,
-  exportTBValuesArray,
   aggregateArrayMinMax,
+  buildExtendedResponseFormat,
   calcForecastTimestampsArray,
-  calcIcon
+  calcHistoryTimestampsArray,
+  calcIcon,
+  exportTBValuesArray,
+  rebuildTbResponseFormat
 } from './commonTools.js'
 
 export function aggregateHistoryData(data) {
@@ -18,19 +18,39 @@ export function aggregateHistoryData(data) {
   const rainValues = exportTBValuesArray(data.rain)
   const uvValues = exportTBValuesArray(data.uv)
 
-  const aggregatedTemperatureArray = aggregateArray(temperatureValues, numGroups)
+  const aggregatedTemperatureArray = aggregateArray(
+    temperatureValues,
+    numGroups
+  )
   const aggregatedHumidityArray = aggregateArray(humidityValues, numGroups)
-  const aggregatedSoilMoistureArray = aggregateArray(soilMoistureValues, numGroups)
+  const aggregatedSoilMoistureArray = aggregateArray(
+    soilMoistureValues,
+    numGroups
+  )
   const aggregatedRainArray = aggregateArray(rainValues, numGroups)
   const aggregatedUvArray = aggregateArray(uvValues, numGroups)
 
-  const aggregatedTimestampsArray = calcHistoryTimestampsArray(aggregatedTemperatureArray)
+  const aggregatedTimestampsArray = calcHistoryTimestampsArray(
+    aggregatedTemperatureArray
+  )
 
   return {
-    temperature: rebuildTbResponseFormat(aggregatedTemperatureArray, aggregatedTimestampsArray),
-    humidity: rebuildTbResponseFormat(aggregatedHumidityArray, aggregatedTimestampsArray),
-    soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
-    rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
+    temperature: rebuildTbResponseFormat(
+      aggregatedTemperatureArray,
+      aggregatedTimestampsArray
+    ),
+    humidity: rebuildTbResponseFormat(
+      aggregatedHumidityArray,
+      aggregatedTimestampsArray
+    ),
+    soilMoisture: rebuildTbResponseFormat(
+      aggregatedSoilMoistureArray,
+      aggregatedTimestampsArray
+    ),
+    rain: rebuildTbResponseFormat(
+      aggregatedRainArray,
+      aggregatedTimestampsArray
+    ),
     uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray)
   }
 }
@@ -91,19 +111,30 @@ export function transformTimeseriesForecastAppToTBDataFormat(predicted_data) {
   const rainValues = exportTBValuesArray(rain)
   const uvValues = exportTBValuesArray(uv)
 
-  const aggregatedTemperatureArray = aggregateArray(temperatureValues, numGroups)
+  const aggregatedTemperatureArray = aggregateArray(
+    temperatureValues,
+    numGroups
+  )
   const aggregatedHumidityArray = aggregateArray(humidityValues, numGroups)
-  const aggregatedSoilMoistureArray = aggregateArray(soilMoistureValues, numGroups)
+  const aggregatedSoilMoistureArray = aggregateArray(
+    soilMoistureValues,
+    numGroups
+  )
   const aggregatedRainArray = aggregateArray(rainValues, numGroups)
   const aggregatedUvArray = aggregateArray(uvValues, numGroups)
 
-  const aggregatedTemperatureMinMax = aggregateArrayMinMax(temperatureValues, numGroups)
+  const aggregatedTemperatureMinMax = aggregateArrayMinMax(
+    temperatureValues,
+    numGroups
+  )
   // const aggregatedHumidityMinMax = aggregateArrayMinMax(humidityValues, numGroups)
   // const aggregatedSoilMoistureMinMax = aggregateArrayMinMax(soilMoistureValues, numGroups)
   // const aggregatedRainMinMax = aggregateArrayMinMax(rainValues, numGroups)
   // const aggregatedUvMinMax = aggregateArrayMinMax(uvValues, numGroups)
 
-  const aggregatedTimestampsArray = calcForecastTimestampsArray(aggregatedTemperatureArray)
+  const aggregatedTimestampsArray = calcForecastTimestampsArray(
+    aggregatedTemperatureArray
+  )
 
   return {
     temperature: buildExtendedResponseFormat(
@@ -111,9 +142,18 @@ export function transformTimeseriesForecastAppToTBDataFormat(predicted_data) {
       aggregatedTimestampsArray,
       aggregatedTemperatureMinMax
     ),
-    humidity: rebuildTbResponseFormat(aggregatedHumidityArray, aggregatedTimestampsArray),
-    soilMoisture: rebuildTbResponseFormat(aggregatedSoilMoistureArray, aggregatedTimestampsArray),
-    rain: rebuildTbResponseFormat(aggregatedRainArray, aggregatedTimestampsArray),
+    humidity: rebuildTbResponseFormat(
+      aggregatedHumidityArray,
+      aggregatedTimestampsArray
+    ),
+    soilMoisture: rebuildTbResponseFormat(
+      aggregatedSoilMoistureArray,
+      aggregatedTimestampsArray
+    ),
+    rain: rebuildTbResponseFormat(
+      aggregatedRainArray,
+      aggregatedTimestampsArray
+    ),
     uv: rebuildTbResponseFormat(aggregatedUvArray, aggregatedTimestampsArray),
     icons: calcIcon(aggregatedRainArray, aggregatedTimestampsArray)
   }

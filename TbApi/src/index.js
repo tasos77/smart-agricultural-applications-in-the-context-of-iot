@@ -1,23 +1,24 @@
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
+import moment from 'moment'
+import WebSocket, { WebSocketServer } from 'ws'
+import forecastAppApi from './api/forecastAppApi.js'
 import thingsboardApi from './api/thingsboardApi.js'
 import { config } from './config/public.js'
-import WebSocket from 'ws'
-import { WebSocketServer } from 'ws'
 import { calcSingleIcon } from './utils/commonTools.js'
+import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
 import {
+  aggregateHistoryData,
   transformTBDataToTimeseriesForecastAppFormat,
-  transformTimeseriesForecastAppToTBDataFormat,
-  aggregateHistoryData
+  transformTimeseriesForecastAppToTBDataFormat
 } from './utils/convertions.js'
 import { pumpFunc } from './utils/handlePump.js'
-import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
-import forecastAppApi from './api/forecastAppApi.js'
+
 const port = config.port
 const domain = config.domain
 const entityId = config.entityId
-import moment from 'moment'
+
 // try to get TB access token
 const tbTokens = await thingsboardApi
   .login(config.tenantUsername, config.tenantPassword)
@@ -28,7 +29,7 @@ const tbTokens = await thingsboardApi
 
 console.log(tbTokens.token)
 
-let middlresponse = {
+const middlresponse = {
   msg: '',
   status: null,
   data: {}
@@ -38,7 +39,7 @@ if (tbTokens) {
   // create express application
   const app = express()
   // listen port 8081
-  const server = app.listen(port, function () {
+  const server = app.listen(port, () => {
     const host = server.address().address
     const port = server.address().port
     console.log(`Server listening at http://${domain}:${port}`)
@@ -125,7 +126,11 @@ if (tbTokens) {
       lastName: req.body.lastName
     }
 
-    if (!!registrationInfo.email && !!registrationInfo.firstName && !!registrationInfo.lastName) {
+    if (
+      !!registrationInfo.email &&
+      !!registrationInfo.firstName &&
+      !!registrationInfo.lastName
+    ) {
       await thingsboardApi
         .createCustomer(tbTokens.token, registrationInfo.email)
         .then(async (response) => {
@@ -168,7 +173,7 @@ if (tbTokens) {
     const logoutInfo = {
       accessToken: req.body.accessToken
     }
-    if (!!logoutInfo.accessToken) {
+    if (logoutInfo.accessToken) {
       thingsboardApi
         .logout(logoutInfo.accessToken)
         .then(() => {
@@ -198,7 +203,7 @@ if (tbTokens) {
     const userInfo = {
       accessToken: req.query.accessToken
     }
-    if (!!userInfo.accessToken) {
+    if (userInfo.accessToken) {
       thingsboardApi
         .getUser(userInfo.accessToken)
         .then((tbRes) => {
@@ -275,9 +280,8 @@ if (tbTokens) {
     thingsboardApi
       .getTelemetryRange(tbTokens.token, entityId, startTs, endTs)
       .then((tbRes) => {
-        const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
-          tbRes.data
-        )
+        const timeseriesForecastAppFormatedData =
+          transformTBDataToTimeseriesForecastAppFormat(tbRes.data)
 
         forecastAppApi
           .getPredictedData(timeseriesForecastAppFormatedData)
@@ -327,9 +331,8 @@ if (tbTokens) {
           telemetryRangeInfo.endTs
         )
         .then((tbRes) => {
-          const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
-            tbRes.data
-          )
+          const timeseriesForecastAppFormatedData =
+            transformTBDataToTimeseriesForecastAppFormat(tbRes.data)
 
           forecastAppApi
             .getPredictedData(timeseriesForecastAppFormatedData)
@@ -384,9 +387,8 @@ if (tbTokens) {
           telemetryRangeInfo.endTs
         )
         .then((tbRes) => {
-          const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
-            tbRes.data
-          )
+          const timeseriesForecastAppFormatedData =
+            transformTBDataToTimeseriesForecastAppFormat(tbRes.data)
           forecastAppApi
             .getPredictedData(timeseriesForecastAppFormatedData)
             .then((predictedMeasurements) => {
@@ -442,9 +444,8 @@ if (tbTokens) {
         )
         .then((tbRes) => {
           res.status(200)
-          const timeseriesForecastAppFormatedData = transformTBDataToTimeseriesForecastAppFormat(
-            tbRes.data
-          )
+          const timeseriesForecastAppFormatedData =
+            transformTBDataToTimeseriesForecastAppFormat(tbRes.data)
           middlresponse.msg = `Got telemetry range!`
           middlresponse.status = 200
           middlresponse.data = timeseriesForecastAppFormatedData
@@ -508,7 +509,7 @@ if (tbTokens) {
 
     webSocket.on('error', console.error)
 
-    webSocket.onopen = function () {
+    webSocket.onopen = () => {
       var object = {
         authCmd: {
           cmdId: 0,
@@ -621,13 +622,13 @@ if (tbTokens) {
       console.log('Message is sent: ' + data)
     }
 
-    webSocket.onmessage = function (event) {
-      let parsedData = JSON.parse(event.data)
+    webSocket.onmessage = (event) => {
+      const parsedData = JSON.parse(event.data)
       console.log(parsedData)
       if (parsedData?.subscriptionId === 1) {
-        let parsedRawTBtelemetries = parsedData.data
+        const parsedRawTBtelemetries = parsedData.data
 
-        let formatedTbTelemetries = {
+        const formatedTbTelemetries = {
           timestamp: parsedRawTBtelemetries.temperature[0][0],
           temperature: parseFloat(parsedRawTBtelemetries.temperature[0][1]),
           humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
@@ -649,7 +650,9 @@ if (tbTokens) {
         console.log(pump_state_enum)
         ws.send(JSON.stringify(pump_state_enum))
       } else {
-        let alarmName = parsedData?.update ? `${parsedData.update[0].name}` : null
+        const alarmName = parsedData?.update
+          ? `${parsedData.update[0].name}`
+          : null
 
         const alarmMetadata = convertAlarmEvent(alarmName)
         console.log(alarmMetadata)
@@ -657,7 +660,7 @@ if (tbTokens) {
       }
     }
 
-    webSocket.onclose = function (event) {
+    webSocket.onclose = (event) => {
       console.log('TB WS Connection is closed!')
     }
 

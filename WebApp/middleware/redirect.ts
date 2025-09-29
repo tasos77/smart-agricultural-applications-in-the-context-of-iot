@@ -1,4 +1,4 @@
-import { useTokensAuthStore} from '~/stores/auth'
+import { useTokensAuthStore } from '~/stores/auth'
 
 const tokensAuthStore = useTokensAuthStore()
 

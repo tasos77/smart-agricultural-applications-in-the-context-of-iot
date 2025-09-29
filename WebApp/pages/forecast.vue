@@ -1,237 +1,229 @@
 <script lang="ts" setup>
-  import moment from 'moment'
-  import tbApi from '~/api/tbApi'
-  import { useTheme } from 'vuetify'
-  import index from '~/assets/animations/index'
+import moment from 'moment'
+import { useTheme } from 'vuetify'
+import tbApi from '~/api/tbApi'
+import index from '~/assets/animations/index'
 
-  definePageMeta({
+definePageMeta({
     layout: 'main'
-  })
+})
 
-  const predictedData = ref()
-  const lottie = ref(index['empty_state_dashboards'])
-  const theme = useTheme()
-  const activeTab = ref(1)
-  const loading = ref(false)
-  const noWeatherData = ref(false)
-  const tabs = ref([
+const predictedData = ref()
+const lottie = ref(index['empty_state_dashboards'])
+const theme = useTheme()
+const activeTab = ref(1)
+const loading = ref(false)
+const noWeatherData = ref(false)
+const tabs = ref([
     moment().subtract(5, 'days').format('MMM DD'),
     moment().subtract(4, 'days').format('MMM DD'),
     moment().subtract(3, 'days').format('MMM DD'),
     moment().subtract(2, 'days').format('MMM DD'),
     'Yesterday',
     'Today'
-  ])
-  const listOfColors = ref([])
-  const createListOfColors = (list: any, color: string) => {
+])
+const listOfColors = ref([])
+const createListOfColors = (list: any, color: string) => {
     return list.map(() => {
-      return color
+        return color
     })
-  }
+}
 
-  const chooseChartUnit = (measurementName: string) => {
+const chooseChartUnit = (measurementName: string) => {
     switch (measurementName) {
-      case 'Temperature':
-        return '°C'
-      case 'Humidity':
-        return '%'
-      case 'Soil Moisture':
-        return '%'
-      case 'Rain':
-        return '%'
-      case 'UV':
-        return ''
-      default:
-        return ''
+        case 'Temperature':
+            return '°C'
+        case 'Humidity':
+            return '%'
+        case 'Soil Moisture':
+            return '%'
+        case 'Rain':
+            return '%'
+        case 'UV':
+            return ''
+        default:
+            return ''
     }
-  }
+}
 
-  const options = ref({
+const options = ref({
     chart: {
-      offsetY: -10,
-      toolbar: {
-        show: false
-      },
-      zoom: { enabled: false },
-      animations: { easing: 'easeinout' }
+        offsetY: -10,
+        toolbar: {
+            show: false
+        },
+        zoom: { enabled: false },
+        animations: { easing: 'easeinout' }
     },
     dataLabels: {
-      style: {
-        colors: [...listOfColors.value]
-      },
-      enable: false,
-      enabledOnSeries: []
+        style: {
+            colors: [...listOfColors.value]
+        },
+        enable: false,
+        enabledOnSeries: []
     },
     stroke: {
-      width: 3,
-      curve: 'smooth'
+        width: 3,
+        curve: 'smooth'
     },
     colors: [...listOfColors.value],
     tooltip: {
-      enabled: true,
-      theme: theme.current.value.dark ? 'dark' : 'light',
-      y: {
-        formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
-          return value + chooseChartUnit(w.globals.seriesNames[0])
+        enabled: true,
+        theme: theme.current.value.dark ? 'dark' : 'light',
+        y: {
+            formatter: function (value, { series, seriesIndex, dataPointIndex, w }) {
+                return value + chooseChartUnit(w.globals.seriesNames[0])
+            }
         }
-      }
     },
 
     xaxis: {
-      categories: [],
-      labels: {
-        style: {
-          colors: '#FFFFFF'
+        categories: [],
+        labels: {
+            style: {
+                colors: '#FFFFFF'
+            }
         }
-      }
     },
     yaxis: {
-      labels: {
-        style: {
-          colors: '#FFFFFF'
+        labels: {
+            style: {
+                colors: '#FFFFFF'
+            }
         }
-      }
     },
     grid: {
-      show: true,
-      xaxis: {
-        lines: {
-          show: true
-        }
-      },
-      yaxis: {
-        lines: {
-          show: true
-        }
-      },
-      strokeDashArray: 2
+        show: true,
+        xaxis: {
+            lines: {
+                show: true
+            }
+        },
+        yaxis: {
+            lines: {
+                show: true
+            }
+        },
+        strokeDashArray: 2
     }
-  })
+})
 
-  const measurements = ref({
+const measurements = ref({
     temperature: {
-      series: [
-        {
-          name: 'Temperature',
-          data: []
-        }
-      ]
+        series: [
+            {
+                name: 'Temperature',
+                data: []
+            }
+        ]
     },
     humidity: {
-      series: [
-        {
-          name: 'Humidity',
-          data: []
-        }
-      ]
+        series: [
+            {
+                name: 'Humidity',
+                data: []
+            }
+        ]
     },
     soilMoisture: {
-      series: [
-        {
-          name: 'Soil Moisture',
-          data: []
-        }
-      ]
+        series: [
+            {
+                name: 'Soil Moisture',
+                data: []
+            }
+        ]
     },
     rain: {
-      series: [
-        {
-          name: 'Rain',
-          data: []
-        }
-      ]
+        series: [
+            {
+                name: 'Rain',
+                data: []
+            }
+        ]
     },
     uv: {
-      series: [
-        {
-          name: 'UV',
-          data: []
-        }
-      ]
+        series: [
+            {
+                name: 'UV',
+                data: []
+            }
+        ]
     }
-  })
+})
 
-  const fillGraphs = async (subtractionStart: number, subtractionEnd: number) => {
+const fillGraphs = async (subtractionStart: number, subtractionEnd: number) => {
     loading.value = true
     noWeatherData.value = false
     const startTs = moment()
-      .subtract(subtractionStart * 24, 'minutes')
-      .valueOf()
+        .subtract(subtractionStart * 24, 'minutes')
+        .valueOf()
     const endTs = moment()
-      .subtract(subtractionEnd * 24, 'minutes')
-      .valueOf()
+        .subtract(subtractionEnd * 24, 'minutes')
+        .valueOf()
 
     await tbApi
-      .getForecast(startTs, endTs)
-      .then((response) => {
-        predictedData.value = response.data.data
+        .getForecast(startTs, endTs)
+        .then((response) => {
+            predictedData.value = response.data.data
 
-        if (Object.keys(response.data.data).length === 0) {
-          noWeatherData.value = true
-        }
-        options.value.xaxis.categories = response.data.data.temperature.map(
-          (item) => `${moment(item.ts).format('hh:mm A')}`
-        )
+            if (Object.keys(response.data.data).length === 0) {
+                noWeatherData.value = true
+            }
+            options.value.xaxis.categories = response.data.data.temperature.map(
+                (item) => `${moment(item.ts).format('hh:mm A')}`
+            )
 
-        listOfColors.value = createListOfColors(options.value.xaxis.categories, '#FFFFFF')
+            listOfColors.value = createListOfColors(options.value.xaxis.categories, '#FFFFFF')
 
-        measurements.value.temperature.series[0].data = response.data.data.temperature.map(
-          (item) => item.value
-        )
-        measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
-        measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
-        measurements.value.humidity.series[0].data = response.data.data.humidity.map(
-          (item) => item.value
-        )
-        measurements.value.soilMoisture.series[0].data = response.data.data.soilMoisture.map(
-          (item) => item.value
-        )
-      })
-      .catch((e) => {
-        noWeatherData.value = false
-      })
+            measurements.value.temperature.series[0].data = response.data.data.temperature.map(
+                (item) => item.value
+            )
+            measurements.value.uv.series[0].data = response.data.data.uv.map((item) => item.value)
+            measurements.value.rain.series[0].data = response.data.data.rain.map((item) => item.value)
+            measurements.value.humidity.series[0].data = response.data.data.humidity.map(
+                (item) => item.value
+            )
+            measurements.value.soilMoisture.series[0].data = response.data.data.soilMoisture.map(
+                (item) => item.value
+            )
+        })
+        .catch((e) => {
+            noWeatherData.value = false
+        })
     loading.value = false
-  }
-  onMounted(async () => {
+}
+onMounted(async () => {
     fillGraphs(1, 0)
-  })
+})
 </script>
 
 <template>
-  <div>
-    <div
-      style="height: 48px"
-      class="px-4 d-flex justify-center align-center text-primary"
-      :style="{
-        borderBottom: `2px solid ${theme.current.value.colors.primary}`
-      }"
-    >
-      {{ moment().format('MMM DD/M/YYYY ') }}
-    </div>
+    <div>
+        <div style="height: 48px" class="px-4 d-flex justify-center align-center text-primary" :style="{
+            borderBottom: `2px solid ${theme.current.value.colors.primary}`
+        }">
+            {{ moment().format('MMM DD/M/YYYY ') }}
+        </div>
 
-    <v-row class="pa-4" v-if="!loading && !noWeatherData">
-      <v-col v-for="(measurement, index) in measurements" :key="index" cols="12" md="6" sm="12">
-        <v-card rounded="xl" color="color_surface_mixed_200" class="pa-4">
-          <v-card-title>{{ measurement.series[0].name }}</v-card-title>
-          <v-card-text class="pa-0">
-            <div>
-              <apexchart
-                width="100%"
-                height="300"
-                :type="measurement.series[0].name === 'UV' ? 'bar' : 'line'"
-                :options="options"
-                :series="measurement.series"
-              ></apexchart>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-col>
-    </v-row>
-    <div v-if="noWeatherData">
-      <client-only>
-        <Vue3Lottie :animation-data="lottie" height="200px" width="200px" />
-      </client-only>
-      <div class="text-h6 d-flex justify-center">No weather data!</div>
+        <v-row class="pa-4" v-if="!loading && !noWeatherData">
+            <v-col v-for="(measurement, index) in measurements" :key="index" cols="12" md="6" sm="12">
+                <v-card rounded="xl" color="color_surface_mixed_200" class="pa-4">
+                    <v-card-title>{{ measurement.series[0].name }}</v-card-title>
+                    <v-card-text class="pa-0">
+                        <div>
+                            <apexchart width="100%" height="300"
+                                :type="measurement.series[0].name === 'UV' ? 'bar' : 'line'" :options="options"
+                                :series="measurement.series"></apexchart>
+                        </div>
+                    </v-card-text>
+                </v-card>
+            </v-col>
+        </v-row>
+        <div v-if="noWeatherData">
+            <client-only>
+                <Vue3Lottie :animation-data="lottie" height="200px" width="200px" />
+            </client-only>
+            <div class="text-h6 d-flex justify-center">No weather data!</div>
+        </div>
     </div>
-  </div>
 </template>

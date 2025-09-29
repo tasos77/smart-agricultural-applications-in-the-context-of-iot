@@ -1,6 +1,6 @@
-import { tokensAuthStore } from '../stores/auth'
+import { useTokensAuthStore } from '../stores/auth'
 
-const auth = tokensAuthStore()
+const auth = useTokensAuthStore()
 
 const getTokenState = () => {
   const token = auth.getLocalToken()

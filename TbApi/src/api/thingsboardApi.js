@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { config } from '../config/public.js'
+
 // create axios instance
 const instance = axios.create({
   baseURL: config.tbBaseUrl
@@ -87,21 +88,12 @@ const createUser = (token, registrationInfo, customerId) => {
   )
 }
 
-const getTelemetryRange = (
-  token,
-  entityId,
-  startTs,
-  endTs,
-  keys = 'temperature,humidity,rain,soilMoisture,uv'
-) => {
-  return instance.get(
-    `/plugins/telemetry/DEVICE/${entityId}/values/timeseries?keys=${keys}&endTs=${endTs}&startTs=${startTs}&orderBy=ASC&limit=99999&agg=NONE`,
-    {
-      headers: {
-        'X-Authorization': `Bearer ${token}`
-      }
+const getTelemetryRange = (token, entityId, startTs, endTs, keys = 'temperature,humidity,rain,soilMoisture,uv') => {
+  return instance.get(`/plugins/telemetry/DEVICE/${entityId}/values/timeseries?keys=${keys}&endTs=${endTs}&startTs=${startTs}&orderBy=ASC&limit=99999&agg=NONE`, {
+    headers: {
+      'X-Authorization': `Bearer ${token}`
     }
-  )
+  })
 }
 
 const updateDeviceSharedAttr = (token, deviceId, nextWatering) => {
