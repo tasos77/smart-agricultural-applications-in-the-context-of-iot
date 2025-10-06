@@ -1,4 +1,4 @@
-export function convertAlarmEvent(alarmName) {
+export function convertAlarmEvent(alarmName: string) {
   switch (alarmName) {
     case 'High Temp':
       return { measurement: 'temperature', flag: 1 }

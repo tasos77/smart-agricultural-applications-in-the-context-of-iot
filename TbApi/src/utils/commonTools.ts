@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-const nightTimeArray = [
+const nightTimeArray: string[] = [
   '6 PM',
   '7 PM',
   '8 PM',
@@ -15,7 +15,7 @@ const nightTimeArray = [
   '5 AM'
 ]
 
-export function aggregateArray(array, numGroups) {
+export function aggregateArray(array: number[], numGroups: number) {
   const groupSize = Math.ceil(array.length / numGroups)
   const aggregatedArray = []
 
@@ -35,7 +35,7 @@ export function aggregateArray(array, numGroups) {
   return aggregatedArray
 }
 
-export function aggregateArrayMinMax(array, numGroups) {
+export function aggregateArrayMinMax(array: number[], numGroups: number) {
   const groupSize = Math.ceil(array.length / numGroups)
   const aggregatedArray = []
 
@@ -56,7 +56,7 @@ export function aggregateArrayMinMax(array, numGroups) {
   return aggregatedArray
 }
 
-export function rebuildTbResponseFormat(values, timestamps) {
+export function rebuildTbResponseFormat(values: number[], timestamps: number[]) {
   return values.map((value, index) => {
     return {
       ts: timestamps[index],
@@ -65,7 +65,7 @@ export function rebuildTbResponseFormat(values, timestamps) {
   })
 }
 
-export function buildExtendedResponseFormat(values, timestamps, minMaxArray) {
+export function buildExtendedResponseFormat(values: number[], timestamps: number[], minMaxArray: { min: string, max: string }[]) {
   return values.map((value, index) => {
     return {
       ts: timestamps[index],
@@ -75,27 +75,27 @@ export function buildExtendedResponseFormat(values, timestamps, minMaxArray) {
   })
 }
 
-export function calcForecastTimestampsArray(array) {
-  const timestamps = []
+export function calcForecastTimestampsArray(array: number[]) {
+  const timestamps: number[] = []
   array.forEach((item, index) => {
     timestamps.push(moment().add(index, 'hours').valueOf())
   })
   return timestamps
 }
 
-export function calcHistoryTimestampsArray(array) {
-  const timestamps = []
+export function calcHistoryTimestampsArray(array: number[]) {
+  const timestamps: number[] = []
   array.forEach((item, index) => {
     timestamps.push(moment().subtract(index, 'hours').valueOf())
   })
   return timestamps.reverse()
 }
 
-export function exportTBValuesArray(array) {
+export function exportTBValuesArray(array: { ts: number, value: string }[]) {
   return array.map((item) => parseFloat(item.value))
 }
 
-export function calcSingleIcon(rainValue, timestamp) {
+export function calcSingleIcon(rainValue: number, timestamp: number) {
   if (rainValue > 20) {
     return 'rain'
   } else if (nightTimeArray.includes(moment(timestamp).format('h A'))) {
@@ -105,7 +105,7 @@ export function calcSingleIcon(rainValue, timestamp) {
   }
 }
 
-export function calcIcon(aggregatdRainValues, aggregatedTimestampsArray) {
+export function calcIcon(aggregatdRainValues: number[], aggregatedTimestampsArray: number[]) {
   return aggregatdRainValues.map((rainValue, index) => {
     if (rainValue > 20) {
       return 'rain'

@@ -9,7 +9,7 @@ import {
   rebuildTbResponseFormat
 } from './commonTools.js'
 
-export function aggregateHistoryData(data) {
+export function aggregateHistoryData(data: any) {
   const numGroups = 24
 
   const temperatureValues = exportTBValuesArray(data.temperature)
@@ -55,7 +55,7 @@ export function aggregateHistoryData(data) {
   }
 }
 
-export function transformTBDataToTimeseriesForecastAppFormat(data) {
+export function transformTBDataToTimeseriesForecastAppFormat(data: any) {
   const timeseriesForecastAppCompatibleHistoryMeasurements = []
 
   for (let i = 0; i < data.temperature.length; i++) {
@@ -72,7 +72,7 @@ export function transformTBDataToTimeseriesForecastAppFormat(data) {
   return timeseriesForecastAppCompatibleHistoryMeasurements
 }
 
-export function transformTimeseriesForecastAppToTBDataFormat(predicted_data) {
+export function transformTimeseriesForecastAppToTBDataFormat(predicted_data: any) {
   const humidity = []
   const temperature = []
   const soilMoisture = []

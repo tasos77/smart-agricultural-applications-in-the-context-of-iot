@@ -6,7 +6,7 @@ const instance = axios.create({
   baseURL: config.forecastAppUrl
 })
 
-const getPredictedData = (formatedData) => {
+const getPredictedData = (formatedData: any) => {
   return instance.post(`/predict`, formatedData, {
     headers: {
       'Content-Type': 'application/json'

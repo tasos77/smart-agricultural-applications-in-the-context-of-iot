@@ -1,7 +1,3 @@
-import * as dotenv from 'dotenv'
-
-dotenv.config()
-
 export const config = {
   tbBaseUrl: process.env.TB_BASE_URL,
   port: process.env.PORT,

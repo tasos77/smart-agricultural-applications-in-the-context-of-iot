@@ -6,14 +6,14 @@ const instance = axios.create({
   baseURL: config.tbBaseUrl
 })
 // try tb login
-const login = (username, password) => {
+const login = (username: string, password: string) => {
   return instance.post('/auth/login', {
     username,
     password
   })
 }
 
-const logout = (accessToken) => {
+const logout = (accessToken: string) => {
   return instance.post(
     `/auth/logout`,
     {},
@@ -25,7 +25,7 @@ const logout = (accessToken) => {
   )
 }
 
-const getUser = (accessToken) => {
+const getUser = (accessToken: string) => {
   return instance.get('/auth/user', {
     headers: {
       'X-Authorization': `${accessToken}`
@@ -33,7 +33,7 @@ const getUser = (accessToken) => {
   })
 }
 
-const activateUser = (token, activationInfo) => {
+const activateUser = (token: string, activationInfo: { activateToken: string, password: string }) => {
   console.log(activationInfo)
   return instance.post(
     '/noauth/activate?sendActivationMail=false',
@@ -49,7 +49,7 @@ const activateUser = (token, activationInfo) => {
   )
 }
 
-const createCustomer = (token, email) => {
+const createCustomer = (token: string, email: string) => {
   return instance.post(
     '/customer',
     {
@@ -64,7 +64,7 @@ const createCustomer = (token, email) => {
   )
 }
 
-const createUser = (token, registrationInfo, customerId) => {
+const createUser = (token: string, registrationInfo: { email: string, firstName: string, lastName: string }, customerId: string) => {
   return instance.post(
     '/user',
     {
@@ -88,7 +88,7 @@ const createUser = (token, registrationInfo, customerId) => {
   )
 }
 
-const getTelemetryRange = (token, entityId, startTs, endTs, keys = 'temperature,humidity,rain,soilMoisture,uv') => {
+const getTelemetryRange = (token: string, entityId: string, startTs: number, endTs: number, keys = 'temperature,humidity,rain,soilMoisture,uv') => {
   return instance.get(`/plugins/telemetry/DEVICE/${entityId}/values/timeseries?keys=${keys}&endTs=${endTs}&startTs=${startTs}&orderBy=ASC&limit=99999&agg=NONE`, {
     headers: {
       'X-Authorization': `Bearer ${token}`
@@ -96,7 +96,7 @@ const getTelemetryRange = (token, entityId, startTs, endTs, keys = 'temperature,
   })
 }
 
-const updateDeviceSharedAttr = (token, deviceId, nextWatering) => {
+const updateDeviceSharedAttr = (token: string, deviceId: string, nextWatering: number) => {
   return instance.post(
     `plugins/telemetry/DEVICE/${deviceId}/attributes/SHARED_SCOPE`,
     {

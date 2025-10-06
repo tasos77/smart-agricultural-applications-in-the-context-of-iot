@@ -6,25 +6,25 @@ const soilMoistureUpperThreshold = 75
 const soilMoistureLowerThreshold = 50
 const rainLowerThreshold = 30
 
-export function pumpFunc(predictedData) {
+export function pumpFunc(predictedData: any) {
   let rain = []
   let soilMoisture = []
   let humidity = []
 
-  rain = predictedData.predicted_rain.map((item) => {
+  rain = predictedData.predicted_rain.map((item: any) => {
     return parseFloat(item[0])
   })
 
-  soilMoisture = predictedData.predicted_soil_moisture.map((item) => {
+  soilMoisture = predictedData.predicted_soil_moisture.map((item: any) => {
     return parseFloat(item[0])
   })
-  humidity = predictedData.predicted_humidity.map((item) => {
+  humidity = predictedData.predicted_humidity.map((item: any) => {
     return parseFloat(item[0])
   })
 
-  const aggregatedHumidityArray = aggregateArray(humidity)
-  const aggregatedSoilMoistureArray = aggregateArray(soilMoisture)
-  const aggregatedRainArray = aggregateArray(rain)
+  const aggregatedHumidityArray = aggregateArray(humidity, 24)
+  const aggregatedSoilMoistureArray = aggregateArray(soilMoisture, 24)
+  const aggregatedRainArray = aggregateArray(rain, 24)
 
   return !(
     aggregatedHumidityArray.some((value) => value > humidityUpperThreshold) ||
