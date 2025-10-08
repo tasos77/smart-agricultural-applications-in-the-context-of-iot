@@ -3,7 +3,6 @@ import { conf as config } from '../../../config/index'
 import type { LoggerRepository } from '../../../core/repositories/logger/repository'
 import type { WebsocketDataFactoryUsecase } from '../../../core/usecases/websocketDataFactory/usecase'
 import { createWebSocketDataObject } from '../../../utils/commonTools'
-import { convertAlarmEvent } from '../../../utils/convertAlarmEvent'
 
 interface MyWebSocketServerDeps {
   logger: LoggerRepository
@@ -56,11 +55,8 @@ export const make = (deps: MyWebSocketServerDeps): MyWebSocketServer => {
         } else if (parsedData.cmdId === COMMAND_ID) {
           data = webSocketDataFactoryUsecase.managePumpUpdate(parsedData)
         } else {
-          const alarmName = parsedData?.update ? `${parsedData.update[0].name}` : null
-          const alarmMetadata = convertAlarmEvent(alarmName)
-          ws.send(JSON.stringify(alarmMetadata))
+          data = webSocketDataFactoryUsecase.manageAlarmUpdate(parsedData)
         }
-
         if (data instanceof Error) {
           logger.error(`Failed to compute raw data, reason: ${data}`)
         }
