@@ -1,7 +1,7 @@
 {
   "name": "tbapi",
   "version": "1.0.0",
-  "description": "",
+  "description": "[Middleware-API]",
   "main": "index.js",
   "type": "module",
   "scripts": {
@@ -16,11 +16,16 @@
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
     "express": "^4.21.2",
+    "loglayer": "^6.7.2",
+    "luxon": "^3.7.2",
     "moment": "^2.30.1",
-    "ws": "^8.18.3"
+    "ws": "^8.18.3",
+    "zod": "^4.1.12"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
-    "@types/moment": "^2.13.0"
+    "@types/luxon": "^3.7.1",
+    "@types/moment": "^2.13.0",
+    "@types/ws": "^8.18.1"
   }
 }

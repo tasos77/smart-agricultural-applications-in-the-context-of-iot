@@ -116,3 +116,113 @@ export function calcIcon(aggregatdRainValues: number[], aggregatedTimestampsArra
     }
   })
 }
+
+export function createWebSocketDataObject(token: string, entityId: string) {
+  return {
+    authCmd: {
+      cmdId: 0,
+      token: token
+    },
+    cmds: [
+      {
+        entityType: 'DEVICE',
+        entityId: entityId,
+        scope: 'LATEST_TELEMETRY',
+        cmdId: 1,
+        type: 'TIMESERIES'
+      },
+      {
+        cmdId: 2,
+        query: {
+          alarmFields: [
+            {
+              type: 'ALARM_FIELD',
+              key: 'createdTime'
+            },
+            {
+              type: 'ALARM_FIELD',
+              key: 'originator'
+            },
+            {
+              type: 'ALARM_FIELD',
+              key: 'type'
+            },
+            {
+              type: 'ALARM_FIELD',
+              key: 'severity'
+            },
+            {
+              type: 'ALARM_FIELD',
+              key: 'status'
+            },
+            {
+              type: 'ALARM_FIELD',
+              key: 'assignee'
+            }
+          ],
+          entityFields: [],
+          entityFilter: {
+            type: 'singleEntity',
+            singleEntity: {
+              entityType: 'DEVICE',
+              id: entityId
+            }
+          },
+          latestValues: [],
+          pageLink: {
+            page: 0,
+            pageSize: 10,
+            searchPropagatedAlarms: false,
+            severityList: [],
+            sortOrder: {
+              direction: 'DESC',
+              key: {
+                key: 'createdTime',
+                type: 'ALARM_FIELD'
+              }
+            },
+            statusList: [],
+            textSearch: null,
+            timeWindow: 86400000,
+            typeList: []
+          }
+        },
+        type: 'ALARM_DATA'
+      },
+      {
+        cmdId: 3,
+        latestCmd: {
+          keys: [
+            {
+              type: 'ATTRIBUTE',
+              key: 'pump_state'
+            }
+          ]
+        },
+        query: {
+          entityFields: [
+            { key: 'name', type: 'ENTITY_FIELD' },
+            { key: 'label', type: 'ENTITY_FIELD' },
+            { key: 'additionalInfo', type: 'ENTITY_FIELD' }
+          ],
+          entityFilter: {
+            singleEntity: {
+              entityType: 'DEVICE',
+              id: entityId
+            },
+            type: 'singleEntity'
+          },
+          latestValues: [{ key: 'pump_state', type: 'ATTRIBUTE' }],
+          pageLink: {
+            dynamic: true,
+            page: 0,
+            pageSize: 10,
+            sortOrder: null,
+            textSearch: null
+          }
+        },
+        type: 'ENTITY_DATA'
+      }
+    ]
+  }
+}

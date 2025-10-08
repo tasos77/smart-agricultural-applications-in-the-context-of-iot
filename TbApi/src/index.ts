@@ -5,7 +5,7 @@ import moment from 'moment'
 import WebSocket, { WebSocketServer } from 'ws'
 import forecastAppApi from './api/forecastAppApi.js'
 import thingsboardApi from './api/thingsboardApi.js'
-import { config } from './config/public.js'
+import { conf as config } from './config/index.js'
 import { calcSingleIcon } from './utils/commonTools.js'
 import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
 import {
@@ -15,19 +15,19 @@ import {
 } from './utils/convertions.js'
 import { pumpFunc } from './utils/handlePump.js'
 
-const port = config.port
-const domain = config.domain
-const entityId = config.entityId
+const port = config.thingsBoard.port
+const domain = config.thingsBoard.domain
+const entityId = config.thingsBoard.entityId
 
 // try to get TB access token
-const tbTokens = await thingsboardApi
-  .login(config.tenantUsername, config.tenantPassword)
+const global.tbTokens = await thingsboardApi
+  .login(config.thingsBoard.tenantUsername, config.thingsBoard.tenantPassword)
   .then((response) => response.data)
   .catch((e) => {
     console.log('Failed to get TB tokens..!')
   })
 
-console.log(tbTokens.token)
+console.log(global.tbTokens.token)
 
 const middlresponse = {
   msg: '',
@@ -35,7 +35,7 @@ const middlresponse = {
   data: {}
 }
 
-if (tbTokens) {
+if (global.tbTokens) {
   // create express application
   const app = express()
   // listen port 8081
@@ -95,7 +95,7 @@ if (tbTokens) {
     }
     if (!!activationInfo.activateToken && !!activationInfo.password) {
       thingsboardApi
-        .activateUser(tbTokens.token, activationInfo)
+        .activateUser(global.tbTokens.token, activationInfo)
         .then(() => {
           res.status(200)
           middlresponse.msg = `User activated!`
@@ -132,11 +132,11 @@ if (tbTokens) {
       !!registrationInfo.lastName
     ) {
       await thingsboardApi
-        .createCustomer(tbTokens.token, registrationInfo.email)
+        .createCustomer(global.tbTokens.token, registrationInfo.email)
         .then(async (response) => {
           const customerId = response.data.id.id
           await thingsboardApi
-            .createUser(tbTokens.token, registrationInfo, customerId)
+            .createUser(global.tbTokens.token, registrationInfo, customerId)
             .then(() => {
               res.status(200)
               middlresponse.msg = `TB user created!`
@@ -238,7 +238,7 @@ if (tbTokens) {
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
-          tbTokens.token,
+          global.tbTokens.token,
           entityId,
           telemetryRangeInfo.startTs,
           telemetryRangeInfo.endTs
@@ -278,7 +278,7 @@ if (tbTokens) {
       .valueOf()
 
     thingsboardApi
-      .getTelemetryRange(tbTokens.token, entityId, startTs, endTs)
+      .getTelemetryRange(global.tbTokens.token, entityId, startTs, endTs)
       .then((tbRes) => {
         const timeseriesForecastAppFormatedData =
           transformTBDataToTimeseriesForecastAppFormat(tbRes.data)
@@ -293,7 +293,7 @@ if (tbTokens) {
               console.log(`Next watering at ${nextWatering.format('h A')}`)
 
               thingsboardApi
-                .updateDeviceSharedAttr(tbTokens.token, entityId, nextWatering)
+                .updateDeviceSharedAttr(global.tbTokens.token, entityId, nextWatering)
                 .then((response) => {
                   console.log(`Device Attribute Updated!`)
                 })
@@ -325,7 +325,7 @@ if (tbTokens) {
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
-          tbTokens.token,
+          global.tbTokens.token,
           entityId,
           telemetryRangeInfo.startTs,
           telemetryRangeInfo.endTs
@@ -381,7 +381,7 @@ if (tbTokens) {
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
-          tbTokens.token,
+          global.tbTokens.token,
           entityId,
           telemetryRangeInfo.startTs,
           telemetryRangeInfo.endTs
@@ -437,7 +437,7 @@ if (tbTokens) {
     if (!!telemetryRangeInfo.startTs && !!telemetryRangeInfo.endTs) {
       thingsboardApi
         .getTelemetryRange(
-          tbTokens.token,
+          global.tbTokens.token,
           entityId,
           telemetryRangeInfo.startTs,
           telemetryRangeInfo.endTs
@@ -473,7 +473,7 @@ if (tbTokens) {
     res.header('Access-Control-Allow-Origin', '*')
     console.log('nextWatering:now')
     thingsboardApi
-      .updateDeviceSharedAttr(tbTokens.token, entityId, 'now')
+      .updateDeviceSharedAttr(global.tbTokens.token, entityId, 'now')
       .then((response) => {
         res.status(200)
         middlresponse.msg = `Device Attribute Updated!`
@@ -490,184 +490,5 @@ if (tbTokens) {
       })
   })
 
-  ////////////////////// init telemetries socket //////////////////////
-  const wss = new WebSocketServer({ port: 8080 })
-  wss.on('connection', function connection(ws) {
-    var token = tbTokens.token
 
-    var webSocket = new WebSocket('ws://localhost:9090/api/ws')
-
-    if (entityId === 'YOUR_DEVICE_ID') {
-      console.log('Invalid device id!')
-      webSocket.close()
-    }
-
-    if (token === 'YOUR_JWT_TOKEN') {
-      console.log('Invalid JWT token!')
-      webSocket.close()
-    }
-
-    webSocket.on('error', console.error)
-
-    webSocket.onopen = () => {
-      var object = {
-        authCmd: {
-          cmdId: 0,
-          token: token
-        },
-        cmds: [
-          {
-            entityType: 'DEVICE',
-            entityId: entityId,
-            scope: 'LATEST_TELEMETRY',
-            cmdId: 1,
-            type: 'TIMESERIES'
-          },
-          {
-            cmdId: 2,
-            query: {
-              alarmFields: [
-                {
-                  type: 'ALARM_FIELD',
-                  key: 'createdTime'
-                },
-                {
-                  type: 'ALARM_FIELD',
-                  key: 'originator'
-                },
-                {
-                  type: 'ALARM_FIELD',
-                  key: 'type'
-                },
-                {
-                  type: 'ALARM_FIELD',
-                  key: 'severity'
-                },
-                {
-                  type: 'ALARM_FIELD',
-                  key: 'status'
-                },
-                {
-                  type: 'ALARM_FIELD',
-                  key: 'assignee'
-                }
-              ],
-              entityFields: [],
-              entityFilter: {
-                type: 'singleEntity',
-                singleEntity: {
-                  entityType: 'DEVICE',
-                  id: `${config.entityId}`
-                }
-              },
-              latestValues: [],
-              pageLink: {
-                page: 0,
-                pageSize: 10,
-                searchPropagatedAlarms: false,
-                severityList: [],
-                sortOrder: {
-                  direction: 'DESC',
-                  key: {
-                    key: 'createdTime',
-                    type: 'ALARM_FIELD'
-                  }
-                },
-                statusList: [],
-                textSearch: null,
-                timeWindow: 86400000,
-                typeList: []
-              }
-            },
-            type: 'ALARM_DATA'
-          },
-          {
-            cmdId: 3,
-            latestCmd: {
-              keys: [
-                {
-                  type: 'ATTRIBUTE',
-                  key: 'pump_state'
-                }
-              ]
-            },
-            query: {
-              entityFields: [
-                { key: 'name', type: 'ENTITY_FIELD' },
-                { key: 'label', type: 'ENTITY_FIELD' },
-                { key: 'additionalInfo', type: 'ENTITY_FIELD' }
-              ],
-              entityFilter: {
-                singleEntity: {
-                  entityType: 'DEVICE',
-                  id: `${config.entityId}`
-                },
-                type: 'singleEntity'
-              },
-              latestValues: [{ key: 'pump_state', type: 'ATTRIBUTE' }],
-              pageLink: {
-                dynamic: true,
-                page: 0,
-                pageSize: 10,
-                sortOrder: null,
-                textSearch: null
-              }
-            },
-            type: 'ENTITY_DATA'
-          }
-        ]
-      }
-      var data = JSON.stringify(object)
-      webSocket.send(data)
-      console.log('Message is sent: ' + data)
-    }
-
-    webSocket.onmessage = (event) => {
-      const parsedData = JSON.parse(event.data)
-      console.log(parsedData)
-      if (parsedData?.subscriptionId === 1) {
-        const parsedRawTBtelemetries = parsedData.data
-
-        const formatedTbTelemetries = {
-          timestamp: parsedRawTBtelemetries.temperature[0][0],
-          temperature: parseFloat(parsedRawTBtelemetries.temperature[0][1]),
-          humidity: parseFloat(parsedRawTBtelemetries.humidity[0][1]),
-          rain: parseFloat(parsedRawTBtelemetries.rain[0][1]),
-          soilMoisture: parseFloat(parsedRawTBtelemetries.soilMoisture[0][1]),
-          uv: parseFloat(parsedRawTBtelemetries.uv[0][1]),
-          icon: calcSingleIcon(
-            parseFloat(parsedRawTBtelemetries.rain[0][1]),
-            parsedRawTBtelemetries.temperature[0][0]
-          )
-        }
-
-        console.log(formatedTbTelemetries)
-        ws.send(JSON.stringify(formatedTbTelemetries))
-      } else if (parsedData.cmdId === 3) {
-        const pump_state_enum = parsedData?.update
-          ? parsedData?.update[0]?.latest?.ATTRIBUTE?.pump_state?.value
-          : null
-        console.log(pump_state_enum)
-        ws.send(JSON.stringify(pump_state_enum))
-      } else {
-        const alarmName = parsedData?.update
-          ? `${parsedData.update[0].name}`
-          : null
-
-        const alarmMetadata = convertAlarmEvent(alarmName)
-        console.log(alarmMetadata)
-        ws.send(JSON.stringify(alarmMetadata))
-      }
-    }
-
-    webSocket.onclose = (event) => {
-      console.log('TB WS Connection is closed!')
-    }
-
-    ws.on('error', console.error)
-
-    ws.on('message', function message(data) {
-      console.log('received: %s', data)
-    })
-  })
 }
