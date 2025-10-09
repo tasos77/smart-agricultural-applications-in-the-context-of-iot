@@ -2,12 +2,10 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import express from 'express'
 import moment from 'moment'
-import WebSocket, { WebSocketServer } from 'ws'
 import forecastAppApi from './api/forecastAppApi.js'
 import thingsboardApi from './api/thingsboardApi.js'
 import { conf as config } from './config/index.js'
-import { calcSingleIcon } from './utils/commonTools.js'
-import { convertAlarmEvent } from './utils/convertAlarmEvent.js'
+
 import {
   aggregateHistoryData,
   transformTBDataToTimeseriesForecastAppFormat,
@@ -469,7 +467,7 @@ if (global.tbTokens) {
   })
 
   /////////////// Update device attribute /////////////////
-  app.post(`/updateAttr`, async (req, res) => {
+  app.post(`/watering-now`, async (req, res) => {
     res.header('Access-Control-Allow-Origin', '*')
     console.log('nextWatering:now')
     thingsboardApi
