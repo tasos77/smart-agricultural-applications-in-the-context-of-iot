@@ -1,5 +1,5 @@
-import axios from "axios";
-import type { LoggerRepository } from "../../../core/repositories/logger/repository";
+import axios from 'axios'
+import type { LoggerRepository } from '../../../core/repositories/logger/repository'
 
 interface ForecastApiRepositoryApiDeps {
   logger: LoggerRepository
@@ -11,7 +11,7 @@ interface ForecastApiRepositoryApi {
 }
 
 export const api = (deps: ForecastApiRepositoryApiDeps): ForecastApiRepositoryApi => {
-  const { logger, forecastServer } = deps;
+  const { logger, forecastServer } = deps
 
   const client = axios.create({
     baseURL: forecastServer,
@@ -22,12 +22,11 @@ export const api = (deps: ForecastApiRepositoryApiDeps): ForecastApiRepositoryAp
 
   const predict = async (data: any) => {
     try {
-      const result = await client.post('/predict', data)
-      logger.info('Prediction successful')
-      return result.data
-    } catch (error: any) {
-      logger.error(`Failed to predict, reason: ${error.message}`)
-      return error
+      logger.info('Prediction started')
+      return await client.post('/predict', data)
+    } catch (e) {
+      logger.error(`Failed to predict, reason: ${e.message}`)
+      return e
     }
   }
 

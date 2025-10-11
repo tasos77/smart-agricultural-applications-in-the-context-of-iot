@@ -8,7 +8,7 @@ interface ThingsboardRepositoryDeps {
 
 interface ThingsboardRepository {
   login: (username: string, password: string) => any
-  logout: (accessToken: string) => void
+  logout: (accessToken: string) => any
   getUser: (accessToken: string) => any
   activateUser: (tenantToken: string, activationInfo: { activateToken: string, password: string }) => any
   createCustomer: (tenantToken: string, email: string) => any
