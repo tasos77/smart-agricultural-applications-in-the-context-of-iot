@@ -4,6 +4,7 @@
     "": {
       "name": "tbapi",
       "dependencies": {
+        "@hono/zod-validator": "^0.7.4",
         "axios": "^1.12.2",
         "body-parser": "^1.20.3",
         "cors": "^2.8.5",
@@ -43,6 +44,8 @@
     "@biomejs/cli-win32-arm64": ["@biomejs/cli-win32-arm64@2.2.4", "", { "os": "win32", "cpu": "arm64" }, "sha512-NXnfTeKHDFUWfxAefa57DiGmu9VyKi0cDqFpdI+1hJWQjGJhJutHPX0b5m+eXvTKOaf+brU+P0JrQAZMb5yYaQ=="],
 
     "@biomejs/cli-win32-x64": ["@biomejs/cli-win32-x64@2.2.4", "", { "os": "win32", "cpu": "x64" }, "sha512-3Y4V4zVRarVh/B/eSHczR4LYoSVyv3Dfuvm3cWs5w/HScccS0+Wt/lHOcDTRYeHjQmMYVC3rIRWqyN2EI52+zg=="],
+
+    "@hono/zod-validator": ["@hono/zod-validator@0.7.4", "", { "peerDependencies": { "hono": ">=3.9.0", "zod": "^3.25.0 || ^4.0.0" } }, "sha512-biKGn3BRJVaftZlIPMyK+HCe/UHAjJ6sH0UyXe3+v0OcgVr9xfImDROTJFLtn9e3XEEAHGZIM9U6evu85abm8Q=="],
 
     "@loglayer/context-manager": ["@loglayer/context-manager@1.1.2", "", { "dependencies": { "@loglayer/shared": "2.4.0" } }, "sha512-6CseJVZD0mRhblXSTMTfzw0eZD8nrotJ9dyNyl599pBth5R9voYvAWqjRDYeNLpH+0LwJlW6+HzSFIhX2Qq3yA=="],
 

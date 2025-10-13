@@ -1,8 +1,8 @@
 import type { WsTbTelemetries } from '../../entities/wsTbTelemetries/entity'
 import type { LoggerRepository } from '../../repositories/logger/repository'
-import type { AlarmManagerService } from '../../services/alarmManager'
-import type { PumpStateManagerService } from '../../services/pumpStateManager'
-import type { WsTelemetryDataConverterService } from '../../services/wsTelemetryDataConverter'
+import type { AlarmManagerService } from '../../services/alarmManager/service'
+import type { PumpStateManagerService } from '../../services/pumpStateManager/service'
+import type { WsTelemetryDataConverterService } from '../../services/wsTelemetryDataConverter/service'
 
 interface WebsocketDataFactoryUsecaseDeps {
   logger: LoggerRepository

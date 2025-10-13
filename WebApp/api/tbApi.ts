@@ -19,7 +19,7 @@ const login = (username: string, password: string): any => {
 };
 
 const registration = (registrationInfo: RegistrationFormData) => {
-  return client.post(`/createUser`, {
+  return client.post(`/create-user`, {
     email: registrationInfo.email,
     firstName: registrationInfo.firstName,
     lastName: registrationInfo.lastName,
@@ -33,8 +33,9 @@ const logout = (token: string) => {
 };
 
 const activateUser = (activationInfo: ActivationInfo) => {
-  return client.post(`/activateUser`, {
-    activationInfo,
+  return client.post(`/activate-user`, {
+    activateToken: activationInfo.activateToken,
+    password: activationInfo.password,
   });
 };
 

@@ -11,7 +11,7 @@ export interface ThingsboardApiApi {
   logout: (accessToken: string) => any
   getUser: (accessToken: string) => any
   activateUser: (tenantToken: string, activationInfo: { activateToken: string; password: string }) => any
-  createCustomer: (tenantToken: string, email: string) => any
+  createCustomer: (tenantToken: string, email: string) => Promise<string | Error>
   createUser: (tenantToken: string, customerId: string, registrationInfo: { email: string; firstName: string; lastName: string }) => any
   getTelemetryRange: (tenantToken: string, entityId: string, startTs: number, endTs: number, keys = 'temperature,humidity,rain,soilMoisture,uv') => any
   updateDeviceSharedAttribute: (tenantToken: string, deviceId: string, nextWatering: number) => any
@@ -88,10 +88,10 @@ export const api = (deps: ThingsboardApiApiDeps): ThingsboardApiApi => {
     }
   }
 
-  const createCustomer = async (token: string, email: string) => {
+  const createCustomer = async (token: string, email: string): Promise<string | Error> => {
     try {
       logger.info(`Creating customer`)
-      return await client.post('/customer',
+      return (await client.post('/customer',
         {
           title: email,
           email
@@ -101,14 +101,14 @@ export const api = (deps: ThingsboardApiApiDeps): ThingsboardApiApi => {
             'X-Authorization': `Bearer ${token}`
           }
         }
-      )
+      )).data.id.id
     } catch (e) {
       logger.error(`Failed to create customer, reason: ${e.message}`)
-      return e
+      return e as Error
     }
   }
 
-  const createUser = async (token: string, registrationInfo: { email: string; firstName: string; lastName: string }, customerId: string) => {
+  const createUser = async (token: string, customerId: string, registrationInfo: { email: string; firstName: string; lastName: string }) => {
     try {
       logger.info(`Creating user`)
       return await client.post('/user',
