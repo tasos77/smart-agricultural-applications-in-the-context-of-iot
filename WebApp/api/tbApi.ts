@@ -3,7 +3,7 @@ import type { ActivationInfo, RegistrationFormData } from "~/types/tbApiTypes";
 
 // create axios instance
 const client = axios.create({
-  baseURL: "http://localhost:3005",
+  baseURL: "http://localhost:3005/api/v1",
 });
 
 const setupAxios = (baseURL: string) => {
@@ -52,7 +52,7 @@ const getForecast = (startTs: number, endTs: number) => {
 };
 
 const getDashboardForecast = (startTs: number, endTs: number) => {
-  return client.get(`/dashboardForecast?startTs=${startTs}&endTs=${endTs}`);
+  return client.get(`/forecast?startTs=${startTs}&endTs=${endTs}`);
 };
 
 const updateTBWateringAttr = () => {

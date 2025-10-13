@@ -51,7 +51,7 @@ const char *mqttUsername = "";
 ### Middleware Server
 
 1. Download node.js into your system.
-2. Navigate to TbApi folder.
+2. Navigate to MiddlewareApi folder.
 3. Create a .env file according to .env.template..
 4. Download the project depedencies by using your favorite package manager:
    npm
@@ -164,7 +164,7 @@ curl -X POST http://127.0.0.1:5000/predict -H "Content-Type:application/json" -d
     <a href="https://www.typescriptlang.org" target="_blank" rel="noreferrer">
     <img src="https://raw.githubusercontent.com/github/explore/80688e429a7d4ef2fca1e82350fe8e3517d3494d/topics/typescript/typescript.png" alt="ts" width="40" height="40"
     </a>
-    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer"> 
+    <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noreferrer">
     <img src="https://raw.githubusercontent.com/devicons/devicon/master/icons/javascript/javascript-original.svg" alt="javascript" width="40" height="40"/></a>
     <a href="https://nuxt.com" target="_blank" rel="noreferrer">
     <img src="https://avatars.githubusercontent.com/u/23360933?s=48&v=4" alt="nuxtjs" width="40" height="40"/></a>
