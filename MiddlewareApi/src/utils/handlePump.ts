@@ -1,10 +1,10 @@
 import { aggregateArray } from './commonTools.js'
 
 const humidityUpperThreshold = 60
-const humidityLowerThreshold = 40
 const soilMoistureUpperThreshold = 75
-const soilMoistureLowerThreshold = 50
 const rainLowerThreshold = 30
+// const humidityLowerThreshold = 40
+// const soilMoistureLowerThreshold = 50
 
 export function pumpFunc(predictedData: any) {
   let rain = []
