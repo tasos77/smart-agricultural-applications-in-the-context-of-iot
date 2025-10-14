@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  middleware_server:
+    build: ./MiddlewareApi
+    restart: always
+    container_name: mid_server
+    ports:
+      - 3005:3005
+  frontend_app:
+    build: ./WebApp
+    restart: always
+    container_name: frontend_app
+    ports:
+      - 3000:3000

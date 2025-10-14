@@ -146,8 +146,8 @@ curl -X POST http://127.0.0.1:5000/predict -H "Content-Type:application/json" -d
 ```
 
 > [!NOTE]
-> You could use the docker engine in order to run the some of the components.
-> Simply nagivate into each folder that contains a docke-compose file and type
+> You could use the docker engine in order to run some of the components.
+> Simply nagivate into root folder that contains the docke-compose file and type
 >
 > ```
 > docker-compose up -d
